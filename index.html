@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pokémon 1v1 Pixel Arena - All 18 Types</title>
+  <title>Pokémon 1v1 Pixel Arena</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     :root {
@@ -98,13 +98,13 @@
 <body>
 
   <h1>Pokémon 1v1 Pixel Arena</h1>
-  <p class="subtitle">18 Unique Elemental Types • Fast & Charged Moves • Real-Time WebRTC Battles</p>
+  <p class="subtitle">Draft 6 unique Pokémon • Fast & Charged Moves • 5-Turn Switch Cooldown</p>
 
   <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
     <div class="lobby-block">
       <h3>Host Online Room</h3>
-      <p style="color:var(--text-muted); font-size:0.85rem; margin:6px 0 12px;">Create a battle room and share the room code with your friend.</p>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin:6px 0 12px;">Create a room and share the room code with your friend.</p>
       <button class="btn" onclick="hostRoom()">Create Room</button>
       <div id="host-info" class="hidden" style="margin-top:12px;">
         <p>Room Code: <span id="my-peer-id" class="code-tag">...</span></p>
@@ -198,29 +198,16 @@
   </div>
 
   <script>
-    // ALL 18 POKÉMON TYPES WITH COLOR BADGES
+    // 18 TYPES & COLORS
     const TYPE_COLORS = {
-      Normal: '#9ca3af',
-      Fire: '#f97316',
-      Water: '#0ea5e9',
-      Grass: '#22c55e',
-      Electric: '#eab308',
-      Ice: '#38bdf8',
-      Fighting: '#b91c1c',
-      Poison: '#a855f7',
-      Ground: '#ca8a04',
-      Flying: '#818cf8',
-      Psychic: '#ec4899',
-      Bug: '#84cc16',
-      Rock: '#78716c',
-      Ghost: '#6366f1',
-      Dragon: '#7c3aed',
-      Steel: '#64748b',
-      Dark: '#334155',
-      Fairy: '#f472b6'
+      Normal: '#9ca3af', Fire: '#f97316', Water: '#0ea5e9', Grass: '#22c55e',
+      Electric: '#eab308', Ice: '#38bdf8', Fighting: '#b91c1c', Poison: '#a855f7',
+      Ground: '#ca8a04', Flying: '#818cf8', Psychic: '#ec4899', Bug: '#84cc16',
+      Rock: '#78716c', Ghost: '#6366f1', Dragon: '#7c3aed', Steel: '#64748b',
+      Dark: '#334155', Fairy: '#f472b6'
     };
 
-    // COMPLETE 18-TYPE INTERACTION MATRIX [Attacker][Defender]
+    // 18-TYPE EFFECTIVENESS MATRIX
     const TYPE_CHART = {
       Normal:   { Rock: 0.5, Ghost: 0.0, Steel: 0.5 },
       Fire:     { Fire: 0.5, Water: 0.5, Grass: 2.0, Ice: 2.0, Bug: 2.0, Rock: 0.5, Dragon: 0.5, Steel: 2.0 },
@@ -244,7 +231,7 @@
 
     const SPRITE_URL = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
-    // 18 BALANCED POKÉMON (1 REPRESENTATIVE PER ELEMENTAL TYPE)
+    // 18 POKÉMON ROSTER
     const POKEDEX = [
       { id: 143, name: "Snorlax", type: "Normal", hp: 200, atk: 26, def: 20, sprite: SPRITE_URL(143), fastMove: { name: "Body Slam", type: "Normal", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Hyper Beam", type: "Normal", minDmg: 85, maxDmg: 100 } },
       { id: 6, name: "Charizard", type: "Fire", hp: 160, atk: 28, def: 18, sprite: SPRITE_URL(6), fastMove: { name: "Fire Spin", type: "Fire", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Blast Burn", type: "Fire", minDmg: 88, maxDmg: 100 } },
@@ -279,6 +266,10 @@
     let p1ActiveIdx = 0;
     let p2ActiveIdx = 0;
     let activeTurn = 'p1';
+
+    // SWITCH COOLDOWN COUNTERS (5 MOVES)
+    let p1SwitchCooldown = 0;
+    let p2SwitchCooldown = 0;
 
     // AUTO-JOIN VIA URL HASH
     window.addEventListener('load', () => {
@@ -424,7 +415,7 @@
       renderRoster('my-draft-roster', myTeam);
       renderRoster('opp-draft-roster', oppTeam);
 
-      // Show latest roll preview
+      // Latest pick preview
       const allDrafted = isP1Turn ? p2Team : p1Team;
       if (allDrafted.length > 0) {
         const last = allDrafted[allDrafted.length - 1];
@@ -460,6 +451,8 @@
       document.getElementById('screen-battle').classList.remove('hidden');
       p1ActiveIdx = 0;
       p2ActiveIdx = 0;
+      p1SwitchCooldown = 0;
+      p2SwitchCooldown = 0;
       activeTurn = 'p1';
       log("⚔️ Battle started! Teams locked in.", "crit");
       updateBattleUI();
@@ -479,7 +472,7 @@
       const myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
       const oppActive = myRole === 'p1' ? p2Team[p2ActiveIdx] : p1Team[p1ActiveIdx];
 
-      // Update Player Active UI
+      // Update Player UI
       document.getElementById('my-active-sprite').src = myActive.sprite;
       document.getElementById('my-active-name').innerText = `You: ${myActive.name}`;
       const myType = document.getElementById('my-active-type');
@@ -497,7 +490,7 @@
       document.getElementById('my-energy-text').innerText = `Charge: ${myActive.energy}/3`;
       renderRoster('my-bench', myRole === 'p1' ? p1Team : p2Team, myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx);
 
-      // Update Opponent Active UI
+      // Update Opponent UI
       document.getElementById('opp-active-sprite').src = oppActive.sprite;
       document.getElementById('opp-active-name').innerText = `${isAiMode ? 'AI' : 'Opponent'}: ${oppActive.name}`;
       const oppType = document.getElementById('opp-active-type');
@@ -523,9 +516,20 @@
       const switchBtn = document.getElementById('btn-switch');
       moveContainer.innerHTML = '';
 
+      const myCooldown = myRole === 'p1' ? p1SwitchCooldown : p2SwitchCooldown;
+
       if (isMyTurn) {
         prompt.innerText = "Your turn - Select attack or switch:";
-        switchBtn.disabled = false;
+        
+        // Cooldown button state
+        if (myCooldown > 0) {
+          switchBtn.disabled = true;
+          switchBtn.innerText = `Switch Cooldown (${myCooldown} moves)`;
+        } else {
+          switchBtn.disabled = false;
+          switchBtn.innerText = "Switch Pokémon";
+        }
+
         const myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
 
         // Fast Attack
@@ -570,14 +574,21 @@
       const targetRole = isP1 ? 'p2' : 'p1';
 
       if (actionType === 'SWITCH') {
-        if (actorRole === 'p1') p1ActiveIdx = data.newIndex;
-        else p2ActiveIdx = data.newIndex;
+        if (actorRole === 'p1') {
+          p1ActiveIdx = data.newIndex;
+          if (!data.isForced) p1SwitchCooldown = 5; // 5-move switch cooldown
+        } else {
+          p2ActiveIdx = data.newIndex;
+          if (!data.isForced) p2SwitchCooldown = 5; // 5-move switch cooldown
+        }
 
         const switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         log(`${actorRole === myRole ? 'You' : 'Opponent'} switched to ${switchedPoke.name}!`);
         updateBattleUI();
 
-        if (!data.isForced) activeTurn = targetRole;
+        if (!data.isForced) {
+          activeTurn = targetRole;
+        }
         startTurn();
         return;
       }
@@ -586,6 +597,10 @@
         const attacker = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         const defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         const move = data.moveType === 'charged' ? attacker.chargedMove : attacker.fastMove;
+
+        // Decrement cooldowns on move execution
+        if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
+        if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
 
         // Base Damage calculation
         const baseDmg = Math.floor(Math.random() * (move.maxDmg - move.minDmg + 1)) + move.minDmg;
@@ -655,13 +670,14 @@
         return;
       }
 
-      // Prompt human player
+      // Strict Rule: ONLY the fainted player switches; surviving player waits
       activeTurn = faintedRole;
       if (faintedRole === myRole) {
         promptSwitch(true);
       } else {
         document.getElementById('action-prompt').innerText = "Opponent is choosing replacement Pokémon...";
         document.getElementById('move-container').innerHTML = '';
+        document.getElementById('btn-switch').disabled = true;
       }
     }
 
