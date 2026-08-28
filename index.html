@@ -153,6 +153,7 @@
   <h1>Pokémon 1v1 Arena</h1>
   <p class="subtitle">6 random Pokemons decides who wins it all!</p>
 
+ <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
     <div class="lobby-block">
       <h3>Host Match</h3>
@@ -168,4 +169,10 @@
 
     <div class="lobby-block">
       <h3>Join Match</h3>
-      <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 1
+      <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Enter 6-digit code:</p>
+      <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
+      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="window.joinRoom()">Join Match</button>
+    </div>
+
+    <button class="btn btn-secondary" onclick="window.startSinglePlayer()">Practice vs. AI</button>
+  </div>
