@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Pokémon 1v1 Arena</title>
+  <title>Pokémon 1v1 Arena - Fully Evolved Kanto</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -142,19 +142,19 @@
   <div id="flash-overlay"></div>
 
   <h1>Pokémon 1v1 Arena</h1>
-  <p class="subtitle">Classic Perspective • Mega Evolution • 8-Bit Synthesized SFX</p>
+  <p class="subtitle">Fully Evolved Kanto Roster • Mega Evolution • Fast & Charged Moves</p>
 
   <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
     <div class="lobby-block">
       <h3>Host Match</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Get a room code or instant link to share.</p>
-      <button id="btn-create-room" class="btn" onclick="window.hostRoom()">Create Room</button>
+      <button id="btn-create-room" class="btn" onclick="hostRoom()">Create Room</button>
       <div id="host-info" class="hidden" style="margin-top:10px;">
         <p style="font-size:0.85rem;">Room Code:</p>
         <span id="my-peer-id" class="code-tag">CONNECTING...</span>
         <br />
-        <button id="btn-copy-link" class="btn btn-secondary" style="margin: 6px auto; width: auto; font-size:0.8rem; padding:6px 14px;" onclick="window.copyInviteLink()">📋 Copy Invite Link</button>
+        <button id="btn-copy-link" class="btn btn-secondary" style="margin: 6px auto; width: auto; font-size:0.8rem; padding:6px 14px;" onclick="copyInviteLink()">📋 Copy Invite Link</button>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Waiting for opponent to connect...</p>
       </div>
     </div>
@@ -163,20 +163,20 @@
       <h3>Join Match</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Enter 6-digit code:</p>
       <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
-      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="window.joinRoom()">Join Match</button>
+      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="joinRoom()">Join Match</button>
     </div>
 
-    <button id="btn-singleplayer" class="btn btn-secondary" onclick="window.startSinglePlayer()">Practice vs. AI</button>
+    <button id="btn-singleplayer" class="btn btn-secondary" onclick="startSinglePlayer()">Practice vs. AI</button>
   </div>
 
   <!-- DRAFT SCREEN -->
   <div id="screen-draft" class="panel hidden">
     <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
-    <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 Pokémon. 1 Re-Roll allowed!</p>
+    <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 fully evolved Pokémon. 1 Re-Roll allowed!</p>
 
     <div style="display:flex; gap:8px;">
-      <button id="btn-roll-all" class="btn" onclick="window.triggerOneClickRoll()">🎲 Roll All 6</button>
-      <button id="btn-reroll" class="btn btn-secondary hidden" onclick="window.triggerReroll()">🔄 Re-Roll (1 Left)</button>
+      <button id="btn-roll-all" class="btn" onclick="triggerOneClickRoll()">🎲 Roll All 6</button>
+      <button id="btn-reroll" class="btn btn-secondary hidden" onclick="triggerReroll()">🔄 Re-Roll (1 Left)</button>
     </div>
 
     <h3 style="margin-top:16px; font-size:0.9rem;">Your Team</h3>
@@ -244,14 +244,13 @@
       <div class="action-grid" id="move-container"></div>
       
       <div style="display:flex; gap:8px; margin-top:8px;">
-        <button id="btn-mega" class="btn btn-mega hidden" onclick="window.triggerMegaEvolution()">🧬 Mega Evolve (1 Left)</button>
-        <button id="btn-switch" class="btn btn-secondary" onclick="window.promptSwitch(false)">Switch Pokémon</button>
+        <button id="btn-mega" class="btn btn-mega hidden" onclick="triggerMegaEvolution()">🧬 Mega Evolve (1 Left)</button>
+        <button id="btn-switch" class="btn btn-secondary" onclick="promptSwitch(false)">Switch Pokémon</button>
       </div>
     </div>
   </div>
 
   <script>
-    // TYPES & DATA
     const TYPE_COLORS = {
       Normal: '#9ca3af', Fire: '#f97316', Water: '#0ea5e9', Grass: '#22c55e',
       Electric: '#eab308', Ice: '#38bdf8', Fighting: '#b91c1c', Poison: '#a855f7',
@@ -284,28 +283,124 @@
     const FRONT_SPRITE = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
     const BACK_SPRITE = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${id}.png`;
 
-    const POKEDEX = [
-      { id: 143, name: "Snorlax", type: "Normal", hp: 200, atk: 26, def: 20, canMega: false, fastMove: { name: "Body Slam", type: "Normal", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Hyper Beam", type: "Normal", minDmg: 85, maxDmg: 100 } },
-      { id: 6, name: "Charizard", type: "Fire", hp: 160, atk: 28, def: 18, canMega: true, fastMove: { name: "Fire Spin", type: "Fire", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Blast Burn", type: "Fire", minDmg: 88, maxDmg: 100 } },
-      { id: 9, name: "Blastoise", type: "Water", hp: 175, atk: 24, def: 24, canMega: true, fastMove: { name: "Water Gun", type: "Water", minDmg: 20, maxDmg: 26 }, chargedMove: { name: "Hydro Cannon", type: "Water", minDmg: 82, maxDmg: 96 } },
-      { id: 3, name: "Venusaur", type: "Grass", hp: 170, atk: 25, def: 22, canMega: true, fastMove: { name: "Vine Whip", type: "Grass", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Frenzy Plant", type: "Grass", minDmg: 85, maxDmg: 98 } },
-      { id: 25, name: "Pikachu", type: "Electric", hp: 140, atk: 31, def: 15, canMega: false, fastMove: { name: "Thunder Shock", type: "Electric", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Volt Tackle", type: "Electric", minDmg: 90, maxDmg: 100 } },
-      { id: 131, name: "Lapras", type: "Ice", hp: 185, atk: 24, def: 22, canMega: false, fastMove: { name: "Frost Breath", type: "Ice", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Blizzard", type: "Ice", minDmg: 85, maxDmg: 98 } },
-      { id: 68, name: "Machamp", type: "Fighting", hp: 165, atk: 32, def: 20, canMega: false, fastMove: { name: "Counter", type: "Fighting", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Dynamic Punch", type: "Fighting", minDmg: 88, maxDmg: 100 } },
-      { id: 110, name: "Weezing", type: "Poison", hp: 160, atk: 26, def: 24, canMega: false, fastMove: { name: "Sludge Bomb", type: "Poison", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Gunk Shot", type: "Poison", minDmg: 86, maxDmg: 98 } },
-      { id: 112, name: "Rhydon", type: "Ground", hp: 180, atk: 30, def: 24, canMega: false, fastMove: { name: "Mud Slap", type: "Ground", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Earthquake", type: "Ground", minDmg: 90, maxDmg: 100 } },
-      { id: 18, name: "Pidgeot", type: "Flying", hp: 160, atk: 27, def: 19, canMega: true, fastMove: { name: "Air Slash", type: "Flying", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Brave Bird", type: "Flying", minDmg: 88, maxDmg: 100 } },
-      { id: 65, name: "Alakazam", type: "Psychic", hp: 135, atk: 34, def: 14, canMega: true, fastMove: { name: "Psycho Cut", type: "Psychic", minDmg: 25, maxDmg: 30 }, chargedMove: { name: "Psychic", type: "Psychic", minDmg: 90, maxDmg: 100 } },
-      { id: 127, name: "Pinsir", type: "Bug", hp: 150, atk: 32, def: 21, canMega: true, fastMove: { name: "Bug Bite", type: "Bug", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "X-Scissor", type: "Bug", minDmg: 84, maxDmg: 96 } },
-      { id: 76, name: "Golem", type: "Rock", hp: 165, atk: 29, def: 26, canMega: false, fastMove: { name: "Rock Throw", type: "Rock", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Stone Edge", type: "Rock", minDmg: 88, maxDmg: 100 } },
-      { id: 94, name: "Gengar", type: "Ghost", hp: 140, atk: 33, def: 16, canMega: true, fastMove: { name: "Shadow Claw", type: "Ghost", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Shadow Ball", type: "Ghost", minDmg: 88, maxDmg: 100 } },
-      { id: 149, name: "Dragonite", type: "Dragon", hp: 175, atk: 31, def: 21, canMega: false, fastMove: { name: "Dragon Breath", type: "Dragon", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Draco Meteor", type: "Dragon", minDmg: 90, maxDmg: 100 } },
-      { id: 208, name: "Steelix", type: "Steel", hp: 170, atk: 25, def: 30, canMega: true, fastMove: { name: "Iron Tail", type: "Steel", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Flash Cannon", type: "Steel", minDmg: 82, maxDmg: 95 } },
-      { id: 197, name: "Umbreon", type: "Dark", hp: 180, atk: 23, def: 26, canMega: false, fastMove: { name: "Feint Attack", type: "Dark", minDmg: 20, maxDmg: 26 }, chargedMove: { name: "Dark Pulse", type: "Dark", minDmg: 84, maxDmg: 96 } },
-      { id: 36, name: "Clefable", type: "Fairy", hp: 175, atk: 26, def: 21, canMega: false, fastMove: { name: "Fairy Wind", type: "Fairy", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Moonblast", type: "Fairy", minDmg: 86, maxDmg: 98 } }
+    const TYPE_MOVES = {
+      Normal:   { fast: "Body Slam", charged: "Hyper Beam" },
+      Fire:     { fast: "Fire Spin", charged: "Blast Burn" },
+      Water:    { fast: "Water Gun", charged: "Hydro Cannon" },
+      Grass:    { fast: "Vine Whip", charged: "Frenzy Plant" },
+      Electric: { fast: "Thunder Shock", charged: "Volt Tackle" },
+      Ice:      { fast: "Frost Breath", charged: "Blizzard" },
+      Fighting: { fast: "Counter", charged: "Dynamic Punch" },
+      Poison:   { fast: "Sludge Bomb", charged: "Gunk Shot" },
+      Ground:   { fast: "Mud Slap", charged: "Earthquake" },
+      Flying:   { fast: "Air Slash", charged: "Brave Bird" },
+      Psychic:  { fast: "Psycho Cut", charged: "Psychic" },
+      Bug:      { fast: "Bug Bite", charged: "X-Scissor" },
+      Rock:     { fast: "Rock Throw", charged: "Stone Edge" },
+      Ghost:    { fast: "Shadow Claw", charged: "Shadow Ball" },
+      Dragon:   { fast: "Dragon Breath", charged: "Draco Meteor" },
+      Steel:    { fast: "Iron Tail", charged: "Flash Cannon" },
+      Dark:     { fast: "Feint Attack", charged: "Dark Pulse" },
+      Fairy:    { fast: "Fairy Wind", charged: "Moonblast" }
+    };
+
+    // STRICTLY MAX-EVOLVED & SINGLE-STAGE KANTO SPECIES (65 TOTAL)
+    const MAX_EVO_KANTO = [
+      [3, "Venusaur", "Grass", 180, 28, 24, 1],
+      [6, "Charizard", "Fire", 175, 30, 22, 1],
+      [9, "Blastoise", "Water", 185, 26, 26, 1],
+      [12, "Butterfree", "Bug", 160, 25, 21],
+      [15, "Beedrill", "Bug", 160, 30, 19, 1],
+      [18, "Pidgeot", "Flying", 175, 28, 22, 1],
+      [20, "Raticate", "Normal", 160, 27, 21],
+      [22, "Fearow", "Flying", 165, 28, 21],
+      [24, "Arbok", "Poison", 170, 27, 23],
+      [26, "Raichu", "Electric", 170, 30, 20],
+      [28, "Sandslash", "Ground", 175, 28, 26],
+      [31, "Nidoqueen", "Poison", 185, 28, 25],
+      [34, "Nidoking", "Poison", 185, 29, 24],
+      [36, "Clefable", "Fairy", 185, 26, 23],
+      [38, "Ninetales", "Fire", 170, 27, 24],
+      [40, "Wigglytuff", "Normal", 210, 24, 19],
+      [42, "Golbat", "Poison", 170, 26, 22],
+      [45, "Vileplume", "Grass", 180, 28, 24],
+      [47, "Parasect", "Bug", 165, 28, 24],
+      [49, "Venomoth", "Bug", 170, 27, 21],
+      [51, "Dugtrio", "Ground", 150, 29, 18],
+      [53, "Persian", "Normal", 165, 26, 20],
+      [55, "Golduck", "Water", 175, 28, 23],
+      [57, "Primeape", "Fighting", 170, 30, 20],
+      [59, "Arcanine", "Fire", 190, 31, 24],
+      [62, "Poliwrath", "Water", 185, 28, 26],
+      [65, "Alakazam", "Psychic", 165, 35, 18, 1],
+      [68, "Machamp", "Fighting", 190, 32, 25],
+      [71, "Victreebel", "Grass", 180, 30, 22],
+      [73, "Tentacruel", "Water", 175, 26, 27],
+      [76, "Golem", "Rock", 180, 30, 30],
+      [78, "Rapidash", "Fire", 170, 29, 22],
+      [80, "Slowbro", "Water", 190, 27, 27, 1],
+      [82, "Magneton", "Electric", 165, 29, 26],
+      [83, "Farfetch'd", "Normal", 155, 26, 20],
+      [85, "Dodrio", "Flying", 170, 30, 21],
+      [87, "Dewgong", "Water", 180, 25, 25],
+      [89, "Muk", "Poison", 195, 29, 24],
+      [91, "Cloyster", "Water", 165, 28, 34],
+      [94, "Gengar", "Ghost", 170, 33, 21, 1],
+      [95, "Onix", "Rock", 160, 22, 32],
+      [97, "Hypno", "Psychic", 180, 26, 25],
+      [99, "Kingler", "Water", 170, 32, 27],
+      [101, "Electrode", "Electric", 165, 26, 22],
+      [103, "Exeggutor", "Grass", 185, 29, 24],
+      [105, "Marowak", "Ground", 170, 26, 27],
+      [106, "Hitmonlee", "Fighting", 165, 32, 20],
+      [107, "Hitmonchan", "Fighting", 165, 29, 24],
+      [108, "Lickitung", "Normal", 180, 24, 23],
+      [110, "Weezing", "Poison", 175, 27, 27],
+      [112, "Rhydon", "Ground", 195, 31, 27],
+      [113, "Chansey", "Normal", 240, 18, 16],
+      [114, "Tangela", "Grass", 165, 25, 27],
+      [115, "Kangaskhan", "Normal", 190, 28, 24, 1],
+      [117, "Seadra", "Water", 165, 27, 24],
+      [119, "Seaking", "Water", 170, 27, 21],
+      [121, "Starmie", "Water", 170, 28, 24],
+      [122, "Mr. Mime", "Psychic", 160, 26, 26],
+      [123, "Scyther", "Bug", 175, 30, 23],
+      [124, "Jynx", "Ice", 165, 29, 18],
+      [125, "Electabuzz", "Electric", 175, 29, 20],
+      [126, "Magmar", "Fire", 175, 30, 20],
+      [127, "Pinsir", "Bug", 175, 31, 25, 1],
+      [128, "Tauros", "Normal", 180, 29, 25],
+      [130, "Gyarados", "Water", 190, 32, 24, 1],
+      [131, "Lapras", "Ice", 205, 26, 24],
+      [132, "Ditto", "Normal", 155, 25, 22],
+      [134, "Vaporeon", "Water", 205, 28, 22],
+      [135, "Jolteon", "Electric", 165, 30, 21],
+      [136, "Flareon", "Fire", 165, 32, 22],
+      [137, "Porygon", "Normal", 160, 25, 22],
+      [139, "Omastar", "Rock", 175, 28, 29],
+      [141, "Kabutops", "Rock", 175, 31, 26],
+      [142, "Aerodactyl", "Rock", 175, 30, 22, 1],
+      [143, "Snorlax", "Normal", 225, 28, 22],
+      [144, "Articuno", "Ice", 190, 28, 27],
+      [145, "Zapdos", "Electric", 190, 31, 24],
+      [146, "Moltres", "Fire", 190, 31, 24],
+      [149, "Dragonite", "Dragon", 195, 32, 26],
+      [150, "Mewtwo", "Psychic", 200, 36, 26, 1],
+      [151, "Mew", "Psychic", 190, 29, 29]
     ];
 
-    // GLOBAL VARIABLES
+    const POKEDEX = MAX_EVO_KANTO.map(([id, name, type, hp, atk, def, canMega]) => ({
+      id,
+      name,
+      type,
+      hp,
+      atk,
+      def,
+      canMega: !!canMega,
+      fastMove: { name: TYPE_MOVES[type].fast, type: type, minDmg: 20, maxDmg: 28 },
+      chargedMove: { name: TYPE_MOVES[type].charged, type: type, minDmg: 82, maxDmg: 100 }
+    }));
+
     var peer = null;
     var conn = null;
     var isHost = false;
@@ -397,7 +492,6 @@
       return code;
     }
 
-    // ATTACH CORE FUNCTIONS DIRECTLY TO WINDOW
     window.startSinglePlayer = function() {
       playSound('beep');
       isAiMode = true;
@@ -513,7 +607,7 @@
         updateDraftUI();
         checkDraftCompletion();
       } else if (msg.type === 'BATTLE_ACTION') {
-        executeAction(msg.payload.action, msg.payload.data, false);
+        applyActionLocally(msg.payload.action, msg.payload.data);
       }
     }
 
@@ -715,7 +809,7 @@
         var fastBtn = document.createElement('button');
         fastBtn.className = 'move-btn';
         fastBtn.innerHTML = '<strong>⚡ ' + myActive.fastMove.name + '</strong><span class="move-info">Fast | +1 Charge</span>';
-        fastBtn.onclick = function() { executeAction('MOVE', { moveType: 'fast' }, true); };
+        fastBtn.onclick = function() { executeMoveLocally('fast'); };
         moveContainer.appendChild(fastBtn);
 
         var chargedBtn = document.createElement('button');
@@ -723,7 +817,7 @@
         chargedBtn.className = 'move-btn charged';
         chargedBtn.disabled = !isChargedReady;
         chargedBtn.innerHTML = '<strong>💥 ' + myActive.chargedMove.name + '</strong><span class="move-info">Charged | ' + (isChargedReady ? 'READY!' : '(Need ' + (3 - myActive.energy) + ')') + '</span>';
-        chargedBtn.onclick = function() { executeAction('MOVE', { moveType: 'charged' }, true); };
+        chargedBtn.onclick = function() { executeMoveLocally('charged'); };
         moveContainer.appendChild(chargedBtn);
 
       } else {
@@ -737,16 +831,47 @@
       }
     }
 
-    window.triggerMegaEvolution = function() {
-      playSound('beep');
-      executeAction('MEGA', {}, true);
-    };
+    function executeMoveLocally(moveType) {
+      var isP1 = activeTurn === 'p1';
+      var attacker = isP1 ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var defender = isP1 ? p2Team[p2ActiveIdx] : p1Team[p1ActiveIdx];
+      var move = moveType === 'charged' ? attacker.chargedMove : attacker.fastMove;
 
-    function executeAction(actionType, data, isOriginator) {
-      if (isOriginator && !isAiMode) {
-        sendNet('BATTLE_ACTION', { action: actionType, data: data });
+      var baseDmg = Math.floor(Math.random() * (move.maxDmg - move.minDmg + 1)) + move.minDmg;
+      var mult = 1.0;
+      if (TYPE_CHART[move.type] && TYPE_CHART[move.type][defender.type] !== undefined) {
+        mult = TYPE_CHART[move.type][defender.type];
       }
 
+      var damage = 0;
+      if (mult > 0) {
+        var rawDmg = ((attacker.atk / defender.def) * baseDmg * 0.75) * mult;
+        var resistance = defender.isMega ? 0.75 : 1.0;
+        damage = Math.max(5, Math.round(rawDmg * resistance));
+      }
+
+      var actionData = {
+        moveType: moveType,
+        damage: damage,
+        mult: mult,
+        moveColor: TYPE_COLORS[move.type] || 'white'
+      };
+
+      if (!isAiMode) {
+        sendNet('BATTLE_ACTION', { action: 'MOVE', data: actionData });
+      }
+      applyActionLocally('MOVE', actionData);
+    }
+
+    window.triggerMegaEvolution = function() {
+      playSound('beep');
+      if (!isAiMode) {
+        sendNet('BATTLE_ACTION', { action: 'MEGA', data: {} });
+      }
+      applyActionLocally('MEGA', {});
+    };
+
+    function applyActionLocally(actionType, data) {
       var isP1 = activeTurn === 'p1';
       var actorRole = activeTurn;
       var targetRole = isP1 ? 'p2' : 'p1';
@@ -792,25 +917,13 @@
       if (actionType === 'MOVE') {
         var attacker = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         var defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
-        var move = data.moveType === 'charged' ? attacker.chargedMove : attacker.fastMove;
         var targetCardId = targetRole === myRole ? 'me-card' : 'opp-card';
 
         if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
         if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
 
-        var baseDmg = Math.floor(Math.random() * (move.maxDmg - move.minDmg + 1)) + move.minDmg;
-
-        var mult = 1.0;
-        if (TYPE_CHART[move.type] && TYPE_CHART[move.type][defender.type] !== undefined) {
-          mult = TYPE_CHART[move.type][defender.type];
-        }
-
-        var damage = 0;
-        if (mult > 0) {
-          var rawDmg = ((attacker.atk / defender.def) * baseDmg * 0.75) * mult;
-          var resistance = defender.isMega ? 0.75 : 1.0;
-          damage = Math.max(5, Math.round(rawDmg * resistance));
-        }
+        var damage = data.damage;
+        var mult = data.mult;
 
         defender.currentHp = Math.max(0, defender.currentHp - damage);
 
@@ -823,7 +936,7 @@
           attacker.energy = 0;
           playSound('charged');
           triggerHaptics([60, 40, 80]);
-          triggerScreenFlash(TYPE_COLORS[move.type] || 'white');
+          triggerScreenFlash(data.moveColor);
           triggerShake(targetCardId);
         }
 
@@ -892,7 +1005,11 @@
           btn.className = 'move-btn';
           btn.innerHTML = '<strong>' + p.name + (p.isMega ? ' 🧬' : '') + '</strong><span class="move-info">HP: ' + p.currentHp + '/' + p.maxHp + ' | ⚡ ' + p.energy + '/3</span>';
           btn.onclick = function() {
-            executeAction('SWITCH', { newIndex: idx, isForced: forced }, true);
+            var actionData = { newIndex: idx, isForced: forced };
+            if (!isAiMode) {
+              sendNet('BATTLE_ACTION', { action: 'SWITCH', data: actionData });
+            }
+            applyActionLocally('SWITCH', actionData);
           };
           container.appendChild(btn);
         }
@@ -902,17 +1019,16 @@
     function aiTakeTurn() {
       var aiPoke = p2Team[p2ActiveIdx];
       if (p2HasMegaStone && aiPoke.canMega && !aiPoke.isMega) {
-        executeAction('MEGA', {}, true);
+        applyActionLocally('MEGA', {});
         return;
       }
       if (aiPoke.energy >= 3) {
-        executeAction('MOVE', { moveType: 'charged' }, true);
+        executeMoveLocally('charged');
       } else {
-        executeAction('MOVE', { moveType: 'fast' }, true);
+        executeMoveLocally('fast');
       }
     }
 
-    // AUTO-JOIN VIA HASH
     window.addEventListener('load', function() {
       var hash = window.location.hash.substring(1).toUpperCase().trim();
       if (hash && hash.length === 6) {
