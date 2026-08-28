@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pokémon 1v1 Arena</title>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <!-- Stable PeerJS CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
   <style>
     :root {
       --bg: #0b1120;
@@ -124,14 +125,15 @@
   <h1>Pokémon 1v1 Arena</h1>
   <p class="subtitle">Draft 6 in 1-Click • Fast & Charged Moves • 5-Move Switch Cooldown</p>
 
+  <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
     <div class="lobby-block">
       <h3>Host Online Room</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Get a 6-digit room code to share.</p>
-      <button id="btn-create-room" class="btn" onclick="hostRoom()">Create Room</button>
+      <button id="btn-create-room" class="btn" onclick="window.hostRoom()">Create Room</button>
       <div id="host-info" class="hidden" style="margin-top:10px;">
         <p style="font-size:0.85rem;">Room Code:</p>
-        <span id="my-peer-id" class="code-tag">GENERATING...</span>
+        <span id="my-peer-id" class="code-tag">CONNECTING...</span>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Waiting for opponent to connect...</p>
       </div>
     </div>
@@ -140,17 +142,18 @@
       <h3>Join Room</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Enter 6-digit code:</p>
       <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
-      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="joinRoom()">Join Match</button>
+      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="window.joinRoom()">Join Match</button>
     </div>
 
-    <button class="btn btn-secondary" onclick="startSinglePlayer()">Practice vs. AI</button>
+    <button class="btn btn-secondary" onclick="window.startSinglePlayer()">Practice vs. AI</button>
   </div>
 
+  <!-- DRAFT SCREEN -->
   <div id="screen-draft" class="panel hidden">
     <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
     <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 Pokémon with one click.</p>
 
-    <button id="btn-roll-all" class="btn" onclick="triggerOneClickRoll()">🎲 Roll All 6 Pokémon</button>
+    <button id="btn-roll-all" class="btn" onclick="window.triggerOneClickRoll()">🎲 Roll All 6 Pokémon</button>
 
     <h3 style="margin-top:16px; font-size:0.9rem;">Your Team</h3>
     <div id="my-draft-roster" class="roster-grid"></div>
@@ -159,7 +162,594 @@
     <div id="opp-draft-roster" class="roster-grid"></div>
   </div>
 
+  <!-- BATTLE SCREEN -->
   <div id="screen-battle" class="panel hidden">
+    <!-- Popup Notification Layer -->
     <div id="popup-layer" class="popup-container"></div>
 
     <div class="battle-arena">
+      <!-- Opponent Card -->
+      <div class="fighter-card opp">
+        <div class="fighter-header">
+          <img id="opp-active-sprite" class="pixel-art" src="" alt="Opponent" />
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 id="opp-active-name" style="font-size:0.95rem;">Opponent: ---</h3>
+              <span id="opp-active-type" class="type-badge">TYPE</span>
+            </div>
+            <div class="hp-bar-bg"><div id="opp-hp-fill" class="hp-bar-fill"></div></div>
+            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
+              <span id="opp-hp-text">HP: 100/100</span>
+              <span id="opp-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
+            </p>
+            <div class="energy-bar-bg"><div id="opp-energy-fill" class="energy-bar-fill"></div></div>
+          </div>
+        </div>
+        <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
+      </div>
+
+      <!-- Player Card -->
+      <div class="fighter-card me">
+        <div class="fighter-header">
+          <img id="my-active-sprite" class="pixel-art" src="" alt="You" />
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 id="my-active-name" style="font-size:0.95rem;">You: ---</h3>
+              <span id="my-active-type" class="type-badge">TYPE</span>
+            </div>
+            <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
+            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
+              <span id="my-hp-text">HP: 100/100</span>
+              <span id="my-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
+            </p>
+            <div class="energy-bar-bg"><div id="my-energy-fill" class="energy-bar-fill"></div></div>
+          </div>
+        </div>
+        <div id="my-bench" class="roster-grid" style="margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <!-- Battle Actions -->
+    <div id="battle-controls" style="margin-top:8px;">
+      <h4 id="action-prompt" style="font-size:0.85rem; color:var(--text-muted); text-align:center;">Your Turn:</h4>
+      <div class="action-grid" id="move-container"></div>
+      <button id="btn-switch" class="btn btn-secondary" style="margin-top:8px;" onclick="window.promptSwitch(false)">Switch Pokémon</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // TYPES & EFFECTIVENESS MATRIX
+      const TYPE_COLORS = {
+        Normal: '#9ca3af', Fire: '#f97316', Water: '#0ea5e9', Grass: '#22c55e',
+        Electric: '#eab308', Ice: '#38bdf8', Fighting: '#b91c1c', Poison: '#a855f7',
+        Ground: '#ca8a04', Flying: '#818cf8', Psychic: '#ec4899', Bug: '#84cc16',
+        Rock: '#78716c', Ghost: '#6366f1', Dragon: '#7c3aed', Steel: '#64748b',
+        Dark: '#334155', Fairy: '#f472b6'
+      };
+
+      const TYPE_CHART = {
+        Normal:   { Rock: 0.5, Ghost: 0.0, Steel: 0.5 },
+        Fire:     { Fire: 0.5, Water: 0.5, Grass: 2.0, Ice: 2.0, Bug: 2.0, Rock: 0.5, Dragon: 0.5, Steel: 2.0 },
+        Water:    { Fire: 2.0, Water: 0.5, Grass: 0.5, Ground: 2.0, Rock: 2.0, Dragon: 0.5 },
+        Grass:    { Fire: 0.5, Water: 2.0, Grass: 0.5, Poison: 0.5, Ground: 2.0, Flying: 0.5, Bug: 0.5, Rock: 2.0, Dragon: 0.5, Steel: 0.5 },
+        Electric: { Water: 2.0, Grass: 0.5, Electric: 0.5, Ground: 0.0, Flying: 2.0, Dragon: 0.5 },
+        Ice:      { Fire: 0.5, Water: 0.5, Grass: 2.0, Ice: 0.5, Ground: 2.0, Flying: 2.0, Dragon: 2.0, Steel: 0.5 },
+        Fighting: { Normal: 2.0, Ice: 2.0, Poison: 0.5, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 2.0, Ghost: 0.0, Dark: 2.0, Steel: 2.0, Fairy: 0.5 },
+        Poison:   { Grass: 2.0, Poison: 0.5, Ground: 0.5, Rock: 0.5, Ghost: 0.5, Steel: 0.0, Fairy: 2.0 },
+        Ground:   { Fire: 2.0, Grass: 0.5, Electric: 2.0, Poison: 2.0, Flying: 0.0, Bug: 0.5, Rock: 2.0, Steel: 2.0 },
+        Flying:   { Grass: 2.0, Electric: 0.5, Fighting: 2.0, Bug: 2.0, Rock: 0.5, Steel: 0.5 },
+        Psychic:  { Fighting: 2.0, Poison: 2.0, Psychic: 0.5, Dark: 0.0, Steel: 0.5 },
+        Bug:      { Fire: 0.5, Grass: 2.0, Fighting: 0.5, Poison: 0.5, Flying: 0.5, Psychic: 2.0, Ghost: 0.5, Dark: 2.0, Steel: 0.5, Fairy: 0.5 },
+        Rock:     { Fire: 2.0, Ice: 2.0, Fighting: 0.5, Ground: 0.5, Flying: 2.0, Bug: 2.0, Steel: 0.5 },
+        Ghost:    { Normal: 0.0, Psychic: 2.0, Ghost: 2.0, Dark: 0.5 },
+        Dragon:   { Dragon: 2.0, Steel: 0.5, Fairy: 0.0 },
+        Steel:    { Fire: 0.5, Water: 0.5, Electric: 0.5, Ice: 2.0, Rock: 2.0, Steel: 0.5, Fairy: 2.0 },
+        Dark:     { Fighting: 0.5, Psychic: 2.0, Ghost: 2.0, Dark: 0.5, Fairy: 0.5 },
+        Fairy:    { Fire: 0.5, Fighting: 2.0, Poison: 0.5, Dragon: 2.0, Dark: 2.0, Steel: 0.5 }
+      };
+
+      const SPRITE_URL = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+
+      const POKEDEX = [
+        { id: 143, name: "Snorlax", type: "Normal", hp: 200, atk: 26, def: 20, sprite: SPRITE_URL(143), fastMove: { name: "Body Slam", type: "Normal", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Hyper Beam", type: "Normal", minDmg: 85, maxDmg: 100 } },
+        { id: 6, name: "Charizard", type: "Fire", hp: 160, atk: 28, def: 18, sprite: SPRITE_URL(6), fastMove: { name: "Fire Spin", type: "Fire", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Blast Burn", type: "Fire", minDmg: 88, maxDmg: 100 } },
+        { id: 9, name: "Blastoise", type: "Water", hp: 175, atk: 24, def: 24, sprite: SPRITE_URL(9), fastMove: { name: "Water Gun", type: "Water", minDmg: 20, maxDmg: 26 }, chargedMove: { name: "Hydro Cannon", type: "Water", minDmg: 82, maxDmg: 96 } },
+        { id: 3, name: "Venusaur", type: "Grass", hp: 170, atk: 25, def: 22, sprite: SPRITE_URL(3), fastMove: { name: "Vine Whip", type: "Grass", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Frenzy Plant", type: "Grass", minDmg: 85, maxDmg: 98 } },
+        { id: 25, name: "Pikachu", type: "Electric", hp: 140, atk: 31, def: 15, sprite: SPRITE_URL(25), fastMove: { name: "Thunder Shock", type: "Electric", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Volt Tackle", type: "Electric", minDmg: 90, maxDmg: 100 } },
+        { id: 131, name: "Lapras", type: "Ice", hp: 185, atk: 24, def: 22, sprite: SPRITE_URL(131), fastMove: { name: "Frost Breath", type: "Ice", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Blizzard", type: "Ice", minDmg: 85, maxDmg: 98 } },
+        { id: 68, name: "Machamp", type: "Fighting", hp: 165, atk: 32, def: 20, sprite: SPRITE_URL(68), fastMove: { name: "Counter", type: "Fighting", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Dynamic Punch", type: "Fighting", minDmg: 88, maxDmg: 100 } },
+        { id: 110, name: "Weezing", type: "Poison", hp: 160, atk: 26, def: 24, sprite: SPRITE_URL(110), fastMove: { name: "Sludge Bomb", type: "Poison", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Gunk Shot", type: "Poison", minDmg: 86, maxDmg: 98 } },
+        { id: 112, name: "Rhydon", type: "Ground", hp: 180, atk: 30, def: 24, sprite: SPRITE_URL(112), fastMove: { name: "Mud Slap", type: "Ground", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Earthquake", type: "Ground", minDmg: 90, maxDmg: 100 } },
+        { id: 18, name: "Pidgeot", type: "Flying", hp: 160, atk: 27, def: 19, sprite: SPRITE_URL(18), fastMove: { name: "Air Slash", type: "Flying", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Brave Bird", type: "Flying", minDmg: 88, maxDmg: 100 } },
+        { id: 65, name: "Alakazam", type: "Psychic", hp: 135, atk: 34, def: 14, sprite: SPRITE_URL(65), fastMove: { name: "Psycho Cut", type: "Psychic", minDmg: 25, maxDmg: 30 }, chargedMove: { name: "Psychic", type: "Psychic", minDmg: 90, maxDmg: 100 } },
+        { id: 127, name: "Pinsir", type: "Bug", hp: 150, atk: 32, def: 21, sprite: SPRITE_URL(127), fastMove: { name: "Bug Bite", type: "Bug", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "X-Scissor", type: "Bug", minDmg: 84, maxDmg: 96 } },
+        { id: 76, name: "Golem", type: "Rock", hp: 165, atk: 29, def: 26, sprite: SPRITE_URL(76), fastMove: { name: "Rock Throw", type: "Rock", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Stone Edge", type: "Rock", minDmg: 88, maxDmg: 100 } },
+        { id: 94, name: "Gengar", type: "Ghost", hp: 140, atk: 33, def: 16, sprite: SPRITE_URL(94), fastMove: { name: "Shadow Claw", type: "Ghost", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Shadow Ball", type: "Ghost", minDmg: 88, maxDmg: 100 } },
+        { id: 149, name: "Dragonite", type: "Dragon", hp: 175, atk: 31, def: 21, sprite: SPRITE_URL(149), fastMove: { name: "Dragon Breath", type: "Dragon", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Draco Meteor", type: "Dragon", minDmg: 90, maxDmg: 100 } },
+        { id: 208, name: "Steelix", type: "Steel", hp: 170, atk: 25, def: 30, sprite: SPRITE_URL(208), fastMove: { name: "Iron Tail", type: "Steel", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Flash Cannon", type: "Steel", minDmg: 82, maxDmg: 95 } },
+        { id: 197, name: "Umbreon", type: "Dark", hp: 180, atk: 23, def: 26, sprite: SPRITE_URL(197), fastMove: { name: "Feint Attack", type: "Dark", minDmg: 20, maxDmg: 26 }, chargedMove: { name: "Dark Pulse", type: "Dark", minDmg: 84, maxDmg: 96 } },
+        { id: 36, name: "Clefable", type: "Fairy", hp: 175, atk: 26, def: 21, sprite: SPRITE_URL(36), fastMove: { name: "Fairy Wind", type: "Fairy", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Moonblast", type: "Fairy", minDmg: 86, maxDmg: 98 } }
+      ];
+
+      // STATE
+      let peer = null;
+      let conn = null;
+      let isHost = false;
+      let isAiMode = false;
+      let myRole = 'p1';
+
+      let p1Team = [];
+      let p2Team = [];
+      let p1ActiveIdx = 0;
+      let p2ActiveIdx = 0;
+      let activeTurn = 'p1';
+
+      let p1SwitchCooldown = 0;
+      let p2SwitchCooldown = 0;
+
+      const PREFIX = "pk1v-";
+
+      function generate6DigitCode() {
+        const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+        let code = "";
+        for (let i = 0; i < 6; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      }
+
+      function setupConnection() {
+        if (!conn) return;
+        conn.on('open', () => {
+          if (!isHost) startDraftScreen();
+        });
+        conn.on('data', (data) => {
+          handleNetworkData(data);
+        });
+      }
+
+      function sendNet(type, payload) {
+        if (conn && conn.open) {
+          conn.send({ type, payload });
+        }
+      }
+
+      function handleNetworkData(msg) {
+        if (msg.type === 'TEAM_ROLLED') {
+          if (msg.payload.role === 'p1') p1Team = msg.payload.team;
+          else p2Team = msg.payload.team;
+          updateDraftUI();
+          checkDraftCompletion();
+        } else if (msg.type === 'BATTLE_ACTION') {
+          executeAction(msg.payload.action, msg.payload.data, false);
+        }
+      }
+
+      // EXPOSED FUNCTIONS
+      window.hostRoom = function() {
+        isHost = true;
+        myRole = 'p1';
+        document.getElementById('btn-create-room').disabled = true;
+        document.getElementById('host-info').classList.remove('hidden');
+
+        const raw6 = generate6DigitCode();
+        const fullId = PREFIX + raw6.toLowerCase();
+
+        if (typeof Peer === "undefined") {
+          alert("PeerJS library is loading. Please try again in 2 seconds.");
+          document.getElementById('btn-create-room').disabled = false;
+          return;
+        }
+
+        try {
+          if (peer) peer.destroy();
+        } catch(e) {}
+
+        peer = new Peer(fullId);
+
+        peer.on('open', (id) => {
+          const displayCode = id.replace(PREFIX, "").toUpperCase();
+          document.getElementById('my-peer-id').innerText = displayCode;
+        });
+
+        peer.on('connection', (c) => {
+          conn = c;
+          setupConnection();
+          startDraftScreen();
+        });
+
+        peer.on('error', (err) => {
+          console.warn("Peer error, generating fallback ID:", err);
+          const fallback6 = generate6DigitCode();
+          peer = new Peer(PREFIX + fallback6.toLowerCase());
+          peer.on('open', (id) => {
+            document.getElementById('my-peer-id').innerText = id.replace(PREFIX, "").toUpperCase();
+          });
+          peer.on('connection', (c) => {
+            conn = c;
+            setupConnection();
+            startDraftScreen();
+          });
+        });
+      };
+
+      window.joinRoom = function() {
+        const input = document.getElementById('join-id-input').value.trim().toUpperCase();
+        if (input.length !== 6) return alert('Please enter a 6-digit room code.');
+
+        isHost = false;
+        myRole = 'p2';
+        document.getElementById('btn-join-room').disabled = true;
+        document.getElementById('btn-join-room').innerText = "Connecting...";
+
+        if (typeof Peer === "undefined") {
+          alert("PeerJS library is loading. Please try again in 2 seconds.");
+          document.getElementById('btn-join-room').disabled = false;
+          return;
+        }
+
+        try {
+          if (peer) peer.destroy();
+        } catch(e) {}
+
+        peer = new Peer();
+
+        peer.on('open', () => {
+          const targetFullId = PREFIX + input.toLowerCase();
+          conn = peer.connect(targetFullId, { reliable: true });
+          setupConnection();
+        });
+
+        peer.on('error', (err) => {
+          alert("Connection failed. Check code and try again.");
+          document.getElementById('btn-join-room').disabled = false;
+          document.getElementById('btn-join-room').innerText = "Join Match";
+        });
+      };
+
+      window.startSinglePlayer = function() {
+        isAiMode = true;
+        isHost = true;
+        myRole = 'p1';
+        startDraftScreen();
+      };
+
+      function startDraftScreen() {
+        document.getElementById('screen-lobby').classList.add('hidden');
+        document.getElementById('screen-draft').classList.remove('hidden');
+        updateDraftUI();
+      }
+
+      function rollSixUniquePokemon() {
+        const shuffled = [...POKEDEX].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, 6).map(base => ({
+          ...JSON.parse(JSON.stringify(base)),
+          maxHp: base.hp,
+          currentHp: base.hp,
+          energy: 0
+        }));
+      }
+
+      window.triggerOneClickRoll = function() {
+        const myTeam = rollSixUniquePokemon();
+        if (myRole === 'p1') p1Team = myTeam;
+        else p2Team = myTeam;
+
+        document.getElementById('btn-roll-all').disabled = true;
+        document.getElementById('btn-roll-all').innerText = "✅ Team Locked In";
+
+        if (!isAiMode) {
+          sendNet('TEAM_ROLLED', { role: myRole, team: myTeam });
+        } else {
+          p2Team = rollSixUniquePokemon();
+        }
+
+        updateDraftUI();
+        checkDraftCompletion();
+      };
+
+      function checkDraftCompletion() {
+        if (p1Team.length === 6 && p2Team.length === 6) {
+          document.getElementById('draft-status-title').innerText = "Both Teams Ready!";
+          document.getElementById('draft-status-desc').innerText = "Entering Battle Arena...";
+          setTimeout(initBattle, 1200);
+        }
+      }
+
+      function updateDraftUI() {
+        const myTeam = myRole === 'p1' ? p1Team : p2Team;
+        const oppTeam = myRole === 'p1' ? p2Team : p1Team;
+
+        renderRoster('my-draft-roster', myTeam);
+        renderRoster('opp-draft-roster', oppTeam);
+      }
+
+      function renderRoster(elId, team, activeIdx = -1) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.innerHTML = team.map((p, idx) => `
+          <div class="poke-chip ${idx === activeIdx ? 'active' : ''} ${p.currentHp <= 0 ? 'fainted' : ''}">
+            <img src="${p.sprite}" class="pixel-art" alt="${p.name}" />
+            <strong>${p.name}</strong>
+            <span class="type-badge" style="background:${TYPE_COLORS[p.type]}">${p.type}</span>
+            <div style="font-size:0.7rem; margin-top:2px;">${p.currentHp}/${p.maxHp} HP</div>
+          </div>
+        `).join('');
+      }
+
+      function showPopup(text, type = "dmg") {
+        const layer = document.getElementById('popup-layer');
+        if (!layer) return;
+        const badge = document.createElement('div');
+        badge.className = `popup-badge ${type}`;
+        badge.innerText = text;
+        layer.appendChild(badge);
+        setTimeout(() => badge.remove(), 1600);
+      }
+
+      function initBattle() {
+        document.getElementById('screen-draft').classList.add('hidden');
+        document.getElementById('screen-battle').classList.remove('hidden');
+        p1ActiveIdx = 0;
+        p2ActiveIdx = 0;
+        p1SwitchCooldown = 0;
+        p2SwitchCooldown = 0;
+        activeTurn = 'p1';
+        showPopup("⚔️ BATTLE START!", "crit");
+        updateBattleUI();
+        startTurn();
+      }
+
+      function updateBattleUI() {
+        const myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        const oppActive = myRole === 'p1' ? p2Team[p2ActiveIdx] : p1Team[p1ActiveIdx];
+
+        if (!myActive || !oppActive) return;
+
+        // Player UI
+        document.getElementById('my-active-sprite').src = myActive.sprite;
+        document.getElementById('my-active-name').innerText = `You: ${myActive.name}`;
+        const myType = document.getElementById('my-active-type');
+        myType.innerText = myActive.type;
+        myType.style.background = TYPE_COLORS[myActive.type];
+        
+        const myHpPct = Math.max(0, (myActive.currentHp / myActive.maxHp) * 100);
+        const myHpFill = document.getElementById('my-hp-fill');
+        myHpFill.style.width = `${myHpPct}%`;
+        myHpFill.style.backgroundColor = myHpPct < 25 ? 'var(--hp-red)' : myHpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+        document.getElementById('my-hp-text').innerText = `HP: ${myActive.currentHp}/${myActive.maxHp}`;
+        
+        const myEnergyPct = Math.min(100, (myActive.energy / 3) * 100);
+        document.getElementById('my-energy-fill').style.width = `${myEnergyPct}%`;
+        document.getElementById('my-energy-text').innerText = `⚡ ${myActive.energy}/3`;
+        renderRoster('my-bench', myRole === 'p1' ? p1Team : p2Team, myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx);
+
+        // Opponent UI
+        document.getElementById('opp-active-sprite').src = oppActive.sprite;
+        document.getElementById('opp-active-name').innerText = `${isAiMode ? 'AI' : 'Opp'}: ${oppActive.name}`;
+        const oppType = document.getElementById('opp-active-type');
+        oppType.innerText = oppActive.type;
+        oppType.style.background = TYPE_COLORS[oppActive.type];
+        
+        const oppHpPct = Math.max(0, (oppActive.currentHp / oppActive.maxHp) * 100);
+        const oppHpFill = document.getElementById('opp-hp-fill');
+        oppHpFill.style.width = `${oppHpPct}%`;
+        oppHpFill.style.backgroundColor = oppHpPct < 25 ? 'var(--hp-red)' : oppHpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+        document.getElementById('opp-hp-text').innerText = `HP: ${oppActive.currentHp}/${oppActive.maxHp}`;
+        
+        const oppEnergyPct = Math.min(100, (oppActive.energy / 3) * 100);
+        document.getElementById('opp-energy-fill').style.width = `${oppEnergyPct}%`;
+        document.getElementById('opp-energy-text').innerText = `⚡ ${oppActive.energy}/3`;
+        renderRoster('opp-bench', myRole === 'p1' ? p2Team : p1Team, myRole === 'p1' ? p2ActiveIdx : p1ActiveIdx);
+      }
+
+      function startTurn() {
+        const isMyTurn = (activeTurn === myRole);
+        const prompt = document.getElementById('action-prompt');
+        const moveContainer = document.getElementById('move-container');
+        const switchBtn = document.getElementById('btn-switch');
+        moveContainer.innerHTML = '';
+
+        const myCooldown = myRole === 'p1' ? p1SwitchCooldown : p2SwitchCooldown;
+
+        if (isMyTurn) {
+          prompt.innerText = "Your Turn — Choose Attack or Switch:";
+          
+          if (myCooldown > 0) {
+            switchBtn.disabled = true;
+            switchBtn.innerText = `Switch Cooldown (${myCooldown} moves)`;
+          } else {
+            switchBtn.disabled = false;
+            switchBtn.innerText = "Switch Pokémon";
+          }
+
+          const myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+
+          // Fast Move Button
+          const fastBtn = document.createElement('button');
+          fastBtn.className = 'move-btn';
+          fastBtn.innerHTML = `
+            <strong>⚡ ${myActive.fastMove.name}</strong>
+            <span class="move-info">Fast | +1 Charge</span>
+          `;
+          fastBtn.onclick = () => executeAction('MOVE', { moveType: 'fast' }, true);
+          moveContainer.appendChild(fastBtn);
+
+          // Charged Move Button
+          const chargedBtn = document.createElement('button');
+          const isChargedReady = myActive.energy >= 3;
+          chargedBtn.className = `move-btn charged`;
+          chargedBtn.disabled = !isChargedReady;
+          chargedBtn.innerHTML = `
+            <strong>💥 ${myActive.chargedMove.name}</strong>
+            <span class="move-info">Charged | ${isChargedReady ? 'READY!' : `(Need ${3 - myActive.energy})`}</span>
+          `;
+          chargedBtn.onclick = () => executeAction('MOVE', { moveType: 'charged' }, true);
+          moveContainer.appendChild(chargedBtn);
+
+        } else {
+          prompt.innerText = isAiMode ? "AI is attacking..." : "Opponent is attacking...";
+          switchBtn.disabled = true;
+
+          if (isAiMode && activeTurn === 'p2') {
+            setTimeout(aiTakeTurn, 700);
+          }
+        }
+      }
+
+      function executeAction(actionType, data, isOriginator) {
+        if (isOriginator && !isAiMode) {
+          sendNet('BATTLE_ACTION', { action: actionType, data });
+        }
+
+        const isP1 = activeTurn === 'p1';
+        const actorRole = activeTurn;
+        const targetRole = isP1 ? 'p2' : 'p1';
+
+        if (actionType === 'SWITCH') {
+          if (actorRole === 'p1') {
+            p1ActiveIdx = data.newIndex;
+            if (!data.isForced) p1SwitchCooldown = 5;
+          } else {
+            p2ActiveIdx = data.newIndex;
+            if (!data.isForced) p2SwitchCooldown = 5;
+          }
+
+          const switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+          showPopup(`${actorRole === myRole ? 'You' : 'Opponent'} sent out ${switchedPoke.name}!`, "crit");
+          updateBattleUI();
+
+          if (!data.isForced) activeTurn = targetRole;
+          startTurn();
+          return;
+        }
+
+        if (actionType === 'MOVE') {
+          const attacker = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+          const defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+          const move = data.moveType === 'charged' ? attacker.chargedMove : attacker.fastMove;
+
+          // Decrement switch cooldowns
+          if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
+          if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
+
+          // Base damage calculation
+          const baseDmg = Math.floor(Math.random() * (move.maxDmg - move.minDmg + 1)) + move.minDmg;
+
+          let mult = 1.0;
+          if (TYPE_CHART[move.type] && TYPE_CHART[move.type][defender.type] !== undefined) {
+            mult = TYPE_CHART[move.type][defender.type];
+          }
+
+          let damage = 0;
+          if (mult > 0) {
+            const rawDmg = ((attacker.atk / defender.def) * baseDmg * 0.75) * mult;
+            damage = Math.max(5, Math.round(rawDmg));
+          }
+
+          defender.currentHp = Math.max(0, defender.currentHp - damage);
+
+          // Update Energy
+          if (data.moveType === 'fast') {
+            attacker.energy = (attacker.energy || 0) + 1;
+          } else {
+            attacker.energy = 0;
+          }
+
+          // Trigger Popups
+          showPopup(`-${damage} HP`, "dmg");
+          if (mult === 0) setTimeout(() => showPopup("No Effect!", "immune"), 300);
+          else if (mult > 1.0) setTimeout(() => showPopup("Super Effective!", "super"), 300);
+          else if (mult < 1.0) setTimeout(() => showPopup("Not Very Effective...", "not-very"), 300);
+
+          updateBattleUI();
+
+          if (defender.currentHp <= 0) {
+            setTimeout(() => showPopup(`${defender.name} Fainted!`, "crit"), 400);
+            handleFaint(targetRole);
+          } else {
+            activeTurn = targetRole;
+            startTurn();
+          }
+        }
+      }
+
+      function handleFaint(faintedRole) {
+        const team = faintedRole === 'p1' ? p1Team : p2Team;
+        const aliveIdx = team.findIndex(p => p.currentHp > 0);
+
+        // Game Over Check
+        if (aliveIdx === -1) {
+          const winner = faintedRole === myRole ? "Opponent" : "You";
+          showPopup(`🏆 ${winner} Won!`, "crit");
+          document.getElementById('battle-controls').innerHTML = `
+            <h2 style="text-align:center; color:#4ade80; margin:12px 0;">🎉 ${winner} Won the Game!</h2>
+            <button class="btn" onclick="location.reload()">Play Again</button>
+          `;
+          return;
+        }
+
+        // AI auto switch
+        if (faintedRole === 'p2' && isAiMode) {
+          p2ActiveIdx = aliveIdx;
+          updateBattleUI();
+          activeTurn = 'p1';
+          startTurn();
+          return;
+        }
+
+        // Only the player who fainted switches
+        activeTurn = faintedRole;
+        if (faintedRole === myRole) {
+          window.promptSwitch(true);
+        } else {
+          document.getElementById('action-prompt').innerText = "Opponent is choosing replacement Pokémon...";
+          document.getElementById('move-container').innerHTML = '';
+          document.getElementById('btn-switch').disabled = true;
+        }
+      }
+
+      window.promptSwitch = function(forced = false) {
+        const myTeam = myRole === 'p1' ? p1Team : p2Team;
+        const currentIdx = myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx;
+
+        const container = document.getElementById('move-container');
+        container.innerHTML = '';
+        document.getElementById('action-prompt').innerText = forced ? "Choose replacement Pokémon:" : "Switch to:";
+
+        myTeam.forEach((p, idx) => {
+          if (idx !== currentIdx && p.currentHp > 0) {
+            const btn = document.createElement('button');
+            btn.className = 'move-btn';
+            btn.innerHTML = `<strong>${p.name}</strong><span class="move-info">HP: ${p.currentHp}/${p.maxHp} | ⚡ ${p.energy}/3</span>`;
+            btn.onclick = () => {
+              executeAction('SWITCH', { newIndex: idx, isForced: forced }, true);
+            };
+            container.appendChild(btn);
+          }
+        });
+      };
+
+      function aiTakeTurn() {
+        const aiPoke = p2Team[p2ActiveIdx];
+        if (aiPoke.energy >= 3) {
+          executeAction('MOVE', { moveType: 'charged' }, true);
+        } else {
+          executeAction('MOVE', { moveType: 'fast' }, true);
+        }
+      }
+
+      // AUTO-JOIN VIA URL HASH
+      window.addEventListener('load', () => {
+        const hash = window.location.hash.substring(1).toUpperCase().trim();
+        if (hash && hash.length === 6) {
+          document.getElementById('join-id-input').value = hash;
+          window.joinRoom();
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
