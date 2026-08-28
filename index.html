@@ -128,10 +128,10 @@
     <div class="lobby-block">
       <h3>Host Online Room</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Get a 6-digit room code to share.</p>
-      <button class="btn" onclick="hostRoom()">Create Room</button>
+      <button id="btn-create-room" class="btn" onclick="hostRoom()">Create Room</button>
       <div id="host-info" class="hidden" style="margin-top:10px;">
         <p style="font-size:0.85rem;">Room Code:</p>
-        <span id="my-peer-id" class="code-tag">------</span>
+        <span id="my-peer-id" class="code-tag">GENERATING...</span>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Waiting for opponent to connect...</p>
       </div>
     </div>
@@ -140,7 +140,7 @@
       <h3>Join Room</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Enter 6-digit code:</p>
       <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
-      <button class="btn" style="margin-top:8px;" onclick="joinRoom()">Join Match</button>
+      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="joinRoom()">Join Match</button>
     </div>
 
     <button class="btn btn-secondary" onclick="startSinglePlayer()">Practice vs. AI</button>
@@ -163,168 +163,3 @@
     <div id="popup-layer" class="popup-container"></div>
 
     <div class="battle-arena">
-      <div class="fighter-card opp">
-        <div class="fighter-header">
-          <img id="opp-active-sprite" class="pixel-art" src="" alt="Opponent" />
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3 id="opp-active-name" style="font-size:0.95rem;">Opponent: ---</h3>
-              <span id="opp-active-type" class="type-badge">TYPE</span>
-            </div>
-            <div class="hp-bar-bg"><div id="opp-hp-fill" class="hp-bar-fill"></div></div>
-            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
-              <span id="opp-hp-text">HP: 100/100</span>
-              <span id="opp-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
-            </p>
-            <div class="energy-bar-bg"><div id="opp-energy-fill" class="energy-bar-fill"></div></div>
-          </div>
-        </div>
-        <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
-      </div>
-
-      <div class="fighter-card me">
-        <div class="fighter-header">
-          <img id="my-active-sprite" class="pixel-art" src="" alt="You" />
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3 id="my-active-name" style="font-size:0.95rem;">You: ---</h3>
-              <span id="my-active-type" class="type-badge">TYPE</span>
-            </div>
-            <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
-            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
-              <span id="my-hp-text">HP: 100/100</span>
-              <span id="my-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
-            </p>
-            <div class="energy-bar-bg"><div id="my-energy-fill" class="energy-bar-fill"></div></div>
-          </div>
-        </div>
-        <div id="my-bench" class="roster-grid" style="margin-top:6px;"></div>
-      </div>
-    </div>
-
-    <div id="battle-controls" style="margin-top:8px;">
-      <h4 id="action-prompt" style="font-size:0.85rem; color:var(--text-muted); text-align:center;">Your Turn:</h4>
-      <div class="action-grid" id="move-container"></div>
-      <button id="btn-switch" class="btn btn-secondary" style="margin-top:8px;" onclick="promptSwitch(false)">Switch Pokémon</button>
-    </div>
-  </div>
-
-  <script>
-    // TYPES & EFFECTIVENESS MATRIX
-    const TYPE_COLORS = {
-      Normal: '#9ca3af', Fire: '#f97316', Water: '#0ea5e9', Grass: '#22c55e',
-      Electric: '#eab308', Ice: '#38bdf8', Fighting: '#b91c1c', Poison: '#a855f7',
-      Ground: '#ca8a04', Flying: '#818cf8', Psychic: '#ec4899', Bug: '#84cc16',
-      Rock: '#78716c', Ghost: '#6366f1', Dragon: '#7c3aed', Steel: '#64748b',
-      Dark: '#334155', Fairy: '#f472b6'
-    };
-
-    const TYPE_CHART = {
-      Normal:   { Rock: 0.5, Ghost: 0.0, Steel: 0.5 },
-      Fire:     { Fire: 0.5, Water: 0.5, Grass: 2.0, Ice: 2.0, Bug: 2.0, Rock: 0.5, Dragon: 0.5, Steel: 2.0 },
-      Water:    { Fire: 2.0, Water: 0.5, Grass: 0.5, Ground: 2.0, Rock: 2.0, Dragon: 0.5 },
-      Grass:    { Fire: 0.5, Water: 2.0, Grass: 0.5, Poison: 0.5, Ground: 2.0, Flying: 0.5, Bug: 0.5, Rock: 2.0, Dragon: 0.5, Steel: 0.5 },
-      Electric: { Water: 2.0, Grass: 0.5, Electric: 0.5, Ground: 0.0, Flying: 2.0, Dragon: 0.5 },
-      Ice:      { Fire: 0.5, Water: 0.5, Grass: 2.0, Ice: 0.5, Ground: 2.0, Flying: 2.0, Dragon: 2.0, Steel: 0.5 },
-      Fighting: { Normal: 2.0, Ice: 2.0, Poison: 0.5, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 2.0, Ghost: 0.0, Dark: 2.0, Steel: 2.0, Fairy: 0.5 },
-      Poison:   { Grass: 2.0, Poison: 0.5, Ground: 0.5, Rock: 0.5, Ghost: 0.5, Steel: 0.0, Fairy: 2.0 },
-      Ground:   { Fire: 2.0, Grass: 0.5, Electric: 2.0, Poison: 2.0, Flying: 0.0, Bug: 0.5, Rock: 2.0, Steel: 2.0 },
-      Flying:   { Grass: 2.0, Electric: 0.5, Fighting: 2.0, Bug: 2.0, Rock: 0.5, Steel: 0.5 },
-      Psychic:  { Fighting: 2.0, Poison: 2.0, Psychic: 0.5, Dark: 0.0, Steel: 0.5 },
-      Bug:      { Fire: 0.5, Grass: 2.0, Fighting: 0.5, Poison: 0.5, Flying: 0.5, Psychic: 2.0, Ghost: 0.5, Dark: 2.0, Steel: 0.5, Fairy: 0.5 },
-      Rock:     { Fire: 2.0, Ice: 2.0, Fighting: 0.5, Ground: 0.5, Flying: 2.0, Bug: 2.0, Steel: 0.5 },
-      Ghost:    { Normal: 0.0, Psychic: 2.0, Ghost: 2.0, Dark: 0.5 },
-      Dragon:   { Dragon: 2.0, Steel: 0.5, Fairy: 0.0 },
-      Steel:    { Fire: 0.5, Water: 0.5, Electric: 0.5, Ice: 2.0, Rock: 2.0, Steel: 0.5, Fairy: 2.0 },
-      Dark:     { Fighting: 0.5, Psychic: 2.0, Ghost: 2.0, Dark: 0.5, Fairy: 0.5 },
-      Fairy:    { Fire: 0.5, Fighting: 2.0, Poison: 0.5, Dragon: 2.0, Dark: 2.0, Steel: 0.5 }
-    };
-
-    const SPRITE_URL = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-
-    const POKEDEX = [
-      { id: 143, name: "Snorlax", type: "Normal", hp: 200, atk: 26, def: 20, sprite: SPRITE_URL(143), fastMove: { name: "Body Slam", type: "Normal", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Hyper Beam", type: "Normal", minDmg: 85, maxDmg: 100 } },
-      { id: 6, name: "Charizard", type: "Fire", hp: 160, atk: 28, def: 18, sprite: SPRITE_URL(6), fastMove: { name: "Fire Spin", type: "Fire", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Blast Burn", type: "Fire", minDmg: 88, maxDmg: 100 } },
-      { id: 9, name: "Blastoise", type: "Water", hp: 175, atk: 24, def: 24, sprite: SPRITE_URL(9), fastMove: { name: "Water Gun", type: "Water", minDmg: 20, maxDmg: 26 }, chargedMove: { name: "Hydro Cannon", type: "Water", minDmg: 82, maxDmg: 96 } },
-      { id: 3, name: "Venusaur", type: "Grass", hp: 170, atk: 25, def: 22, sprite: SPRITE_URL(3), fastMove: { name: "Vine Whip", type: "Grass", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Frenzy Plant", type: "Grass", minDmg: 85, maxDmg: 98 } },
-      { id: 25, name: "Pikachu", type: "Electric", hp: 140, atk: 31, def: 15, sprite: SPRITE_URL(25), fastMove: { name: "Thunder Shock", type: "Electric", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Volt Tackle", type: "Electric", minDmg: 90, maxDmg: 100 } },
-      { id: 131, name: "Lapras", type: "Ice", hp: 185, atk: 24, def: 22, sprite: SPRITE_URL(131), fastMove: { name: "Frost Breath", type: "Ice", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Blizzard", type: "Ice", minDmg: 85, maxDmg: 98 } },
-      { id: 68, name: "Machamp", type: "Fighting", hp: 165, atk: 32, def: 20, sprite: SPRITE_URL(68), fastMove: { name: "Counter", type: "Fighting", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Dynamic Punch", type: "Fighting", minDmg: 88, maxDmg: 100 } },
-      { id: 110, name: "Weezing", type: "Poison", hp: 160, atk: 26, def: 24, sprite: SPRITE_URL(110), fastMove: { name: "Sludge Bomb", type: "Poison", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Gunk Shot", type: "Poison", minDmg: 86, maxDmg: 98 } },
-      { id: 112, name: "Rhydon", type: "Ground", hp: 180, atk: 30, def: 24, sprite: SPRITE_URL(112), fastMove: { name: "Mud Slap", type: "Ground", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Earthquake", type: "Ground", minDmg: 90, maxDmg: 100 } },
-      { id: 18, name: "Pidgeot", type: "Flying", hp: 160, atk: 27, def: 19, sprite: SPRITE_URL(18), fastMove: { name: "Air Slash", type: "Flying", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Brave Bird", type: "Flying", minDmg: 88, maxDmg: 100 } },
-      { id: 65, name: "Alakazam", type: "Psychic", hp: 135, atk: 34, def: 14, sprite: SPRITE_URL(65), fastMove: { name: "Psycho Cut", type: "Psychic", minDmg: 25, maxDmg: 30 }, chargedMove: { name: "Psychic", type: "Psychic", minDmg: 90, maxDmg: 100 } },
-      { id: 127, name: "Pinsir", type: "Bug", hp: 150, atk: 32, def: 21, sprite: SPRITE_URL(127), fastMove: { name: "Bug Bite", type: "Bug", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "X-Scissor", type: "Bug", minDmg: 84, maxDmg: 96 } },
-      { id: 76, name: "Golem", type: "Rock", hp: 165, atk: 29, def: 26, sprite: SPRITE_URL(76), fastMove: { name: "Rock Throw", type: "Rock", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Stone Edge", type: "Rock", minDmg: 88, maxDmg: 100 } },
-      { id: 94, name: "Gengar", type: "Ghost", hp: 140, atk: 33, def: 16, sprite: SPRITE_URL(94), fastMove: { name: "Shadow Claw", type: "Ghost", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Shadow Ball", type: "Ghost", minDmg: 88, maxDmg: 100 } },
-      { id: 149, name: "Dragonite", type: "Dragon", hp: 175, atk: 31, def: 21, sprite: SPRITE_URL(149), fastMove: { name: "Dragon Breath", type: "Dragon", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Draco Meteor", type: "Dragon", minDmg: 90, maxDmg: 100 } },
-      { id: 208, name: "Steelix", type: "Steel", hp: 170, atk: 25, def: 30, sprite: SPRITE_URL(208), fastMove: { name: "Iron Tail", type: "Steel", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Flash Cannon", type: "Steel", minDmg: 82, maxDmg: 95 } },
-      { id: 197, name: "Umbreon", type: "Dark", hp: 180, atk: 23, def: 26, sprite: SPRITE_URL(197), fastMove: { name: "Feint Attack", type: "Dark", minDmg: 20, maxDmg: 26 }, chargedMove: { name: "Dark Pulse", type: "Dark", minDmg: 84, maxDmg: 96 } },
-      { id: 36, name: "Clefable", type: "Fairy", hp: 175, atk: 26, def: 21, sprite: SPRITE_URL(36), fastMove: { name: "Fairy Wind", type: "Fairy", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Moonblast", type: "Fairy", minDmg: 86, maxDmg: 98 } }
-    ];
-
-    // NETWORKING & STATE
-    let peer = null;
-    let conn = null;
-    let isHost = false;
-    let isAiMode = false;
-    let myRole = 'p1';
-
-    let p1Team = [];
-    let p2Team = [];
-    let p1ActiveIdx = 0;
-    let p2ActiveIdx = 0;
-    let activeTurn = 'p1';
-
-    let p1SwitchCooldown = 0;
-    let p2SwitchCooldown = 0;
-
-    // GENERATE 6-DIGIT ROOM CODE
-    function generate6DigitCode() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let code = "";
-      for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return code;
-    }
-
-    // AUTO-JOIN VIA URL HASH
-    window.addEventListener('load', () => {
-      const hash = window.location.hash.substring(1).toUpperCase();
-      if (hash && hash.length === 6) {
-        document.getElementById('join-id-input').value = hash;
-        joinRoom();
-      }
-    });
-
-    // LOBBY SETUP
-    function hostRoom() {
-      isHost = true;
-      myRole = 'p1';
-      const code = generate6DigitCode();
-      peer = new Peer(code);
-
-      peer.on('open', (id) => {
-        document.getElementById('my-peer-id').innerText = id;
-        document.getElementById('host-info').classList.remove('hidden');
-      });
-
-      peer.on('connection', (c) => {
-        conn = c;
-        setupConnection();
-        startDraftScreen();
-      });
-
-      peer.on('error', () => {
-        // If code collision happens, fallback to random peer ID
-        peer = new Peer();
-        peer.on('open', (id) => {
-          document.getElementById('my-peer-id').innerText = id.slice(0, 6).toUpperCase();
-          document.getElementById('host-info').classList.remove('hidden');
-        });
-      });
-    }
-
-    function joinRoom() {
-      const hostId = document.getElementById('join-id-input').value.trim().
