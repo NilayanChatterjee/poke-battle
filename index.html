@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pokémon 1v1 Arena</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
   <style>
     :root {
       --bg: #0b1120;
@@ -136,6 +135,7 @@
       100% { opacity: 0; transform: translateY(-16px) scale(0.95); }
     }
   </style>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
 <body>
 
@@ -144,16 +144,17 @@
   <h1>Pokémon 1v1 Arena</h1>
   <p class="subtitle">Classic Perspective • Mega Evolution • 8-Bit Synthesized SFX</p>
 
+  <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
     <div class="lobby-block">
       <h3>Host Match</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Get a room code or instant link to share.</p>
-      <button id="btn-create-room" class="btn" onclick="hostRoom()">Create Room</button>
+      <button id="btn-create-room" class="btn" onclick="window.hostRoom()">Create Room</button>
       <div id="host-info" class="hidden" style="margin-top:10px;">
         <p style="font-size:0.85rem;">Room Code:</p>
         <span id="my-peer-id" class="code-tag">CONNECTING...</span>
         <br />
-        <button id="btn-copy-link" class="btn btn-secondary" style="margin: 6px auto; width: auto; font-size:0.8rem; padding:6px 14px;" onclick="copyInviteLink()">📋 Copy Invite Link</button>
+        <button id="btn-copy-link" class="btn btn-secondary" style="margin: 6px auto; width: auto; font-size:0.8rem; padding:6px 14px;" onclick="window.copyInviteLink()">📋 Copy Invite Link</button>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Waiting for opponent to connect...</p>
       </div>
     </div>
@@ -162,19 +163,20 @@
       <h3>Join Match</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Enter 6-digit code:</p>
       <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
-      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="joinRoom()">Join Match</button>
+      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="window.joinRoom()">Join Match</button>
     </div>
 
-    <button id="btn-singleplayer" class="btn btn-secondary" onclick="startSinglePlayer()">Practice vs. AI</button>
+    <button id="btn-singleplayer" class="btn btn-secondary" onclick="window.startSinglePlayer()">Practice vs. AI</button>
   </div>
 
+  <!-- DRAFT SCREEN -->
   <div id="screen-draft" class="panel hidden">
     <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
     <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 Pokémon. 1 Re-Roll allowed!</p>
 
     <div style="display:flex; gap:8px;">
-      <button id="btn-roll-all" class="btn" onclick="triggerOneClickRoll()">🎲 Roll All 6</button>
-      <button id="btn-reroll" class="btn btn-secondary hidden" onclick="triggerReroll()">🔄 Re-Roll (1 Left)</button>
+      <button id="btn-roll-all" class="btn" onclick="window.triggerOneClickRoll()">🎲 Roll All 6</button>
+      <button id="btn-reroll" class="btn btn-secondary hidden" onclick="window.triggerReroll()">🔄 Re-Roll (1 Left)</button>
     </div>
 
     <h3 style="margin-top:16px; font-size:0.9rem;">Your Team</h3>
@@ -184,10 +186,12 @@
     <div id="opp-draft-roster" class="roster-grid"></div>
   </div>
 
+  <!-- BATTLE SCREEN -->
   <div id="screen-battle" class="panel hidden">
     <div id="popup-layer" class="popup-container"></div>
 
     <div class="battle-arena" id="arena-box">
+      <!-- Opponent Card -->
       <div class="fighter-card opp" id="opp-card">
         <div class="fighter-header">
           <div class="sprite-box">
@@ -210,6 +214,7 @@
         <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
       </div>
 
+      <!-- Player Card -->
       <div class="fighter-card me" id="me-card">
         <div class="fighter-header">
           <div class="sprite-box">
@@ -233,13 +238,14 @@
       </div>
     </div>
 
+    <!-- Battle Actions -->
     <div id="battle-controls" style="margin-top:8px;">
       <h4 id="action-prompt" style="font-size:0.85rem; color:var(--text-muted); text-align:center;">Your Turn:</h4>
       <div class="action-grid" id="move-container"></div>
       
       <div style="display:flex; gap:8px; margin-top:8px;">
-        <button id="btn-mega" class="btn btn-mega hidden" onclick="triggerMegaEvolution()">🧬 Mega Evolve (1 Left)</button>
-        <button id="btn-switch" class="btn btn-secondary" onclick="promptSwitch(false)">Switch Pokémon</button>
+        <button id="btn-mega" class="btn btn-mega hidden" onclick="window.triggerMegaEvolution()">🧬 Mega Evolve (1 Left)</button>
+        <button id="btn-switch" class="btn btn-secondary" onclick="window.promptSwitch(false)">Switch Pokémon</button>
       </div>
     </div>
   </div>
@@ -290,4 +296,630 @@
       { id: 112, name: "Rhydon", type: "Ground", hp: 180, atk: 30, def: 24, canMega: false, fastMove: { name: "Mud Slap", type: "Ground", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Earthquake", type: "Ground", minDmg: 90, maxDmg: 100 } },
       { id: 18, name: "Pidgeot", type: "Flying", hp: 160, atk: 27, def: 19, canMega: true, fastMove: { name: "Air Slash", type: "Flying", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Brave Bird", type: "Flying", minDmg: 88, maxDmg: 100 } },
       { id: 65, name: "Alakazam", type: "Psychic", hp: 135, atk: 34, def: 14, canMega: true, fastMove: { name: "Psycho Cut", type: "Psychic", minDmg: 25, maxDmg: 30 }, chargedMove: { name: "Psychic", type: "Psychic", minDmg: 90, maxDmg: 100 } },
-      { id: 127, name: "Pinsir", type: "Bug", hp: 150
+      { id: 127, name: "Pinsir", type: "Bug", hp: 150, atk: 32, def: 21, canMega: true, fastMove: { name: "Bug Bite", type: "Bug", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "X-Scissor", type: "Bug", minDmg: 84, maxDmg: 96 } },
+      { id: 76, name: "Golem", type: "Rock", hp: 165, atk: 29, def: 26, canMega: false, fastMove: { name: "Rock Throw", type: "Rock", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Stone Edge", type: "Rock", minDmg: 88, maxDmg: 100 } },
+      { id: 94, name: "Gengar", type: "Ghost", hp: 140, atk: 33, def: 16, canMega: true, fastMove: { name: "Shadow Claw", type: "Ghost", minDmg: 24, maxDmg: 30 }, chargedMove: { name: "Shadow Ball", type: "Ghost", minDmg: 88, maxDmg: 100 } },
+      { id: 149, name: "Dragonite", type: "Dragon", hp: 175, atk: 31, def: 21, canMega: false, fastMove: { name: "Dragon Breath", type: "Dragon", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Draco Meteor", type: "Dragon", minDmg: 90, maxDmg: 100 } },
+      { id: 208, name: "Steelix", type: "Steel", hp: 170, atk: 25, def: 30, canMega: true, fastMove: { name: "Iron Tail", type: "Steel", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Flash Cannon", type: "Steel", minDmg: 82, maxDmg: 95 } },
+      { id: 197, name: "Umbreon", type: "Dark", hp: 180, atk: 23, def: 26, canMega: false, fastMove: { name: "Feint Attack", type: "Dark", minDmg: 20, maxDmg: 26 }, chargedMove: { name: "Dark Pulse", type: "Dark", minDmg: 84, maxDmg: 96 } },
+      { id: 36, name: "Clefable", type: "Fairy", hp: 175, atk: 26, def: 21, canMega: false, fastMove: { name: "Fairy Wind", type: "Fairy", minDmg: 21, maxDmg: 27 }, chargedMove: { name: "Moonblast", type: "Fairy", minDmg: 86, maxDmg: 98 } }
+    ];
+
+    // GLOBAL VARIABLES
+    var peer = null;
+    var conn = null;
+    var isHost = false;
+    var isAiMode = false;
+    var myRole = 'p1';
+
+    var p1Team = [];
+    var p2Team = [];
+    var p1ActiveIdx = 0;
+    var p2ActiveIdx = 0;
+    var activeTurn = 'p1';
+
+    var p1SwitchCooldown = 0;
+    var p2SwitchCooldown = 0;
+
+    var p1HasMegaStone = true;
+    var p2HasMegaStone = true;
+    var hasRerolled = false;
+
+    var PREFIX = "pk1v-";
+    var audioCtx = null;
+
+    function playSound(type) {
+      try {
+        if (!audioCtx) {
+          var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        if (!audioCtx) return;
+
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        var now = audioCtx.currentTime;
+
+        if (type === 'beep') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.08);
+          osc.start(now); osc.stop(now + 0.08);
+        } else if (type === 'hit') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.15);
+          osc.start(now); osc.stop(now + 0.15);
+        } else if (type === 'charged') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(60, now + 0.35);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.35);
+          osc.start(now); osc.stop(now + 0.35);
+        } else if (type === 'mega') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.linearRampToValueAtTime(960, now + 0.28);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.3);
+          osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'fanfare') {
+          [261.63, 329.63, 392.00, 523.25].forEach(function(freq, idx) {
+            var o = audioCtx.createOscillator();
+            var g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, now + idx * 0.12);
+            g.gain.setValueAtTime(0.15, now + idx * 0.12);
+            g.gain.linearRampToValueAtTime(0, now + idx * 0.12 + 0.2);
+            o.start(now + idx * 0.12); o.stop(now + idx * 0.12 + 0.2);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function triggerHaptics(pattern) {
+      try { if (navigator.vibrate) navigator.vibrate(pattern || [40, 30, 40]); } catch(e) {}
+    }
+
+    function generate6DigitCode() {
+      var chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+      var code = "";
+      for (var i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+      return code;
+    }
+
+    // ATTACH CORE FUNCTIONS DIRECTLY TO WINDOW
+    window.startSinglePlayer = function() {
+      playSound('beep');
+      isAiMode = true;
+      isHost = true;
+      myRole = 'p1';
+      startDraftScreen();
+    };
+
+    window.hostRoom = function() {
+      playSound('beep');
+      isHost = true;
+      myRole = 'p1';
+      document.getElementById('btn-create-room').disabled = true;
+      document.getElementById('host-info').classList.remove('hidden');
+
+      var raw6 = generate6DigitCode();
+      var fullId = PREFIX + raw6.toLowerCase();
+
+      if (typeof Peer === "undefined") {
+        document.getElementById('my-peer-id').innerText = raw6;
+        return;
+      }
+
+      try { if (peer) peer.destroy(); } catch(e) {}
+      peer = new Peer(fullId);
+
+      peer.on('open', function(id) {
+        var displayCode = id.replace(PREFIX, "").toUpperCase();
+        document.getElementById('my-peer-id').innerText = displayCode;
+      });
+
+      peer.on('connection', function(c) {
+        conn = c;
+        setupConnection();
+        startDraftScreen();
+      });
+
+      peer.on('error', function() {
+        var fallback6 = generate6DigitCode();
+        peer = new Peer(PREFIX + fallback6.toLowerCase());
+        peer.on('open', function(id) {
+          document.getElementById('my-peer-id').innerText = id.replace(PREFIX, "").toUpperCase();
+        });
+        peer.on('connection', function(c) {
+          conn = c;
+          setupConnection();
+          startDraftScreen();
+        });
+      });
+    };
+
+    window.copyInviteLink = function() {
+      playSound('beep');
+      var code = document.getElementById('my-peer-id').innerText;
+      var url = window.location.origin + window.location.pathname + '#' + code;
+      navigator.clipboard.writeText(url).then(function() {
+        var btn = document.getElementById('btn-copy-link');
+        btn.innerText = "✅ Link Copied!";
+        setTimeout(function() { btn.innerText = "📋 Copy Invite Link"; }, 2000);
+      });
+    };
+
+    window.joinRoom = function() {
+      playSound('beep');
+      var input = document.getElementById('join-id-input').value.trim().toUpperCase();
+      if (input.length !== 6) return alert('Please enter a 6-digit room code.');
+
+      isHost = false;
+      myRole = 'p2';
+      document.getElementById('btn-join-room').disabled = true;
+      document.getElementById('btn-join-room').innerText = "Connecting...";
+
+      if (typeof Peer === "undefined") {
+        alert("Peer network library is still loading. Please retry in 3 seconds.");
+        document.getElementById('btn-join-room').disabled = false;
+        return;
+      }
+
+      try { if (peer) peer.destroy(); } catch(e) {}
+      peer = new Peer();
+
+      peer.on('open', function() {
+        var targetFullId = PREFIX + input.toLowerCase();
+        conn = peer.connect(targetFullId, { reliable: true });
+        setupConnection();
+      });
+
+      peer.on('error', function() {
+        alert("Connection failed. Check code and try again.");
+        document.getElementById('btn-join-room').disabled = false;
+        document.getElementById('btn-join-room').innerText = "Join Match";
+      });
+    };
+
+    function setupConnection() {
+      if (!conn) return;
+      conn.on('open', function() {
+        if (!isHost) startDraftScreen();
+      });
+      conn.on('data', function(data) {
+        handleNetworkData(data);
+      });
+    }
+
+    function sendNet(type, payload) {
+      if (conn && conn.open) conn.send({ type: type, payload: payload });
+    }
+
+    function handleNetworkData(msg) {
+      if (msg.type === 'TEAM_ROLLED') {
+        if (msg.payload.role === 'p1') p1Team = msg.payload.team;
+        else p2Team = msg.payload.team;
+        updateDraftUI();
+        checkDraftCompletion();
+      } else if (msg.type === 'BATTLE_ACTION') {
+        executeAction(msg.payload.action, msg.payload.data, false);
+      }
+    }
+
+    function startDraftScreen() {
+      document.getElementById('screen-lobby').classList.add('hidden');
+      document.getElementById('screen-draft').classList.remove('hidden');
+      updateDraftUI();
+    }
+
+    function rollSixUniquePokemon() {
+      var shuffled = POKEDEX.slice().sort(function() { return 0.5 - Math.random(); });
+      return shuffled.slice(0, 6).map(function(base) {
+        return Object.assign({}, JSON.parse(JSON.stringify(base)), {
+          maxHp: base.hp,
+          currentHp: base.hp,
+          energy: 0,
+          isMega: false
+        });
+      });
+    }
+
+    window.triggerOneClickRoll = function() {
+      playSound('beep');
+      var myTeam = rollSixUniquePokemon();
+      if (myRole === 'p1') p1Team = myTeam;
+      else p2Team = myTeam;
+
+      document.getElementById('btn-roll-all').classList.add('hidden');
+      document.getElementById('btn-reroll').classList.remove('hidden');
+
+      if (!isAiMode) {
+        sendNet('TEAM_ROLLED', { role: myRole, team: myTeam });
+      } else {
+        p2Team = rollSixUniquePokemon();
+      }
+
+      updateDraftUI();
+      checkDraftCompletion();
+    };
+
+    window.triggerReroll = function() {
+      if (hasRerolled) return;
+      playSound('beep');
+      hasRerolled = true;
+      var myTeam = rollSixUniquePokemon();
+      if (myRole === 'p1') p1Team = myTeam;
+      else p2Team = myTeam;
+
+      document.getElementById('btn-reroll').disabled = true;
+      document.getElementById('btn-reroll').innerText = "✅ Re-Rolled (Locked)";
+
+      if (!isAiMode) {
+        sendNet('TEAM_ROLLED', { role: myRole, team: myTeam });
+      }
+      updateDraftUI();
+    };
+
+    function checkDraftCompletion() {
+      if (p1Team.length === 6 && p2Team.length === 6) {
+        document.getElementById('draft-status-title').innerText = "Both Teams Ready!";
+        document.getElementById('draft-status-desc').innerText = "Entering Battle Arena...";
+        setTimeout(initBattle, 1200);
+      }
+    }
+
+    function updateDraftUI() {
+      var myTeam = myRole === 'p1' ? p1Team : p2Team;
+      var oppTeam = myRole === 'p1' ? p2Team : p1Team;
+      renderRoster('my-draft-roster', myTeam);
+      renderRoster('opp-draft-roster', oppTeam);
+    }
+
+    function renderRoster(elId, team, activeIdx) {
+      var el = document.getElementById(elId);
+      if (!el) return;
+      el.innerHTML = team.map(function(p, idx) {
+        return '<div class="poke-chip ' + (idx === activeIdx ? 'active' : '') + ' ' + (p.currentHp <= 0 ? 'fainted' : '') + '">' +
+          '<img src="' + FRONT_SPRITE(p.id) + '" class="pixel-art" alt="' + p.name + '" />' +
+          '<strong>' + p.name + (p.isMega ? ' 🧬' : '') + '</strong>' +
+          '<span class="type-badge" style="background:' + TYPE_COLORS[p.type] + '">' + p.type + '</span>' +
+          '<div style="font-size:0.7rem; margin-top:2px;">' + p.currentHp + '/' + p.maxHp + ' HP</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function showPopup(text, type) {
+      var layer = document.getElementById('popup-layer');
+      if (!layer) return;
+      var badge = document.createElement('div');
+      badge.className = 'popup-badge ' + (type || 'dmg');
+      badge.innerText = text;
+      layer.appendChild(badge);
+      setTimeout(function() { badge.remove(); }, 1600);
+    }
+
+    function triggerScreenFlash(color) {
+      var overlay = document.getElementById('flash-overlay');
+      overlay.style.background = color || 'white';
+      overlay.style.opacity = '0.75';
+      setTimeout(function() { overlay.style.opacity = '0'; }, 120);
+    }
+
+    function triggerShake(elementId) {
+      var el = document.getElementById(elementId);
+      if (!el) return;
+      el.classList.remove('shake-anim');
+      void el.offsetWidth;
+      el.classList.add('shake-anim');
+      setTimeout(function() { el.classList.remove('shake-anim'); }, 400);
+    }
+
+    function initBattle() {
+      document.getElementById('screen-draft').classList.add('hidden');
+      document.getElementById('screen-battle').classList.remove('hidden');
+      p1ActiveIdx = 0;
+      p2ActiveIdx = 0;
+      p1SwitchCooldown = 0;
+      p2SwitchCooldown = 0;
+      p1HasMegaStone = true;
+      p2HasMegaStone = true;
+      activeTurn = 'p1';
+      showPopup("⚔️ BATTLE START!", "crit");
+      updateBattleUI();
+      startTurn();
+    }
+
+    function updateBattleUI() {
+      var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var oppActive = myRole === 'p1' ? p2Team[p2ActiveIdx] : p1Team[p1ActiveIdx];
+
+      if (!myActive || !oppActive) return;
+
+      document.getElementById('my-active-sprite').src = BACK_SPRITE(myActive.id);
+      document.getElementById('my-active-name').innerText = "You: " + myActive.name;
+      var myType = document.getElementById('my-active-type');
+      myType.innerText = myActive.type;
+      myType.style.background = TYPE_COLORS[myActive.type];
+      
+      var myHpPct = Math.max(0, (myActive.currentHp / myActive.maxHp) * 100);
+      var myHpFill = document.getElementById('my-hp-fill');
+      myHpFill.style.width = myHpPct + '%';
+      myHpFill.style.backgroundColor = myHpPct < 25 ? 'var(--hp-red)' : myHpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+      document.getElementById('my-hp-text').innerText = 'HP: ' + myActive.currentHp + '/' + myActive.maxHp;
+      
+      var myEnergyPct = Math.min(100, (myActive.energy / 3) * 100);
+      document.getElementById('my-energy-fill').style.width = myEnergyPct + '%';
+      document.getElementById('my-energy-text').innerText = '⚡ ' + myActive.energy + '/3';
+      document.getElementById('my-mega-badge').classList.toggle('hidden', !myActive.isMega);
+      renderRoster('my-bench', myRole === 'p1' ? p1Team : p2Team, myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx);
+
+      document.getElementById('opp-active-sprite').src = FRONT_SPRITE(oppActive.id);
+      document.getElementById('opp-active-name').innerText = (isAiMode ? 'AI: ' : 'Opp: ') + oppActive.name;
+      var oppType = document.getElementById('opp-active-type');
+      oppType.innerText = oppActive.type;
+      oppType.style.background = TYPE_COLORS[oppActive.type];
+      
+      var oppHpPct = Math.max(0, (oppActive.currentHp / oppActive.maxHp) * 100);
+      var oppHpFill = document.getElementById('opp-hp-fill');
+      oppHpFill.style.width = oppHpPct + '%';
+      oppHpFill.style.backgroundColor = oppHpPct < 25 ? 'var(--hp-red)' : oppHpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+      document.getElementById('opp-hp-text').innerText = 'HP: ' + oppActive.currentHp + '/' + oppActive.maxHp;
+      
+      var oppEnergyPct = Math.min(100, (oppActive.energy / 3) * 100);
+      document.getElementById('opp-energy-fill').style.width = oppEnergyPct + '%';
+      document.getElementById('opp-energy-text').innerText = '⚡ ' + oppActive.energy + '/3';
+      document.getElementById('opp-mega-badge').classList.toggle('hidden', !oppActive.isMega);
+      renderRoster('opp-bench', myRole === 'p1' ? p2Team : p1Team, myRole === 'p1' ? p2ActiveIdx : p1ActiveIdx);
+    }
+
+    function startTurn() {
+      var isMyTurn = (activeTurn === myRole);
+      var prompt = document.getElementById('action-prompt');
+      var moveContainer = document.getElementById('move-container');
+      var switchBtn = document.getElementById('btn-switch');
+      var megaBtn = document.getElementById('btn-mega');
+      moveContainer.innerHTML = '';
+
+      var myCooldown = myRole === 'p1' ? p1SwitchCooldown : p2SwitchCooldown;
+      var myHasMega = myRole === 'p1' ? p1HasMegaStone : p2HasMegaStone;
+      var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+
+      if (isMyTurn) {
+        prompt.innerText = "Your Turn — Choose Attack or Action:";
+        
+        if (myCooldown > 0) {
+          switchBtn.disabled = true;
+          switchBtn.innerText = 'Switch (' + myCooldown + ' moves)';
+        } else {
+          switchBtn.disabled = false;
+          switchBtn.innerText = "Switch Pokémon";
+        }
+
+        if (myHasMega && myActive.canMega && !myActive.isMega) {
+          megaBtn.classList.remove('hidden');
+        } else {
+          megaBtn.classList.add('hidden');
+        }
+
+        var fastBtn = document.createElement('button');
+        fastBtn.className = 'move-btn';
+        fastBtn.innerHTML = '<strong>⚡ ' + myActive.fastMove.name + '</strong><span class="move-info">Fast | +1 Charge</span>';
+        fastBtn.onclick = function() { executeAction('MOVE', { moveType: 'fast' }, true); };
+        moveContainer.appendChild(fastBtn);
+
+        var chargedBtn = document.createElement('button');
+        var isChargedReady = myActive.energy >= 3;
+        chargedBtn.className = 'move-btn charged';
+        chargedBtn.disabled = !isChargedReady;
+        chargedBtn.innerHTML = '<strong>💥 ' + myActive.chargedMove.name + '</strong><span class="move-info">Charged | ' + (isChargedReady ? 'READY!' : '(Need ' + (3 - myActive.energy) + ')') + '</span>';
+        chargedBtn.onclick = function() { executeAction('MOVE', { moveType: 'charged' }, true); };
+        moveContainer.appendChild(chargedBtn);
+
+      } else {
+        prompt.innerText = isAiMode ? "AI is thinking..." : "Opponent is acting...";
+        switchBtn.disabled = true;
+        megaBtn.classList.add('hidden');
+
+        if (isAiMode && activeTurn === 'p2') {
+          setTimeout(aiTakeTurn, 700);
+        }
+      }
+    }
+
+    window.triggerMegaEvolution = function() {
+      playSound('beep');
+      executeAction('MEGA', {}, true);
+    };
+
+    function executeAction(actionType, data, isOriginator) {
+      if (isOriginator && !isAiMode) {
+        sendNet('BATTLE_ACTION', { action: actionType, data: data });
+      }
+
+      var isP1 = activeTurn === 'p1';
+      var actorRole = activeTurn;
+      var targetRole = isP1 ? 'p2' : 'p1';
+
+      if (actionType === 'MEGA') {
+        var actorPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        actorPoke.isMega = true;
+        actorPoke.atk *= 2;
+        actorPoke.maxHp *= 2;
+        actorPoke.currentHp *= 2;
+        
+        if (actorRole === 'p1') p1HasMegaStone = false;
+        else p2HasMegaStone = false;
+
+        playSound('mega');
+        triggerScreenFlash('#ec4899');
+        showPopup('🧬 ' + actorPoke.name + ' MEGA EVOLVED!', 'mega');
+        triggerHaptics([80, 50, 80]);
+        updateBattleUI();
+        startTurn();
+        return;
+      }
+
+      if (actionType === 'SWITCH') {
+        playSound('beep');
+        if (actorRole === 'p1') {
+          p1ActiveIdx = data.newIndex;
+          if (!data.isForced) p1SwitchCooldown = 5;
+        } else {
+          p2ActiveIdx = data.newIndex;
+          if (!data.isForced) p2SwitchCooldown = 5;
+        }
+
+        var switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        showPopup((actorRole === myRole ? 'You' : 'Opponent') + ' sent out ' + switchedPoke.name + '!', "crit");
+        updateBattleUI();
+
+        if (!data.isForced) activeTurn = targetRole;
+        startTurn();
+        return;
+      }
+
+      if (actionType === 'MOVE') {
+        var attacker = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        var defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        var move = data.moveType === 'charged' ? attacker.chargedMove : attacker.fastMove;
+        var targetCardId = targetRole === myRole ? 'me-card' : 'opp-card';
+
+        if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
+        if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
+
+        var baseDmg = Math.floor(Math.random() * (move.maxDmg - move.minDmg + 1)) + move.minDmg;
+
+        var mult = 1.0;
+        if (TYPE_CHART[move.type] && TYPE_CHART[move.type][defender.type] !== undefined) {
+          mult = TYPE_CHART[move.type][defender.type];
+        }
+
+        var damage = 0;
+        if (mult > 0) {
+          var rawDmg = ((attacker.atk / defender.def) * baseDmg * 0.75) * mult;
+          var resistance = defender.isMega ? 0.75 : 1.0;
+          damage = Math.max(5, Math.round(rawDmg * resistance));
+        }
+
+        defender.currentHp = Math.max(0, defender.currentHp - damage);
+
+        if (data.moveType === 'fast') {
+          attacker.energy = (attacker.energy || 0) + 1;
+          playSound('hit');
+          triggerHaptics([30]);
+          triggerShake(targetCardId);
+        } else {
+          attacker.energy = 0;
+          playSound('charged');
+          triggerHaptics([60, 40, 80]);
+          triggerScreenFlash(TYPE_COLORS[move.type] || 'white');
+          triggerShake(targetCardId);
+        }
+
+        showPopup('-' + damage + ' HP', "dmg");
+        if (mult === 0) setTimeout(function() { showPopup("No Effect!", "immune"); }, 250);
+        else if (mult > 1.0) setTimeout(function() { showPopup("Super Effective!", "super"); }, 250);
+        else if (mult < 1.0) setTimeout(function() { showPopup("Not Very Effective...", "not-very"); }, 250);
+
+        updateBattleUI();
+
+        if (defender.currentHp <= 0) {
+          setTimeout(function() { showPopup(defender.name + ' Fainted!', "crit"); }, 400);
+          handleFaint(targetRole);
+        } else {
+          activeTurn = targetRole;
+          startTurn();
+        }
+      }
+    }
+
+    function handleFaint(faintedRole) {
+      var team = faintedRole === 'p1' ? p1Team : p2Team;
+      var aliveIdx = -1;
+      for (var i = 0; i < team.length; i++) {
+        if (team[i].currentHp > 0) { aliveIdx = i; break; }
+      }
+
+      if (aliveIdx === -1) {
+        var winner = faintedRole === myRole ? "Opponent" : "You";
+        playSound('fanfare');
+        showPopup('🏆 ' + winner + ' Won!', "crit");
+        document.getElementById('battle-controls').innerHTML = '<h2 style="text-align:center; color:#4ade80; margin:12px 0;">🎉 ' + winner + ' Won the Arena!</h2><button class="btn" onclick="location.reload()">Play Again</button>';
+        return;
+      }
+
+      if (faintedRole === 'p2' && isAiMode) {
+        p2ActiveIdx = aliveIdx;
+        updateBattleUI();
+        activeTurn = 'p1';
+        startTurn();
+        return;
+      }
+
+      activeTurn = faintedRole;
+      if (faintedRole === myRole) {
+        window.promptSwitch(true);
+      } else {
+        document.getElementById('action-prompt').innerText = "Opponent is choosing replacement...";
+        document.getElementById('move-container').innerHTML = '';
+        document.getElementById('btn-switch').disabled = true;
+        document.getElementById('btn-mega').classList.add('hidden');
+      }
+    }
+
+    window.promptSwitch = function(forced) {
+      var myTeam = myRole === 'p1' ? p1Team : p2Team;
+      var currentIdx = myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx;
+
+      var container = document.getElementById('move-container');
+      container.innerHTML = '';
+      document.getElementById('action-prompt').innerText = forced ? "Select next Pokémon:" : "Switch to:";
+
+      myTeam.forEach(function(p, idx) {
+        if (idx !== currentIdx && p.currentHp > 0) {
+          var btn = document.createElement('button');
+          btn.className = 'move-btn';
+          btn.innerHTML = '<strong>' + p.name + (p.isMega ? ' 🧬' : '') + '</strong><span class="move-info">HP: ' + p.currentHp + '/' + p.maxHp + ' | ⚡ ' + p.energy + '/3</span>';
+          btn.onclick = function() {
+            executeAction('SWITCH', { newIndex: idx, isForced: forced }, true);
+          };
+          container.appendChild(btn);
+        }
+      });
+    };
+
+    function aiTakeTurn() {
+      var aiPoke = p2Team[p2ActiveIdx];
+      if (p2HasMegaStone && aiPoke.canMega && !aiPoke.isMega) {
+        executeAction('MEGA', {}, true);
+        return;
+      }
+      if (aiPoke.energy >= 3) {
+        executeAction('MOVE', { moveType: 'charged' }, true);
+      } else {
+        executeAction('MOVE', { moveType: 'fast' }, true);
+      }
+    }
+
+    // AUTO-JOIN VIA HASH
+    window.addEventListener('load', function() {
+      var hash = window.location.hash.substring(1).toUpperCase().trim();
+      if (hash && hash.length === 6) {
+        document.getElementById('join-id-input').value = hash;
+        window.joinRoom();
+      }
+    });
+  </script>
+</body>
+</html>
