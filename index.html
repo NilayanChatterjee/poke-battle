@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Pokémon 1v1 Arena - Mega Edition</title>
+  <title>Pokémon 1v1 Arena</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
   <style>
     :root {
@@ -19,7 +19,6 @@
       --hp-yellow: #eab308;
       --hp-red: #ef4444;
       --energy-blue: #06b6d4;
-      --mega-glow: #ec4899;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -151,18 +150,18 @@
   <div id="flash-overlay"></div>
 
   <h1>Pokémon 1v1 Arena</h1>
-  <p class="subtitle">6 random Pokemons decides who wins it all!</p>
+  <p class="subtitle">Classic Perspective • Mega Evolution • 8-Bit Synthesized SFX</p>
 
- <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
     <div class="lobby-block">
       <h3>Host Match</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Get a room code or instant link to share.</p>
-      <button id="btn-create-room" class="btn" onclick="window.hostRoom()">Create Room</button>
+      <button id="btn-create-room" class="btn">Create Room</button>
       <div id="host-info" class="hidden" style="margin-top:10px;">
         <p style="font-size:0.85rem;">Room Code:</p>
         <span id="my-peer-id" class="code-tag">CONNECTING...</span>
-        <button id="btn-copy-link" class="btn btn-secondary" style="margin: 6px auto; width: auto; font-size:0.8rem; padding:6px 12px;" onclick="window.copyInviteLink()">📋 Copy Invite Link</button>
+        <br />
+        <button id="btn-copy-link" class="btn btn-secondary" style="margin: 6px auto; width: auto; font-size:0.8rem; padding:6px 14px;">📋 Copy Invite Link</button>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Waiting for opponent to connect...</p>
       </div>
     </div>
@@ -171,8 +170,189 @@
       <h3>Join Match</h3>
       <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Enter 6-digit code:</p>
       <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
-      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="window.joinRoom()">Join Match</button>
+      <button id="btn-join-room" class="btn" style="margin-top:8px;">Join Match</button>
     </div>
 
-    <button class="btn btn-secondary" onclick="window.startSinglePlayer()">Practice vs. AI</button>
+    <button id="btn-singleplayer" class="btn btn-secondary">Practice vs. AI</button>
   </div>
+
+  <div id="screen-draft" class="panel hidden">
+    <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
+    <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 Pokémon. 1 Re-Roll allowed!</p>
+
+    <div style="display:flex; gap:8px;">
+      <button id="btn-roll-all" class="btn">🎲 Roll All 6</button>
+      <button id="btn-reroll" class="btn btn-secondary hidden">🔄 Re-Roll (1 Left)</button>
+    </div>
+
+    <h3 style="margin-top:16px; font-size:0.9rem;">Your Team</h3>
+    <div id="my-draft-roster" class="roster-grid"></div>
+
+    <h3 style="margin-top:12px; font-size:0.9rem;">Opponent Team</h3>
+    <div id="opp-draft-roster" class="roster-grid"></div>
+  </div>
+
+  <div id="screen-battle" class="panel hidden">
+    <div id="popup-layer" class="popup-container"></div>
+
+    <div class="battle-arena" id="arena-box">
+      <div class="fighter-card opp" id="opp-card">
+        <div class="fighter-header">
+          <div class="sprite-box">
+            <img id="opp-active-sprite" class="pixel-art" src="" alt="Opponent" />
+            <span id="opp-mega-badge" class="mega-badge-icon hidden">MEGA</span>
+          </div>
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 id="opp-active-name" style="font-size:0.95rem;">Opponent: ---</h3>
+              <span id="opp-active-type" class="type-badge">TYPE</span>
+            </div>
+            <div class="hp-bar-bg"><div id="opp-hp-fill" class="hp-bar-fill"></div></div>
+            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
+              <span id="opp-hp-text">HP: 100/100</span>
+              <span id="opp-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
+            </p>
+            <div class="energy-bar-bg"><div id="opp-energy-fill" class="energy-bar-fill"></div></div>
+          </div>
+        </div>
+        <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="fighter-card me" id="me-card">
+        <div class="fighter-header">
+          <div class="sprite-box">
+            <img id="my-active-sprite" class="pixel-art" src="" alt="You" />
+            <span id="my-mega-badge" class="mega-badge-icon hidden">MEGA</span>
+          </div>
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 id="my-active-name" style="font-size:0.95rem;">You: ---</h3>
+              <span id="my-active-type" class="type-badge">TYPE</span>
+            </div>
+            <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
+            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
+              <span id="my-hp-text">HP: 100/100</span>
+              <span id="my-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
+            </p>
+            <div class="energy-bar-bg"><div id="my-energy-fill" class="energy-bar-fill"></div></div>
+          </div>
+        </div>
+        <div id="my-bench" class="roster-grid" style="margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <div id="battle-controls" style="margin-top:8px;">
+      <h4 id="action-prompt" style="font-size:0.85rem; color:var(--text-muted); text-align:center;">Your Turn:</h4>
+      <div class="action-grid" id="move-container"></div>
+      
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button id="btn-mega" class="btn btn-mega hidden">🧬 Mega Evolve (1 Left)</button>
+        <button id="btn-switch" class="btn btn-secondary">Switch Pokémon</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // SAFE LAZY-LOADED WEB AUDIO API
+      let audioCtx = null;
+
+      function getAudioContext() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      }
+
+      function playSound(type) {
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          const now = ctx.currentTime;
+
+          if (type === 'beep') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.08);
+            osc.start(now);
+            osc.stop(now + 0.08);
+          } else if (type === 'hit') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(140, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          } else if (type === 'charged') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.exponentialRampToValueAtTime(60, now + 0.35);
+            gain.gain.setValueAtTime(0.35, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+          } else if (type === 'mega') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.linearRampToValueAtTime(640, now + 0.12);
+            osc.frequency.linearRampToValueAtTime(960, now + 0.28);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+          } else if (type === 'fanfare') {
+            const notes = [261.63, 329.63, 392.00, 523.25];
+            notes.forEach((freq, idx) => {
+              const o = ctx.createOscillator();
+              const g = ctx.createGain();
+              o.connect(g);
+              g.connect(ctx.destination);
+              o.type = 'triangle';
+              o.frequency.setValueAtTime(freq, now + idx * 0.12);
+              g.gain.setValueAtTime(0.2, now + idx * 0.12);
+              g.gain.linearRampToValueAtTime(0, now + idx * 0.12 + 0.25);
+              o.start(now + idx * 0.12);
+              o.stop(now + idx * 0.12 + 0.25);
+            });
+          }
+        } catch (e) {}
+      }
+
+      function triggerHaptics(pattern = [40, 30, 40]) {
+        try {
+          if (navigator.vibrate) navigator.vibrate(pattern);
+        } catch (e) {}
+      }
+
+      // TYPES & COLOR BADGES
+      const TYPE_COLORS = {
+        Normal: '#9ca3af', Fire: '#f97316', Water: '#0ea5e9', Grass: '#22c55e',
+        Electric: '#eab308', Ice: '#38bdf8', Fighting: '#b91c1c', Poison: '#a855f7',
+        Ground: '#ca8a04', Flying: '#818cf8', Psychic: '#ec4899', Bug: '#84cc16',
+        Rock: '#78716c', Ghost: '#6366f1', Dragon: '#7c3aed', Steel: '#64748b',
+        Dark: '#334155', Fairy: '#f472b6'
+      };
+
+      const TYPE_CHART = {
+        Normal:   { Rock: 0.5, Ghost: 0.0, Steel: 0.5 },
+        Fire:     { Fire: 0.5, Water: 0.5, Grass: 2.0, Ice: 2.0, Bug: 2.0, Rock: 0.5, Dragon: 0.5, Steel: 2.0 },
+        Water:    { Fire: 2.0, Water: 0.5, Grass: 0.5, Ground: 2.0, Rock: 2.0, Dragon: 0.5 },
+        Grass:    { Fire: 0.5, Water: 2.0, Grass: 0.5, Poison: 0.5, Ground: 2.0, Flying: 0.5, Bug: 0.5, Rock: 2.0, Dragon: 0.5, Steel: 0.5 },
+        Electric: { Water: 2.0, Grass: 0.5, Electric: 0.5, Ground: 0.0, Flying: 2.0, Dragon: 0.5 },
+        Ice:      { Fire: 0.5, Water: 0.5, Grass: 2.0, Ice: 0.5, Ground: 2.0, Flying: 2.0, Dragon: 2.0, Steel: 0.5 },
+        Fighting: { Normal: 2.0, Ice: 2.0, Poison: 0.5, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 2.0, Ghost: 0.0, Dark: 2.0, Steel: 2.0, Fairy: 0.5 },
+        Poison:   { Grass: 2.0, Poison: 0.5, Ground: 0.5, Rock: 0.5, Ghost: 0.5, Steel: 0.0, Fairy: 2.0 },
+        Ground:   { Fire: 2.0, Grass: 0.5, Electric: 2.0, Poison: 2.0, Flying: 0.0, Bug: 0.5, Rock: 2.0, Steel: 2.0 },
+        Flying:   { Grass: 2.0, Electric: 0.5, Fighting: 2.0, Bug: 2.0, Rock: 0.5, Steel: 0.5 },
+        Psychic:  { Fighting: 2.0, Poison: 2.0, Psychic: 0.5, Dark: 0.0, Steel:
