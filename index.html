@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pokémon 1v1 Pixel Arena</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Pokémon 1v1 Arena</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     :root {
@@ -20,12 +21,12 @@
       --energy-blue: #06b6d4;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 16px; }
-    h1 { margin-bottom: 4px; font-size: 1.8rem; text-align: center; }
-    .subtitle { color: var(--text-muted); margin-bottom: 18px; text-align: center; font-size: 0.9rem; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; }
+    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 2px; }
+    .subtitle { color: var(--text-muted); margin-bottom: 12px; text-align: center; font-size: 0.8rem; }
 
-    .panel { background: var(--card-bg); border-radius: 12px; padding: 20px; width: 100%; max-width: 860px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    .panel { background: var(--card-bg); border-radius: 12px; padding: 14px; width: 100%; max-width: 540px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); position: relative; }
     .hidden { display: none !important; }
 
     /* Pixel Art */
@@ -36,169 +37,180 @@
     }
 
     /* Buttons & Inputs */
-    .btn { background: var(--accent); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
-    .btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn { background: var(--accent); color: white; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.95rem; width: 100%; }
+    .btn:active:not(:disabled) { transform: scale(0.98); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-secondary { background: #475569; }
-    .btn-secondary:hover:not(:disabled) { background: #64748b; }
-    .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+    .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; width: 100%; }
 
-    input[type="text"] { background: #0f172a; border: 1px solid #475569; color: white; padding: 10px 14px; border-radius: 8px; font-size: 0.95rem; outline: none; width: 100%; max-width: 280px; }
+    input[type="text"] { background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; width: 100%; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
     input[type="text"]:focus { border-color: var(--accent); }
 
     /* Lobby */
-    .lobby-block { border: 1px solid #334155; padding: 16px; border-radius: 8px; margin-bottom: 16px; background: #0f172a; text-align: center; }
-    .code-tag { background: #334155; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 1.1rem; color: #38bdf8; user-select: all; }
+    .lobby-block { border: 1px solid #334155; padding: 12px; border-radius: 8px; margin-bottom: 12px; background: #0f172a; text-align: center; }
+    .code-tag { background: #334155; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 1.3rem; color: #38bdf8; font-weight: bold; letter-spacing: 3px; display: inline-block; margin-top: 6px; user-select: all; }
 
     /* Rosters */
-    .roster-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 8px; margin: 10px 0; }
-    .poke-chip { background: #334155; border-radius: 8px; padding: 6px; text-align: center; font-size: 0.8rem; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; }
-    .poke-chip.active { border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.4); }
-    .poke-chip.fainted { opacity: 0.35; filter: grayscale(1); }
-    .poke-chip img { width: 52px; height: 52px; }
+    .roster-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
+    .poke-chip { background: #334155; border-radius: 6px; padding: 4px; text-align: center; font-size: 0.72rem; border: 1.5px solid transparent; display: flex; flex-direction: column; align-items: center; }
+    .poke-chip.active { border-color: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.5); }
+    .poke-chip.fainted { opacity: 0.3; filter: grayscale(1); }
+    .poke-chip img { width: 44px; height: 44px; }
 
-    .type-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-top: 3px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+    .type-badge { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; margin-top: 2px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
-    /* Draft Phase */
-    .roll-display { display: flex; align-items: center; justify-content: center; gap: 20px; background: #0f172a; border-radius: 8px; padding: 16px; margin: 14px 0; border: 1px dashed #475569; min-height: 120px; }
-    .roll-display img { width: 90px; height: 90px; }
+    /* Battle Arena */
+    .battle-arena { display: flex; flex-direction: column; gap: 10px; position: relative; }
+    .fighter-card { background: #0f172a; padding: 10px; border-radius: 8px; border-left: 4px solid #475569; position: relative; }
+    .fighter-card.me { border-left-color: var(--p1); }
+    .fighter-card.opp { border-left-color: var(--p2); }
 
-    /* Battle Phase */
-    .battle-arena { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .fighter-card { background: #0f172a; padding: 14px; border-radius: 8px; border-top: 4px solid #475569; }
-    .fighter-card.me { border-top-color: var(--p1); }
-    .fighter-card.opp { border-top-color: var(--p2); }
+    .fighter-header { display: flex; align-items: center; gap: 10px; }
+    .fighter-header img { width: 62px; height: 62px; background: #1e293b; border-radius: 8px; border: 1px solid #334155; }
 
-    .fighter-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .fighter-header img { width: 75px; height: 75px; background: #1e293b; border-radius: 8px; border: 1px solid #334155; }
-
-    .hp-bar-bg { background: #334155; height: 10px; border-radius: 5px; overflow: hidden; margin: 6px 0; }
+    .hp-bar-bg { background: #334155; height: 8px; border-radius: 4px; overflow: hidden; margin: 4px 0; }
     .hp-bar-fill { background: var(--hp-green); height: 100%; width: 100%; transition: width 0.3s ease, background-color 0.3s; }
 
-    .energy-bar-bg { background: #334155; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+    .energy-bar-bg { background: #334155; height: 5px; border-radius: 3px; overflow: hidden; margin-top: 3px; }
     .energy-bar-fill { background: var(--energy-blue); height: 100%; width: 0%; transition: width 0.3s ease; }
 
-    .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
-    .move-btn { background: #334155; border: 1px solid #475569; padding: 10px; border-radius: 8px; color: white; text-align: left; cursor: pointer; transition: 0.2s; }
-    .move-btn:hover:not(:disabled) { background: #475569; }
+    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .move-btn { background: #334155; border: 1px solid #475569; padding: 8px; border-radius: 8px; color: white; text-align: left; cursor: pointer; transition: 0.15s; }
+    .move-btn:active:not(:disabled) { transform: scale(0.98); }
     .move-btn.charged { border-color: #f59e0b; }
     .move-btn.charged:not(:disabled) { background: #78350f; }
-    .move-btn.charged:not(:disabled):hover { background: #92400e; }
-    .move-info { font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 2px; }
+    .move-info { font-size: 0.7rem; color: var(--text-muted); display: block; margin-top: 1px; }
 
-    .log-box { background: #050b14; border: 1px solid #1e293b; border-radius: 8px; height: 130px; overflow-y: auto; padding: 10px; font-family: monospace; font-size: 0.82rem; line-height: 1.4; color: #cbd5e1; }
-    .log-entry { margin-bottom: 4px; }
-    .log-entry.crit { color: #facc15; font-weight: bold; }
-    .log-entry.super { color: #4ade80; }
-    .log-entry.not-very { color: #94a3b8; }
-    .log-entry.immune { color: #e2e8f0; font-style: italic; }
-    .log-entry.faint { color: #f87171; font-weight: bold; }
+    /* Animated Popups */
+    .popup-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+    }
+    .popup-badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      animation: popFade 1.6s ease-out forwards;
+    }
+    .popup-badge.super { background: #22c55e; color: #022c22; }
+    .popup-badge.not-very { background: #64748b; color: #f8fafc; }
+    .popup-badge.immune { background: #334155; color: #94a3b8; }
+    .popup-badge.crit { background: #eab308; color: #422006; }
+    .popup-badge.dmg { background: #ef4444; color: #ffffff; font-size: 1.1rem; }
+
+    @keyframes popFade {
+      0% { opacity: 0; transform: translateY(12px) scale(0.85); }
+      15% { opacity: 1; transform: translateY(-4px) scale(1.08); }
+      25% { transform: translateY(0) scale(1); }
+      75% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-16px) scale(0.95); }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Pokémon 1v1 Pixel Arena</h1>
-  <p class="subtitle">Draft 6 unique Pokémon • Fast & Charged Moves • 5-Turn Switch Cooldown</p>
+  <h1>Pokémon 1v1 Arena</h1>
+  <p class="subtitle">Draft 6 in 1-Click • Fast & Charged Moves • 5-Move Switch Cooldown</p>
 
-  <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
     <div class="lobby-block">
       <h3>Host Online Room</h3>
-      <p style="color:var(--text-muted); font-size:0.85rem; margin:6px 0 12px;">Create a room and share the room code with your friend.</p>
+      <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Get a 6-digit room code to share.</p>
       <button class="btn" onclick="hostRoom()">Create Room</button>
-      <div id="host-info" class="hidden" style="margin-top:12px;">
-        <p>Room Code: <span id="my-peer-id" class="code-tag">...</span></p>
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Waiting for opponent to connect...</p>
+      <div id="host-info" class="hidden" style="margin-top:10px;">
+        <p style="font-size:0.85rem;">Room Code:</p>
+        <span id="my-peer-id" class="code-tag">------</span>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Waiting for opponent to connect...</p>
       </div>
     </div>
 
     <div class="lobby-block">
-      <h3>Join Online Room</h3>
-      <p style="color:var(--text-muted); font-size:0.85rem; margin:6px 0 12px;">Enter your friend's room code:</p>
-      <div style="display:flex; justify-content:center; gap:8px;">
-        <input type="text" id="join-id-input" placeholder="Enter Host Code" />
-        <button class="btn" onclick="joinRoom()">Join Room</button>
-      </div>
+      <h3>Join Room</h3>
+      <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Enter 6-digit code:</p>
+      <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
+      <button class="btn" style="margin-top:8px;" onclick="joinRoom()">Join Match</button>
     </div>
 
-    <div style="text-align:center; margin-top:12px;">
-      <button class="btn btn-secondary" onclick="startSinglePlayer()">Practice vs. AI (Offline)</button>
-    </div>
+    <button class="btn btn-secondary" onclick="startSinglePlayer()">Practice vs. AI</button>
   </div>
 
-  <!-- DRAFT SCREEN -->
   <div id="screen-draft" class="panel hidden">
-    <h2 id="draft-turn-indicator" style="text-align:center;">Draft Phase</h2>
-    <p style="text-align:center; color:var(--text-muted); margin-bottom:12px;" id="draft-progress">Pick 1 of 6</p>
+    <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
+    <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 Pokémon with one click.</p>
 
-    <div class="roll-display" id="roll-display">
-      <p style="color:var(--text-muted);">Waiting to begin draft...</p>
-    </div>
+    <button id="btn-roll-all" class="btn" onclick="triggerOneClickRoll()">🎲 Roll All 6 Pokémon</button>
 
-    <div class="btn-group">
-      <button id="btn-roll" class="btn" onclick="triggerDraftRoll()">Roll Pokémon</button>
-    </div>
-
-    <h3 style="margin-top:20px; font-size:0.95rem;">Your Team (<span id="my-team-count">0</span>/6)</h3>
+    <h3 style="margin-top:16px; font-size:0.9rem;">Your Team</h3>
     <div id="my-draft-roster" class="roster-grid"></div>
 
-    <h3 style="margin-top:14px; font-size:0.95rem;">Opponent Team (<span id="opp-team-count">0</span>/6)</h3>
+    <h3 style="margin-top:12px; font-size:0.9rem;">Opponent Team</h3>
     <div id="opp-draft-roster" class="roster-grid"></div>
   </div>
 
-  <!-- BATTLE SCREEN -->
   <div id="screen-battle" class="panel hidden">
-    <div class="battle-arena">
-      <!-- Player Card -->
-      <div class="fighter-card me">
-        <div class="fighter-header">
-          <img id="my-active-sprite" class="pixel-art" src="" alt="Active Pokemon" />
-          <div style="flex:1;">
-            <h3 id="my-active-name" style="font-size:1.05rem;">You: ---</h3>
-            <span id="my-active-type" class="type-badge">TYPE</span>
-          </div>
-        </div>
-        <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
-        <p style="font-size:0.8rem; display:flex; justify-content:space-between;">
-          <span id="my-hp-text">HP: 100/100</span>
-          <span id="my-energy-text" style="color:var(--energy-blue); font-weight:600;">Charge: 0/3</span>
-        </p>
-        <div class="energy-bar-bg"><div id="my-energy-fill" class="energy-bar-fill"></div></div>
-        <div id="my-bench" class="roster-grid"></div>
-      </div>
+    <div id="popup-layer" class="popup-container"></div>
 
-      <!-- Opponent Card -->
+    <div class="battle-arena">
       <div class="fighter-card opp">
         <div class="fighter-header">
-          <img id="opp-active-sprite" class="pixel-art" src="" alt="Opponent Pokemon" />
+          <img id="opp-active-sprite" class="pixel-art" src="" alt="Opponent" />
           <div style="flex:1;">
-            <h3 id="opp-active-name" style="font-size:1.05rem;">Opponent: ---</h3>
-            <span id="opp-active-type" class="type-badge">TYPE</span>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 id="opp-active-name" style="font-size:0.95rem;">Opponent: ---</h3>
+              <span id="opp-active-type" class="type-badge">TYPE</span>
+            </div>
+            <div class="hp-bar-bg"><div id="opp-hp-fill" class="hp-bar-fill"></div></div>
+            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
+              <span id="opp-hp-text">HP: 100/100</span>
+              <span id="opp-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
+            </p>
+            <div class="energy-bar-bg"><div id="opp-energy-fill" class="energy-bar-fill"></div></div>
           </div>
         </div>
-        <div class="hp-bar-bg"><div id="opp-hp-fill" class="hp-bar-fill"></div></div>
-        <p style="font-size:0.8rem; display:flex; justify-content:space-between;">
-          <span id="opp-hp-text">HP: 100/100</span>
-          <span id="opp-energy-text" style="color:var(--energy-blue); font-weight:600;">Charge: 0/3</span>
-        </p>
-        <div class="energy-bar-bg"><div id="opp-energy-fill" class="energy-bar-fill"></div></div>
-        <div id="opp-bench" class="roster-grid"></div>
+        <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="fighter-card me">
+        <div class="fighter-header">
+          <img id="my-active-sprite" class="pixel-art" src="" alt="You" />
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 id="my-active-name" style="font-size:0.95rem;">You: ---</h3>
+              <span id="my-active-type" class="type-badge">TYPE</span>
+            </div>
+            <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
+            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
+              <span id="my-hp-text">HP: 100/100</span>
+              <span id="my-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
+            </p>
+            <div class="energy-bar-bg"><div id="my-energy-fill" class="energy-bar-fill"></div></div>
+          </div>
+        </div>
+        <div id="my-bench" class="roster-grid" style="margin-top:6px;"></div>
       </div>
     </div>
 
-    <div class="log-box" id="battle-log"></div>
-
-    <div id="battle-controls">
-      <h4 id="action-prompt" style="margin-top:12px;">Choose Action:</h4>
+    <div id="battle-controls" style="margin-top:8px;">
+      <h4 id="action-prompt" style="font-size:0.85rem; color:var(--text-muted); text-align:center;">Your Turn:</h4>
       <div class="action-grid" id="move-container"></div>
-      <div class="btn-group" style="justify-content: flex-start; margin-top:10px;">
-        <button id="btn-switch" class="btn btn-secondary" onclick="promptSwitch(false)">Switch Pokémon</button>
-      </div>
+      <button id="btn-switch" class="btn btn-secondary" style="margin-top:8px;" onclick="promptSwitch(false)">Switch Pokémon</button>
     </div>
   </div>
 
   <script>
-    // 18 TYPES & COLORS
+    // TYPES & EFFECTIVENESS MATRIX
     const TYPE_COLORS = {
       Normal: '#9ca3af', Fire: '#f97316', Water: '#0ea5e9', Grass: '#22c55e',
       Electric: '#eab308', Ice: '#38bdf8', Fighting: '#b91c1c', Poison: '#a855f7',
@@ -207,7 +219,6 @@
       Dark: '#334155', Fairy: '#f472b6'
     };
 
-    // 18-TYPE EFFECTIVENESS MATRIX
     const TYPE_CHART = {
       Normal:   { Rock: 0.5, Ghost: 0.0, Steel: 0.5 },
       Fire:     { Fire: 0.5, Water: 0.5, Grass: 2.0, Ice: 2.0, Bug: 2.0, Rock: 0.5, Dragon: 0.5, Steel: 2.0 },
@@ -231,7 +242,6 @@
 
     const SPRITE_URL = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
-    // 18 POKÉMON ROSTER
     const POKEDEX = [
       { id: 143, name: "Snorlax", type: "Normal", hp: 200, atk: 26, def: 20, sprite: SPRITE_URL(143), fastMove: { name: "Body Slam", type: "Normal", minDmg: 22, maxDmg: 28 }, chargedMove: { name: "Hyper Beam", type: "Normal", minDmg: 85, maxDmg: 100 } },
       { id: 6, name: "Charizard", type: "Fire", hp: 160, atk: 28, def: 18, sprite: SPRITE_URL(6), fastMove: { name: "Fire Spin", type: "Fire", minDmg: 23, maxDmg: 29 }, chargedMove: { name: "Blast Burn", type: "Fire", minDmg: 88, maxDmg: 100 } },
@@ -258,23 +268,31 @@
     let conn = null;
     let isHost = false;
     let isAiMode = false;
-
     let myRole = 'p1';
-    let currentDraftTurn = 1;
+
     let p1Team = [];
     let p2Team = [];
     let p1ActiveIdx = 0;
     let p2ActiveIdx = 0;
     let activeTurn = 'p1';
 
-    // SWITCH COOLDOWN COUNTERS (5 MOVES)
     let p1SwitchCooldown = 0;
     let p2SwitchCooldown = 0;
 
+    // GENERATE 6-DIGIT ROOM CODE
+    function generate6DigitCode() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    }
+
     // AUTO-JOIN VIA URL HASH
     window.addEventListener('load', () => {
-      const hash = window.location.hash.substring(1);
-      if (hash) {
+      const hash = window.location.hash.substring(1).toUpperCase();
+      if (hash && hash.length === 6) {
         document.getElementById('join-id-input').value = hash;
         joinRoom();
       }
@@ -284,7 +302,8 @@
     function hostRoom() {
       isHost = true;
       myRole = 'p1';
-      peer = new Peer();
+      const code = generate6DigitCode();
+      peer = new Peer(code);
 
       peer.on('open', (id) => {
         document.getElementById('my-peer-id').innerText = id;
@@ -294,422 +313,18 @@
       peer.on('connection', (c) => {
         conn = c;
         setupConnection();
-        startDraft();
+        startDraftScreen();
+      });
+
+      peer.on('error', () => {
+        // If code collision happens, fallback to random peer ID
+        peer = new Peer();
+        peer.on('open', (id) => {
+          document.getElementById('my-peer-id').innerText = id.slice(0, 6).toUpperCase();
+          document.getElementById('host-info').classList.remove('hidden');
+        });
       });
     }
 
     function joinRoom() {
-      const hostId = document.getElementById('join-id-input').value.trim();
-      if (!hostId) return alert('Please enter a Host Room Code.');
-
-      isHost = false;
-      myRole = 'p2';
-      peer = new Peer();
-
-      peer.on('open', () => {
-        conn = peer.connect(hostId);
-        setupConnection();
-      });
-    }
-
-    function startSinglePlayer() {
-      isAiMode = true;
-      isHost = true;
-      myRole = 'p1';
-      startDraft();
-    }
-
-    function setupConnection() {
-      conn.on('open', () => {
-        if (!isHost) startDraft();
-      });
-
-      conn.on('data', (data) => {
-        handleNetworkData(data);
-      });
-    }
-
-    function sendNet(type, payload) {
-      if (conn && conn.open) conn.send({ type, payload });
-    }
-
-    function handleNetworkData(msg) {
-      if (msg.type === 'DRAFT_SYNC') {
-        currentDraftTurn = msg.payload.currentDraftTurn;
-        p1Team = msg.payload.p1Team;
-        p2Team = msg.payload.p2Team;
-        updateDraftUI();
-        if (currentDraftTurn > 12) setTimeout(initBattle, 1000);
-      } else if (msg.type === 'BATTLE_ACTION') {
-        executeAction(msg.payload.action, msg.payload.data, false);
-      }
-    }
-
-    // DRAFT LOGIC
-    function startDraft() {
-      document.getElementById('screen-lobby').classList.add('hidden');
-      document.getElementById('screen-draft').classList.remove('hidden');
-      updateDraftUI();
-    }
-
-    function getAvailablePokemon(currentTeam) {
-      const ownedNames = new Set(currentTeam.map(p => p.name));
-      return POKEDEX.filter(p => !ownedNames.has(p.name));
-    }
-
-    function triggerDraftRoll() {
-      const isP1Turn = currentDraftTurn % 2 !== 0;
-      const targetTeam = isP1Turn ? p1Team : p2Team;
-      
-      const available = getAvailablePokemon(targetTeam);
-      const chosenBase = available[Math.floor(Math.random() * available.length)];
-      const rolled = {
-        ...JSON.parse(JSON.stringify(chosenBase)),
-        maxHp: chosenBase.hp,
-        currentHp: chosenBase.hp,
-        energy: 0
-      };
-
-      if (isP1Turn) p1Team.push(rolled);
-      else p2Team.push(rolled);
-
-      currentDraftTurn++;
-
-      if (!isAiMode) {
-        sendNet('DRAFT_SYNC', { currentDraftTurn, p1Team, p2Team });
-      }
-
-      updateDraftUI();
-
-      if (currentDraftTurn > 12) {
-        setTimeout(initBattle, 1000);
-      } else if (isAiMode && currentDraftTurn % 2 === 0) {
-        setTimeout(triggerDraftRoll, 600);
-      }
-    }
-
-    function updateDraftUI() {
-      const isP1Turn = currentDraftTurn % 2 !== 0;
-      const isMyTurn = (myRole === 'p1' && isP1Turn) || (myRole === 'p2' && !isP1Turn);
-      const pickNum = Math.min(6, Math.ceil(currentDraftTurn / 2));
-
-      document.getElementById('draft-progress').innerText = `Pick ${pickNum} of 6`;
-
-      const turnText = document.getElementById('draft-turn-indicator');
-      const rollBtn = document.getElementById('btn-roll');
-
-      if (currentDraftTurn > 12) {
-        turnText.innerText = "Draft Complete! Entering Arena...";
-        rollBtn.disabled = true;
-      } else {
-        turnText.innerText = isMyTurn ? "Your Turn to Roll!" : "Opponent is rolling...";
-        rollBtn.disabled = !isMyTurn;
-      }
-
-      const myTeam = myRole === 'p1' ? p1Team : p2Team;
-      const oppTeam = myRole === 'p1' ? p2Team : p1Team;
-
-      document.getElementById('my-team-count').innerText = myTeam.length;
-      document.getElementById('opp-team-count').innerText = oppTeam.length;
-
-      renderRoster('my-draft-roster', myTeam);
-      renderRoster('opp-draft-roster', oppTeam);
-
-      // Latest pick preview
-      const allDrafted = isP1Turn ? p2Team : p1Team;
-      if (allDrafted.length > 0) {
-        const last = allDrafted[allDrafted.length - 1];
-        document.getElementById('roll-display').innerHTML = `
-          <img src="${last.sprite}" class="pixel-art" alt="${last.name}" />
-          <div>
-            <h3 style="color:${TYPE_COLORS[last.type]}; font-size:1.2rem;">${last.name}</h3>
-            <span class="type-badge" style="background:${TYPE_COLORS[last.type]}">${last.type}</span>
-            <p style="font-size:0.8rem; margin-top:6px; color:var(--text-muted);">
-              ⚡ Fast: ${last.fastMove.name} (${last.fastMove.minDmg}-${last.fastMove.maxDmg})<br>
-              💥 Charged: ${last.chargedMove.name} (${last.chargedMove.minDmg}-${last.chargedMove.maxDmg})
-            </p>
-          </div>
-        `;
-      }
-    }
-
-    function renderRoster(elId, team, activeIdx = -1) {
-      const el = document.getElementById(elId);
-      el.innerHTML = team.map((p, idx) => `
-        <div class="poke-chip ${idx === activeIdx ? 'active' : ''} ${p.currentHp <= 0 ? 'fainted' : ''}">
-          <img src="${p.sprite}" class="pixel-art" alt="${p.name}" />
-          <strong>${p.name}</strong>
-          <span class="type-badge" style="background:${TYPE_COLORS[p.type]}">${p.type}</span>
-          <div style="font-size:0.75rem; margin-top:3px;">${p.currentHp}/${p.maxHp} HP</div>
-        </div>
-      `).join('');
-    }
-
-    // BATTLE SYSTEM
-    function initBattle() {
-      document.getElementById('screen-draft').classList.add('hidden');
-      document.getElementById('screen-battle').classList.remove('hidden');
-      p1ActiveIdx = 0;
-      p2ActiveIdx = 0;
-      p1SwitchCooldown = 0;
-      p2SwitchCooldown = 0;
-      activeTurn = 'p1';
-      log("⚔️ Battle started! Teams locked in.", "crit");
-      updateBattleUI();
-      startTurn();
-    }
-
-    function log(msg, cls = "") {
-      const box = document.getElementById('battle-log');
-      const entry = document.createElement('div');
-      entry.className = `log-entry ${cls}`;
-      entry.innerText = msg;
-      box.appendChild(entry);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function updateBattleUI() {
-      const myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
-      const oppActive = myRole === 'p1' ? p2Team[p2ActiveIdx] : p1Team[p1ActiveIdx];
-
-      // Update Player UI
-      document.getElementById('my-active-sprite').src = myActive.sprite;
-      document.getElementById('my-active-name').innerText = `You: ${myActive.name}`;
-      const myType = document.getElementById('my-active-type');
-      myType.innerText = myActive.type;
-      myType.style.background = TYPE_COLORS[myActive.type];
-      
-      const myHpPct = Math.max(0, (myActive.currentHp / myActive.maxHp) * 100);
-      const myHpFill = document.getElementById('my-hp-fill');
-      myHpFill.style.width = `${myHpPct}%`;
-      myHpFill.style.backgroundColor = myHpPct < 25 ? 'var(--hp-red)' : myHpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
-      document.getElementById('my-hp-text').innerText = `HP: ${myActive.currentHp}/${myActive.maxHp}`;
-      
-      const myEnergyPct = Math.min(100, (myActive.energy / 3) * 100);
-      document.getElementById('my-energy-fill').style.width = `${myEnergyPct}%`;
-      document.getElementById('my-energy-text').innerText = `Charge: ${myActive.energy}/3`;
-      renderRoster('my-bench', myRole === 'p1' ? p1Team : p2Team, myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx);
-
-      // Update Opponent UI
-      document.getElementById('opp-active-sprite').src = oppActive.sprite;
-      document.getElementById('opp-active-name').innerText = `${isAiMode ? 'AI' : 'Opponent'}: ${oppActive.name}`;
-      const oppType = document.getElementById('opp-active-type');
-      oppType.innerText = oppActive.type;
-      oppType.style.background = TYPE_COLORS[oppActive.type];
-      
-      const oppHpPct = Math.max(0, (oppActive.currentHp / oppActive.maxHp) * 100);
-      const oppHpFill = document.getElementById('opp-hp-fill');
-      oppHpFill.style.width = `${oppHpPct}%`;
-      oppHpFill.style.backgroundColor = oppHpPct < 25 ? 'var(--hp-red)' : oppHpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
-      document.getElementById('opp-hp-text').innerText = `HP: ${oppActive.currentHp}/${oppActive.maxHp}`;
-      
-      const oppEnergyPct = Math.min(100, (oppActive.energy / 3) * 100);
-      document.getElementById('opp-energy-fill').style.width = `${oppEnergyPct}%`;
-      document.getElementById('opp-energy-text').innerText = `Charge: ${oppActive.energy}/3`;
-      renderRoster('opp-bench', myRole === 'p1' ? p2Team : p1Team, myRole === 'p1' ? p2ActiveIdx : p1ActiveIdx);
-    }
-
-    function startTurn() {
-      const isMyTurn = (activeTurn === myRole);
-      const prompt = document.getElementById('action-prompt');
-      const moveContainer = document.getElementById('move-container');
-      const switchBtn = document.getElementById('btn-switch');
-      moveContainer.innerHTML = '';
-
-      const myCooldown = myRole === 'p1' ? p1SwitchCooldown : p2SwitchCooldown;
-
-      if (isMyTurn) {
-        prompt.innerText = "Your turn - Select attack or switch:";
-        
-        // Cooldown button state
-        if (myCooldown > 0) {
-          switchBtn.disabled = true;
-          switchBtn.innerText = `Switch Cooldown (${myCooldown} moves)`;
-        } else {
-          switchBtn.disabled = false;
-          switchBtn.innerText = "Switch Pokémon";
-        }
-
-        const myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
-
-        // Fast Attack
-        const fastBtn = document.createElement('button');
-        fastBtn.className = 'move-btn';
-        fastBtn.innerHTML = `
-          <strong>⚡ ${myActive.fastMove.name}</strong>
-          <span class="move-info">Fast (${myActive.fastMove.type}) | Dmg: ${myActive.fastMove.minDmg}-${myActive.fastMove.maxDmg} (+1 Charge)</span>
-        `;
-        fastBtn.onclick = () => executeAction('MOVE', { moveType: 'fast' }, true);
-        moveContainer.appendChild(fastBtn);
-
-        // Charged Attack
-        const chargedBtn = document.createElement('button');
-        const isChargedReady = myActive.energy >= 3;
-        chargedBtn.className = `move-btn charged`;
-        chargedBtn.disabled = !isChargedReady;
-        chargedBtn.innerHTML = `
-          <strong>💥 ${myActive.chargedMove.name}</strong>
-          <span class="move-info">Charged (${myActive.chargedMove.type}) | Dmg: ${myActive.chargedMove.minDmg}-${myActive.chargedMove.maxDmg} ${isChargedReady ? '(READY!)' : `(Needs ${3 - myActive.energy} more)`}</span>
-        `;
-        chargedBtn.onclick = () => executeAction('MOVE', { moveType: 'charged' }, true);
-        moveContainer.appendChild(chargedBtn);
-
-      } else {
-        prompt.innerText = isAiMode ? "AI is thinking..." : "Waiting for opponent...";
-        switchBtn.disabled = true;
-
-        if (isAiMode && activeTurn === 'p2') {
-          setTimeout(aiTakeTurn, 700);
-        }
-      }
-    }
-
-    function executeAction(actionType, data, isOriginator) {
-      if (isOriginator && !isAiMode) {
-        sendNet('BATTLE_ACTION', { action: actionType, data });
-      }
-
-      const isP1 = activeTurn === 'p1';
-      const actorRole = activeTurn;
-      const targetRole = isP1 ? 'p2' : 'p1';
-
-      if (actionType === 'SWITCH') {
-        if (actorRole === 'p1') {
-          p1ActiveIdx = data.newIndex;
-          if (!data.isForced) p1SwitchCooldown = 5; // 5-move switch cooldown
-        } else {
-          p2ActiveIdx = data.newIndex;
-          if (!data.isForced) p2SwitchCooldown = 5; // 5-move switch cooldown
-        }
-
-        const switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
-        log(`${actorRole === myRole ? 'You' : 'Opponent'} switched to ${switchedPoke.name}!`);
-        updateBattleUI();
-
-        if (!data.isForced) {
-          activeTurn = targetRole;
-        }
-        startTurn();
-        return;
-      }
-
-      if (actionType === 'MOVE') {
-        const attacker = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
-        const defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
-        const move = data.moveType === 'charged' ? attacker.chargedMove : attacker.fastMove;
-
-        // Decrement cooldowns on move execution
-        if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
-        if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
-
-        // Base Damage calculation
-        const baseDmg = Math.floor(Math.random() * (move.maxDmg - move.minDmg + 1)) + move.minDmg;
-
-        // Exact Type Chart Multiplier
-        let mult = 1.0;
-        if (TYPE_CHART[move.type] && TYPE_CHART[move.type][defender.type] !== undefined) {
-          mult = TYPE_CHART[move.type][defender.type];
-        }
-
-        let damage = 0;
-        if (mult > 0) {
-          const rawDmg = ((attacker.atk / defender.def) * baseDmg * 0.75) * mult;
-          damage = Math.max(5, Math.round(rawDmg));
-        }
-
-        defender.currentHp = Math.max(0, defender.currentHp - damage);
-
-        // Update Energy
-        if (data.moveType === 'fast') {
-          attacker.energy = (attacker.energy || 0) + 1;
-          log(`${attacker.name} used Fast Attack ${move.name}! (${damage} dmg) [Charge: ${attacker.energy}/3]`);
-        } else {
-          attacker.energy = 0;
-          log(`💥 ${attacker.name} unleashed CHARGED ATTACK ${move.name}! (${damage} dmg)`, "crit");
-        }
-
-        // Matchup feedback
-        if (mult === 0) log(`It doesn't affect ${defender.name}...`, "immune");
-        else if (mult > 1.0) log("It's super effective!", "super");
-        else if (mult < 1.0) log("It's not very effective...", "not-very");
-
-        updateBattleUI();
-
-        if (defender.currentHp <= 0) {
-          log(`${defender.name} fainted!`, "faint");
-          handleFaint(targetRole);
-        } else {
-          activeTurn = targetRole;
-          startTurn();
-        }
-      }
-    }
-
-    function handleFaint(faintedRole) {
-      const team = faintedRole === 'p1' ? p1Team : p2Team;
-      const aliveIdx = team.findIndex(p => p.currentHp > 0);
-
-      // Match Over check
-      if (aliveIdx === -1) {
-        const winner = faintedRole === myRole ? "Opponent" : "You";
-        log(`🏆 ${winner} won the battle!`, "crit");
-        document.getElementById('battle-controls').innerHTML = `
-          <h2 style="text-align:center; color:#4ade80; margin:16px 0;">🎉 ${winner} Won the Game!</h2>
-          <div class="btn-group"><button class="btn" onclick="location.reload()">Play Again</button></div>
-        `;
-        return;
-      }
-
-      // AI auto switch
-      if (faintedRole === 'p2' && isAiMode) {
-        p2ActiveIdx = aliveIdx;
-        log(`AI sent out ${team[aliveIdx].name}!`);
-        updateBattleUI();
-        activeTurn = 'p1';
-        startTurn();
-        return;
-      }
-
-      // Strict Rule: ONLY the fainted player switches; surviving player waits
-      activeTurn = faintedRole;
-      if (faintedRole === myRole) {
-        promptSwitch(true);
-      } else {
-        document.getElementById('action-prompt').innerText = "Opponent is choosing replacement Pokémon...";
-        document.getElementById('move-container').innerHTML = '';
-        document.getElementById('btn-switch').disabled = true;
-      }
-    }
-
-    function promptSwitch(forced = false) {
-      const myTeam = myRole === 'p1' ? p1Team : p2Team;
-      const currentIdx = myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx;
-
-      const container = document.getElementById('move-container');
-      container.innerHTML = '';
-      document.getElementById('action-prompt').innerText = forced ? "Select next Pokémon to send out:" : "Switch to:";
-
-      myTeam.forEach((p, idx) => {
-        if (idx !== currentIdx && p.currentHp > 0) {
-          const btn = document.createElement('button');
-          btn.className = 'move-btn';
-          btn.innerHTML = `<strong>${p.name}</strong><span class="move-info">HP: ${p.currentHp}/${p.maxHp} | Energy: ${p.energy}/3</span>`;
-          btn.onclick = () => {
-            executeAction('SWITCH', { newIndex: idx, isForced: forced }, true);
-          };
-          container.appendChild(btn);
-        }
-      });
-    }
-
-    function aiTakeTurn() {
-      const aiPoke = p2Team[p2ActiveIdx];
-      if (aiPoke.energy >= 3) {
-        executeAction('MOVE', { moveType: 'charged' }, true);
-      } else {
-        executeAction('MOVE', { moveType: 'fast' }, true);
-      }
-    }
-  </script>
-</body>
-</html>
+      const hostId = document.getElementById('join-id-input').value.trim().
