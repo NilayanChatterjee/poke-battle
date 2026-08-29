@@ -69,7 +69,6 @@
 
     .type-badge { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 0.62rem; font-weight: bold; text-transform: uppercase; margin-top: 2px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
-    /* Ready Status Indicators (Glowing Ticks) */
     .ready-indicators-container {
       display: flex;
       justify-content: center;
@@ -116,9 +115,6 @@
       box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
     }
 
-    /* ================================================= */
-    /* DYNAMIC RESPONSIVE BATTLE ARENA                   */
-    /* ================================================= */
     .wireframe-arena {
       display: grid;
       grid-template-columns: 125px 1fr 34px 1fr 125px;
@@ -290,7 +286,6 @@
       max-width: 240px;
     }
 
-    /* Mobile Responsive Queries */
     @media (max-width: 720px) {
       .wireframe-arena {
         grid-template-columns: 1fr 28px 1fr;
@@ -332,7 +327,6 @@
       }
     }
 
-    /* Rules Footer Section */
     .rules-panel {
       background: #0f172a;
       border: 1px solid #334155;
@@ -1021,14 +1015,63 @@
         checkReadyStatus();
       } else if (msg.type === 'BATTLE_ACTION') {
         applyActionLocally(msg.payload.action, msg.payload.data);
+      } else if (msg.type === 'REMATCH_START') {
+        resetToDraftScreen();
       }
     }
 
     function startDraftScreen() {
       document.getElementById('screen-lobby').classList.add('hidden');
+      document.getElementById('screen-battle').classList.add('hidden');
       document.getElementById('screen-draft').classList.remove('hidden');
+      resetDraftControls();
       updateDraftUI();
     }
+
+    function resetDraftControls() {
+      hasRerolled = false;
+      p1Ready = false;
+      p2Ready = false;
+      document.getElementById('draft-status-title').innerText = "Team Selection";
+      document.getElementById('draft-status-desc').innerText = "Roll all 6 fully evolved Pokémon. 1 Re-Roll allowed!";
+      document.getElementById('btn-roll-all').classList.remove('hidden');
+      document.getElementById('btn-reroll').classList.add('hidden');
+      document.getElementById('btn-reroll').disabled = false;
+      document.getElementById('btn-reroll').innerText = "🔄 Re-Roll (1 Left)";
+      document.getElementById('btn-ready').classList.add('hidden');
+      document.getElementById('btn-ready').disabled = false;
+      document.getElementById('btn-ready').innerText = "✅ Ready for Battle";
+    }
+
+    function resetToDraftScreen() {
+      // Rebuild controls section UI
+      document.getElementById('controls-section').innerHTML = 
+        '<div class="attacks-row">' +
+          '<button id="btn-fast-atk" class="attack-btn" onclick="executeMoveLocally(\'fast\')">' +
+            '<strong>⚡ Fast Attack</strong>' +
+            '<span id="lbl-fast-info" style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">+1 Energy</span>' +
+          '</button>' +
+          '<button id="btn-charged-atk" class="attack-btn charged" onclick="executeMoveLocally(\'charged\')" disabled>' +
+            '<strong>💥 Charged Attack</strong>' +
+            '<span id="lbl-charged-info" style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">Need 3 Energy</span>' +
+          '</button>' +
+        '</div>' +
+        '<div class="mega-btn-container">' +
+          '<button id="btn-mega" class="btn btn-mega hidden" onclick="handleMegaButtonClick()">🧬 Mega Evolve</button>' +
+        '</div>';
+
+      p1Team = [];
+      p2Team = [];
+      startDraftScreen();
+    }
+
+    window.triggerRematch = function() {
+      playSound('beep');
+      if (!isAiMode) {
+        sendNet('REMATCH_START', {});
+      }
+      resetToDraftScreen();
+    };
 
     function rollSixUniquePokemon() {
       var shuffled = POKEDEX.slice().sort(function() { return 0.5 - Math.random(); });
@@ -1193,7 +1236,6 @@
       startTurn();
     }
 
-    // Render Bench with Types, Fainted state, and Cooldown display
     function renderBenchGrid(containerId, team, activeIdx, isInteractive) {
       var container = document.getElementById(containerId);
       if (!container) return;
@@ -1307,6 +1349,8 @@
       var fastBtn = document.getElementById('btn-fast-atk');
       var chargedBtn = document.getElementById('btn-charged-atk');
       var megaBtn = document.getElementById('btn-mega');
+
+      if (!fastBtn || !chargedBtn) return;
 
       if (isMyTurn) {
         if (myCooldown > 0) {
@@ -1530,7 +1574,12 @@
         turnInd.innerText = "🏁 Match Finished!";
         turnInd.style.color = "#4ade80";
 
-        document.getElementById('controls-section').innerHTML = '<h2 style="text-align:center; color:#4ade80; margin:12px 0;">🎉 ' + winner + ' Won the Arena!</h2><button class="btn" onclick="location.reload()">Play Again</button>';
+        document.getElementById('controls-section').innerHTML = 
+          '<h2 style="text-align:center; color:#4ade80; margin:12px 0;">🎉 ' + winner + ' Won the Arena!</h2>' +
+          '<div style="display:flex; gap:10px; width:100%; max-width:360px;">' +
+            '<button class="btn btn-ready" onclick="triggerRematch()">🔄 Play Again</button>' +
+            '<button class="btn btn-secondary" onclick="location.reload()">🚪 Lobby</button>' +
+          '</div>';
         return;
       }
 
