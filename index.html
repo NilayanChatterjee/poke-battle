@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Pokémon 1v1 Arena - Mega Evolution Edition</title>
+  <title>Pokémon 1v1 Arena - Ready Sync</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -38,6 +38,8 @@
     .btn:active:not(:disabled) { transform: scale(0.98); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-secondary { background: #475569; }
+    .btn-ready { background: #16a34a; }
+    .btn-ready:hover:not(:disabled) { background: #15803d; }
     .btn-mega { background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 0 10px rgba(236,72,153,0.5); }
     .btn-mega:hover:not(:disabled) { background: linear-gradient(135deg, #db2777, #7c3aed); }
 
@@ -135,7 +137,6 @@
       100% { opacity: 0; transform: translateY(-16px) scale(0.95); }
     }
 
-    /* Modal for Multi-Mega Selection */
     .modal-backdrop {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
@@ -175,7 +176,7 @@
   </div>
 
   <h1>Pokémon 1v1 Arena</h1>
-  <p class="subtitle">Forward-Facing Sprites • Multi-Form Megas • 8-Bit SFX</p>
+  <p class="subtitle">Forward-Facing Sprites • Synchronized Ready Check • Multi-Megas</p>
 
   <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
@@ -207,15 +208,18 @@
     <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
     <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 fully evolved Pokémon. 1 Re-Roll allowed!</p>
 
-    <div style="display:flex; gap:8px;">
-      <button id="btn-roll-all" class="btn" onclick="triggerOneClickRoll()">🎲 Roll All 6</button>
-      <button id="btn-reroll" class="btn btn-secondary hidden" onclick="triggerReroll()">🔄 Re-Roll (1 Left)</button>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div style="display:flex; gap:8px;">
+        <button id="btn-roll-all" class="btn" onclick="triggerOneClickRoll()">🎲 Roll All 6</button>
+        <button id="btn-reroll" class="btn btn-secondary hidden" onclick="triggerReroll()">🔄 Re-Roll (1 Left)</button>
+      </div>
+      <button id="btn-ready" class="btn btn-ready hidden" onclick="triggerReady()">✅ Ready for Battle</button>
     </div>
 
-    <h3 style="margin-top:16px; font-size:0.9rem;">Your Team</h3>
+    <h3 style="margin-top:16px; font-size:0.9rem;">Your Team <span id="my-ready-status" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;"></span></h3>
     <div id="my-draft-roster" class="roster-grid"></div>
 
-    <h3 style="margin-top:12px; font-size:0.9rem;">Opponent Team</h3>
+    <h3 style="margin-top:12px; font-size:0.9rem;">Opponent Team <span id="opp-ready-status" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;"></span></h3>
     <div id="opp-draft-roster" class="roster-grid"></div>
   </div>
 
@@ -247,7 +251,7 @@
         <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
       </div>
 
-      <!-- Player Card (Forward Facing) -->
+      <!-- Player Card -->
       <div class="fighter-card me" id="me-card">
         <div class="fighter-header">
           <div class="sprite-box">
@@ -336,7 +340,6 @@
       Fairy:    { fast: "Fairy Wind", charged: "Moonblast" }
     };
 
-    // MEGA EVOLUTION DATA MAPPINGS & FORMS
     const MEGA_FORMS = {
       3:   [{ name: "Mega Venusaur", type: "Grass", spriteId: 10033 }],
       6:   [
@@ -353,14 +356,13 @@
       127: [{ name: "Mega Pinsir", type: "Bug", spriteId: 10040 }],
       130: [{ name: "Mega Gyarados", type: "Dark", spriteId: 10041 }],
       142: [{ name: "Mega Aerodactyl", type: "Rock", spriteId: 10042 }],
-      149: [{ name: "Mega Dragonite", type: "Dragon", spriteId: 149 }], // Special Form
+      149: [{ name: "Mega Dragonite", type: "Dragon", spriteId: 149 }],
       150: [
              { name: "Mega Mewtwo X", type: "Fighting", spriteId: 10043 },
              { name: "Mega Mewtwo Y", type: "Psychic", spriteId: 10044 }
            ]
     };
 
-    // STRICTLY MAX-EVOLVED & SINGLE-STAGE KANTO SPECIES (65 TOTAL)
     const MAX_EVO_KANTO = [
       [3, "Venusaur", "Grass", 180, 28, 24],
       [6, "Charizard", "Fire", 175, 30, 22],
@@ -477,6 +479,10 @@
     var p2HasMegaStone = true;
     var hasRerolled = false;
 
+    // READY FLAGS
+    var p1Ready = false;
+    var p2Ready = false;
+
     var PREFIX = "pk1v-";
     var audioCtx = null;
 
@@ -554,6 +560,8 @@
       isAiMode = true;
       isHost = true;
       myRole = 'p1';
+      p1Ready = false;
+      p2Ready = false;
       startDraftScreen();
     };
 
@@ -561,6 +569,8 @@
       playSound('beep');
       isHost = true;
       myRole = 'p1';
+      p1Ready = false;
+      p2Ready = false;
       document.getElementById('btn-create-room').disabled = true;
       document.getElementById('host-info').classList.remove('hidden');
 
@@ -618,6 +628,8 @@
 
       isHost = false;
       myRole = 'p2';
+      p1Ready = false;
+      p2Ready = false;
       document.getElementById('btn-join-room').disabled = true;
       document.getElementById('btn-join-room').innerText = "Connecting...";
 
@@ -659,10 +671,19 @@
 
     function handleNetworkData(msg) {
       if (msg.type === 'TEAM_ROLLED') {
-        if (msg.payload.role === 'p1') p1Team = msg.payload.team;
-        else p2Team = msg.payload.team;
+        if (msg.payload.role === 'p1') {
+          p1Team = msg.payload.team;
+          p1Ready = false;
+        } else {
+          p2Team = msg.payload.team;
+          p2Ready = false;
+        }
         updateDraftUI();
-        checkDraftCompletion();
+      } else if (msg.type === 'PLAYER_READY') {
+        if (msg.payload.role === 'p1') p1Ready = true;
+        else p2Ready = true;
+        updateDraftUI();
+        checkReadyStatus();
       } else if (msg.type === 'BATTLE_ACTION') {
         applyActionLocally(msg.payload.action, msg.payload.data);
       }
@@ -689,20 +710,23 @@
     window.triggerOneClickRoll = function() {
       playSound('beep');
       var myTeam = rollSixUniquePokemon();
-      if (myRole === 'p1') p1Team = myTeam;
-      else p2Team = myTeam;
+      if (myRole === 'p1') { p1Team = myTeam; p1Ready = false; }
+      else { p2Team = myTeam; p2Ready = false; }
 
       document.getElementById('btn-roll-all').classList.add('hidden');
       document.getElementById('btn-reroll').classList.remove('hidden');
+      document.getElementById('btn-ready').classList.remove('hidden');
+      document.getElementById('btn-ready').disabled = false;
+      document.getElementById('btn-ready').innerText = "✅ Ready for Battle";
 
       if (!isAiMode) {
         sendNet('TEAM_ROLLED', { role: myRole, team: myTeam });
       } else {
         p2Team = rollSixUniquePokemon();
+        p2Ready = true;
       }
 
       updateDraftUI();
-      checkDraftCompletion();
     };
 
     window.triggerReroll = function() {
@@ -710,11 +734,13 @@
       playSound('beep');
       hasRerolled = true;
       var myTeam = rollSixUniquePokemon();
-      if (myRole === 'p1') p1Team = myTeam;
-      else p2Team = myTeam;
+      if (myRole === 'p1') { p1Team = myTeam; p1Ready = false; }
+      else { p2Team = myTeam; p2Ready = false; }
 
       document.getElementById('btn-reroll').disabled = true;
-      document.getElementById('btn-reroll').innerText = "✅ Re-Rolled (Locked)";
+      document.getElementById('btn-reroll').innerText = "✅ Re-Rolled";
+      document.getElementById('btn-ready').disabled = false;
+      document.getElementById('btn-ready').innerText = "✅ Ready for Battle";
 
       if (!isAiMode) {
         sendNet('TEAM_ROLLED', { role: myRole, team: myTeam });
@@ -722,9 +748,25 @@
       updateDraftUI();
     };
 
-    function checkDraftCompletion() {
-      if (p1Team.length === 6 && p2Team.length === 6) {
-        document.getElementById('draft-status-title').innerText = "Both Teams Ready!";
+    window.triggerReady = function() {
+      playSound('beep');
+      if (myRole === 'p1') p1Ready = true;
+      else p2Ready = true;
+
+      document.getElementById('btn-ready').disabled = true;
+      document.getElementById('btn-ready').innerText = "⏳ Waiting for Opponent...";
+      document.getElementById('btn-reroll').classList.add('hidden');
+
+      if (!isAiMode) {
+        sendNet('PLAYER_READY', { role: myRole });
+      }
+      updateDraftUI();
+      checkReadyStatus();
+    };
+
+    function checkReadyStatus() {
+      if (p1Ready && p2Ready && p1Team.length === 6 && p2Team.length === 6) {
+        document.getElementById('draft-status-title').innerText = "Both Players Ready!";
         document.getElementById('draft-status-desc').innerText = "Entering Battle Arena...";
         setTimeout(initBattle, 1200);
       }
@@ -733,6 +775,12 @@
     function updateDraftUI() {
       var myTeam = myRole === 'p1' ? p1Team : p2Team;
       var oppTeam = myRole === 'p1' ? p2Team : p1Team;
+      var isMyReady = myRole === 'p1' ? p1Ready : p2Ready;
+      var isOppReady = myRole === 'p1' ? p2Ready : p1Ready;
+
+      document.getElementById('my-ready-status').innerHTML = isMyReady ? "<b style='color:#4ade80;'>[READY]</b>" : "<span style='color:#94a3b8;'>[Picking]</span>";
+      document.getElementById('opp-ready-status').innerHTML = isOppReady ? "<b style='color:#4ade80;'>[READY]</b>" : "<span style='color:#94a3b8;'>[Picking]</span>";
+
       renderRoster('my-draft-roster', myTeam);
       renderRoster('opp-draft-roster', oppTeam);
     }
@@ -892,7 +940,7 @@
       }
     }
 
-    // MEGA FORM SELECTION HANDLER
+    // MEGA FORM SELECTION
     window.handleMegaButtonClick = function() {
       var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
       var forms = MEGA_FORMS[myActive.id];
@@ -901,7 +949,6 @@
       if (forms.length === 1) {
         triggerMegaEvolution(0);
       } else {
-        // Multi-form modal popup
         var modal = document.getElementById('mega-modal');
         var choices = document.getElementById('mega-choices');
         choices.innerHTML = '';
