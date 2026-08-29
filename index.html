@@ -230,7 +230,7 @@
     <div id="popup-layer" class="popup-container"></div>
 
     <div class="battle-arena" id="arena-box">
-      <!-- Player Card (TOP HALF) -->
+      <!-- 1. YOUR CARD (TOP) -->
       <div class="fighter-card me" id="me-card">
         <div class="fighter-header">
           <div class="sprite-box">
@@ -251,9 +251,20 @@
           </div>
         </div>
         <div id="my-bench" class="roster-grid" style="margin-top:6px;"></div>
+
+        <!-- YOUR ATTACKS & ACTIONS (ATTACHED DIRECTLY TO YOUR TOP CARD) -->
+        <div id="battle-controls" style="margin-top:10px; border-top: 1px solid #334155; padding-top: 8px;">
+          <h4 id="action-prompt" style="font-size:0.85rem; color:var(--text-muted); text-align:center;">Your Turn:</h4>
+          <div class="action-grid" id="move-container"></div>
+          
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button id="btn-mega" class="btn btn-mega hidden" onclick="handleMegaButtonClick()">🧬 Mega Evolve (1 Left)</button>
+            <button id="btn-switch" class="btn btn-secondary" onclick="promptSwitch(false)">Switch Pokémon</button>
+          </div>
+        </div>
       </div>
 
-      <!-- Opponent Card (BOTTOM HALF) -->
+      <!-- 2. OPPONENT CARD (BOTTOM) -->
       <div class="fighter-card opp" id="opp-card">
         <div class="fighter-header">
           <div class="sprite-box">
@@ -274,17 +285,6 @@
           </div>
         </div>
         <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
-      </div>
-    </div>
-
-    <!-- Battle Actions -->
-    <div id="battle-controls" style="margin-top:8px;">
-      <h4 id="action-prompt" style="font-size:0.85rem; color:var(--text-muted); text-align:center;">Your Turn:</h4>
-      <div class="action-grid" id="move-container"></div>
-      
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <button id="btn-mega" class="btn btn-mega hidden" onclick="handleMegaButtonClick()">🧬 Mega Evolve (1 Left)</button>
-        <button id="btn-switch" class="btn btn-secondary" onclick="promptSwitch(false)">Switch Pokémon</button>
       </div>
     </div>
   </div>
