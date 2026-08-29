@@ -69,6 +69,53 @@
 
     .type-badge { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 0.62rem; font-weight: bold; text-transform: uppercase; margin-top: 2px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
+    /* Ready Status Indicators (Glowing Ticks) */
+    .ready-indicators-container {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin: 12px 0 16px;
+      flex-wrap: wrap;
+    }
+    .ready-badge {
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 999px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, background 0.3s ease;
+    }
+    .tick-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 1.5px solid #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.75rem;
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+    .ready-badge.is-ready {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.08);
+      color: #f8fafc;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.35);
+    }
+    .ready-badge.is-ready .tick-circle {
+      background: #22c55e;
+      border-color: #4ade80;
+      color: #052e16;
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+    }
+
     /* ================================================= */
     /* DYNAMIC RESPONSIVE BATTLE ARENA                   */
     /* ================================================= */
@@ -443,9 +490,21 @@
   <!-- DRAFT SCREEN -->
   <div id="screen-draft" class="panel hidden">
     <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
-    <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 fully evolved Pokémon. 1 Re-Roll allowed!</p>
+    <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:6px;">Roll all 6 fully evolved Pokémon. 1 Re-Roll allowed!</p>
 
-    <h3 style="margin-top:12px; font-size:0.9rem;">Your Team <span id="my-ready-status" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;"></span></h3>
+    <!-- Two Glowing Ready Ticks -->
+    <div class="ready-indicators-container">
+      <div id="badge-my-ready" class="ready-badge">
+        <span class="tick-circle" id="tick-my-ready">✓</span>
+        <span id="text-my-ready">You (Picking)</span>
+      </div>
+      <div id="badge-opp-ready" class="ready-badge">
+        <span class="tick-circle" id="tick-opp-ready">✓</span>
+        <span id="text-opp-ready">Opponent (Picking)</span>
+      </div>
+    </div>
+
+    <h3 style="margin-top:8px; font-size:0.9rem;">Your Team</h3>
     <div id="my-draft-roster" class="roster-grid"></div>
 
     <div style="display:flex; flex-direction:column; gap:8px; margin: 12px 0;">
@@ -1051,8 +1110,29 @@
     function updateDraftUI() {
       var myTeam = myRole === 'p1' ? p1Team : p2Team;
       var isMyReady = myRole === 'p1' ? p1Ready : p2Ready;
+      var isOppReady = myRole === 'p1' ? p2Ready : p1Ready;
 
-      document.getElementById('my-ready-status').innerHTML = isMyReady ? "<b style='color:#4ade80;'>[READY]</b>" : "<span style='color:#94a3b8;'>[Picking]</span>";
+      // Update Glowing Ready Badges
+      var myBadge = document.getElementById('badge-my-ready');
+      var myText = document.getElementById('text-my-ready');
+      if (isMyReady) {
+        myBadge.classList.add('is-ready');
+        myText.innerText = "You (Ready)";
+      } else {
+        myBadge.classList.remove('is-ready');
+        myText.innerText = "You (Picking)";
+      }
+
+      var oppBadge = document.getElementById('badge-opp-ready');
+      var oppText = document.getElementById('text-opp-ready');
+      var oppLabel = isAiMode ? "AI" : "Opponent";
+      if (isOppReady) {
+        oppBadge.classList.add('is-ready');
+        oppText.innerText = oppLabel + " (Ready)";
+      } else {
+        oppBadge.classList.remove('is-ready');
+        oppText.innerText = oppLabel + " (Picking)";
+      }
 
       renderDraftRoster('my-draft-roster', myTeam);
     }
@@ -1135,7 +1215,6 @@
         var p = item.pokemon;
         var isFainted = p.currentHp <= 0;
         
-        // Allowed to switch if forced (fainted) OR voluntary switch with 0 cooldown on your turn
         var isCanClick = isInteractive && !isFainted && (isForcedSwitch || (isMyTurn && currentCooldown === 0));
 
         var card = document.createElement('div');
@@ -1443,9 +1522,14 @@
       }
 
       if (aliveIdx === -1) {
-        var winner = faintedRole === myRole ? "Opponent" : "You";
+        var winner = faintedRole === myRole ? (isAiMode ? "AI" : "Opponent") : "You";
         playSound('fanfare');
         showPopup('🏆 ' + winner + ' Won!', "crit");
+        
+        var turnInd = document.getElementById('turn-indicator');
+        turnInd.innerText = "🏁 Match Finished!";
+        turnInd.style.color = "#4ade80";
+
         document.getElementById('controls-section').innerHTML = '<h2 style="text-align:center; color:#4ade80; margin:12px 0;">🎉 ' + winner + ' Won the Arena!</h2><button class="btn" onclick="location.reload()">Play Again</button>';
         return;
       }
@@ -1469,7 +1553,7 @@
         document.getElementById('btn-charged-atk').disabled = true;
         document.getElementById('btn-mega').classList.add('hidden');
       } else {
-        document.getElementById('turn-indicator').innerText = "Opponent is choosing replacement...";
+        document.getElementById('turn-indicator').innerText = (isAiMode ? "AI" : "Opponent") + " is choosing replacement...";
         document.getElementById('turn-indicator').style.color = "var(--text-muted)";
         document.getElementById('btn-fast-atk').disabled = true;
         document.getElementById('btn-charged-atk').disabled = true;
