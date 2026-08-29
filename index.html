@@ -455,9 +455,6 @@
       </div>
       <button id="btn-ready" class="btn btn-ready hidden" onclick="triggerReady()">✅ Ready for Battle</button>
     </div>
-
-    <h3 style="margin-top:12px; font-size:0.9rem;">Opponent Team <span id="opp-ready-status" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;"></span></h3>
-    <div id="opp-draft-roster" class="roster-grid"></div>
   </div>
 
   <!-- BATTLE SCREEN -->
@@ -1053,15 +1050,11 @@
 
     function updateDraftUI() {
       var myTeam = myRole === 'p1' ? p1Team : p2Team;
-      var oppTeam = myRole === 'p1' ? p2Team : p1Team;
       var isMyReady = myRole === 'p1' ? p1Ready : p2Ready;
-      var isOppReady = myRole === 'p1' ? p2Ready : p1Ready;
 
       document.getElementById('my-ready-status').innerHTML = isMyReady ? "<b style='color:#4ade80;'>[READY]</b>" : "<span style='color:#94a3b8;'>[Picking]</span>";
-      document.getElementById('opp-ready-status').innerHTML = isOppReady ? "<b style='color:#4ade80;'>[READY]</b>" : "<span style='color:#94a3b8;'>[Picking]</span>";
 
       renderDraftRoster('my-draft-roster', myTeam);
-      renderOpponentDraftRoster('opp-draft-roster', oppTeam);
     }
 
     function renderDraftRoster(elId, team) {
@@ -1078,12 +1071,6 @@
           '<span class="type-badge" style="background:' + TYPE_COLORS[p.type] + '">' + p.type + '</span>' +
         '</div>';
       }).join('');
-    }
-
-    function renderOpponentDraftRoster(elId, team) {
-      var el = document.getElementById(elId);
-      if (!el) return;
-      el.innerHTML = Array(6).fill('<div class="hidden-card">🔒</div>').join('');
     }
 
     function showPopup(text, type) {
