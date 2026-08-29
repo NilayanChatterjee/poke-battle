@@ -226,7 +226,29 @@
   <!-- BATTLE SCREEN -->
   <div id="screen-battle" class="panel hidden">
     <div id="popup-layer" class="popup-container"></div>
-
+<!-- Player Card -->
+      <div class="fighter-card me" id="me-card">
+        <div class="fighter-header">
+          <div class="sprite-box">
+            <img id="my-active-sprite" class="pixel-art" src="" alt="You" />
+            <span id="my-mega-badge" class="mega-badge-icon hidden">MEGA</span>
+          </div>
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 id="my-active-name" style="font-size:0.95rem;">You: ---</h3>
+              <span id="my-active-type" class="type-badge">TYPE</span>
+            </div>
+            <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
+            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
+              <span id="my-hp-text">HP: 100/100</span>
+              <span id="my-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
+            </p>
+            <div class="energy-bar-bg"><div id="my-energy-fill" class="energy-bar-fill"></div></div>
+          </div>
+        </div>
+        <div id="my-bench" class="roster-grid" style="margin-top:6px;"></div>
+      </div>
+    </div>
     <div class="battle-arena" id="arena-box">
       <!-- Opponent Card -->
       <div class="fighter-card opp" id="opp-card">
@@ -251,29 +273,7 @@
         <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
       </div>
 
-      <!-- Player Card -->
-      <div class="fighter-card me" id="me-card">
-        <div class="fighter-header">
-          <div class="sprite-box">
-            <img id="my-active-sprite" class="pixel-art" src="" alt="You" />
-            <span id="my-mega-badge" class="mega-badge-icon hidden">MEGA</span>
-          </div>
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3 id="my-active-name" style="font-size:0.95rem;">You: ---</h3>
-              <span id="my-active-type" class="type-badge">TYPE</span>
-            </div>
-            <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
-            <p style="font-size:0.75rem; display:flex; justify-content:space-between;">
-              <span id="my-hp-text">HP: 100/100</span>
-              <span id="my-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
-            </p>
-            <div class="energy-bar-bg"><div id="my-energy-fill" class="energy-bar-fill"></div></div>
-          </div>
-        </div>
-        <div id="my-bench" class="roster-grid" style="margin-top:6px;"></div>
-      </div>
-    </div>
+      
 
     <!-- Battle Actions -->
     <div id="battle-controls" style="margin-top:8px;">
