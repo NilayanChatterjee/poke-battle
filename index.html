@@ -25,7 +25,7 @@
     h1 { font-size: 1.45rem; text-align: center; margin-bottom: 2px; }
     .subtitle { color: var(--text-muted); margin-bottom: 12px; text-align: center; font-size: 0.8rem; }
 
-    .panel { background: var(--card-bg); border-radius: 12px; padding: 14px; width: 100%; max-width: 820px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); position: relative; }
+    .panel { background: var(--card-bg); border-radius: 12px; padding: 14px; width: 100%; max-width: 860px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); position: relative; }
     .hidden { display: none !important; }
 
     .pixel-art {
@@ -50,42 +50,36 @@
     .code-tag { background: #334155; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 1.3rem; color: #38bdf8; font-weight: bold; letter-spacing: 3px; display: inline-block; margin: 6px 0; user-select: all; }
 
     .roster-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
-    .poke-chip { background: #334155; border-radius: 6px; padding: 4px; text-align: center; font-size: 0.72rem; border: 1.5px solid transparent; display: flex; flex-direction: column; align-items: center; }
+    .poke-chip { background: #334155; border-radius: 6px; padding: 6px 4px; text-align: center; font-size: 0.72rem; border: 1.5px solid transparent; display: flex; flex-direction: column; align-items: center; }
     .poke-chip.active { border-color: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.5); }
     .poke-chip.fainted { opacity: 0.3; filter: grayscale(1); }
     .poke-chip img { width: 44px; height: 44px; }
 
-    .type-badge { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; margin-top: 2px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+    .type-badge { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 0.62rem; font-weight: bold; text-transform: uppercase; margin-top: 2px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
     /* ================================================= */
-    /* WIREFRAME 1v1 BATTLE STYLES                       */
+    /* DYNAMIC RESPONSIVE BATTLE ARENA                   */
     /* ================================================= */
     .wireframe-arena {
       display: grid;
-      grid-template-columns: 100px 1fr 34px 1fr 100px;
-      gap: 10px;
-      align-items: start;
+      grid-template-columns: 125px 1fr 34px 1fr 125px;
+      gap: 12px;
+      align-items: center;
     }
 
-    @media (max-width: 680px) {
-      .wireframe-arena {
-        grid-template-columns: 75px 1fr 24px 1fr 75px;
-        gap: 6px;
-      }
-    }
-
-    /* Side Bench Layout (2x2 Grid + 1 Centered at Bottom) */
     .bench-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 100%;
     }
     .bench-title {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       margin-bottom: 6px;
       text-align: center;
       white-space: nowrap;
+      font-weight: 600;
     }
     .bench-grid {
       display: grid;
@@ -102,36 +96,50 @@
       background: #113854;
       border: 1px solid #1e527a;
       border-radius: 6px;
-      width: 44px;
-      height: 44px;
+      padding: 3px 2px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
       cursor: default;
-      transition: transform 0.15s, border-color 0.15s;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      min-height: 58px;
     }
     .bench-card img {
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
     }
     .bench-card.fainted {
       filter: grayscale(1) opacity(0.35);
-      border-color: #334155;
-      background: #0f172a;
+      border-color: #334155 !important;
+      background: #0f172a !important;
+      box-shadow: none !important;
+      cursor: not-allowed !important;
     }
     .bench-card.clickable {
       cursor: pointer;
+      border-color: #38bdf8;
+      box-shadow: 0 0 6px rgba(56, 189, 248, 0.4);
     }
     .bench-card.clickable:hover {
-      border-color: #38bdf8;
-      transform: scale(1.06);
+      border-color: #7dd3fc;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
     }
     .bench-card.clickable:active {
       transform: scale(0.96);
     }
 
-    /* Active Fighters Center Cards */
+    .cooldown-badge {
+      font-size: 0.6rem;
+      color: #cbd5e1;
+      background: #334155;
+      padding: 1px 4px;
+      border-radius: 4px;
+      margin-top: 1px;
+    }
+
     .active-fighter-card {
       background: #113854;
       border: 2px solid #1e527a;
@@ -182,7 +190,6 @@
     .energy-bar-bg { background: #0f172a; height: 5px; border-radius: 3px; overflow: hidden; margin-top: 3px; border: 1px solid #334155; }
     .energy-bar-fill { background: var(--energy-blue); height: 100%; width: 0%; transition: width 0.3s ease; }
 
-    /* Bottom Attack & Mega Controls */
     .battle-actions-panel {
       margin-top: 14px;
       display: flex;
@@ -222,6 +229,48 @@
     .mega-btn-container {
       width: 100%;
       max-width: 240px;
+    }
+
+    /* Mobile Responsive Queries */
+    @media (max-width: 720px) {
+      .wireframe-arena {
+        grid-template-columns: 1fr 28px 1fr;
+        grid-template-rows: auto auto;
+        gap: 8px;
+      }
+      .bench-container:first-of-type {
+        grid-column: 1 / 2;
+        grid-row: 2;
+      }
+      .bench-container:last-of-type {
+        grid-column: 3 / 4;
+        grid-row: 2;
+      }
+      .active-fighter-card.me {
+        grid-column: 1 / 2;
+        grid-row: 1;
+      }
+      .vs-divider {
+        grid-column: 2 / 3;
+        grid-row: 1;
+      }
+      .active-fighter-card.opp {
+        grid-column: 3 / 4;
+        grid-row: 1;
+      }
+      .bench-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .bench-slot-5th {
+        grid-column: span 1;
+      }
+      .bench-card {
+        min-height: 52px;
+      }
+      .bench-card img {
+        width: 30px;
+        height: 30px;
+      }
     }
 
     #flash-overlay {
@@ -365,17 +414,17 @@
     <div id="opp-draft-roster" class="roster-grid"></div>
   </div>
 
-  <!-- BATTLE SCREEN (WIREFRAME LAYOUT) -->
+  <!-- BATTLE SCREEN -->
   <div id="screen-battle" class="panel hidden">
     <div id="popup-layer" class="popup-container"></div>
     <p id="turn-indicator" style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:10px; font-weight:600;">Battle Commenced</p>
 
-    <!-- 5-COLUMN ARENA: [P1 Bench] [Active P1] [VS] [Active P2] [P2 Bench] -->
+    <!-- 5-COLUMN / RESPONSIVE ARENA -->
     <div class="wireframe-arena" id="arena-box">
       
-      <!-- 1. Rest of P1 Bench (Left) -->
+      <!-- 1. Rest of P1 Bench -->
       <div class="bench-container">
-        <div class="bench-title">Rest of P1</div>
+        <div class="bench-title" id="p1-bench-label">Rest of P1</div>
         <div class="bench-grid" id="p1-bench-slots"></div>
       </div>
 
@@ -418,15 +467,15 @@
         </div>
       </div>
 
-      <!-- 5. Rest of P2 Bench (Right) -->
+      <!-- 5. Rest of P2 Bench -->
       <div class="bench-container">
-        <div class="bench-title">Rest of P2</div>
+        <div class="bench-title" id="p2-bench-label">Rest of P2</div>
         <div class="bench-grid" id="p2-bench-slots"></div>
       </div>
 
     </div>
 
-    <!-- WIREFRAME BOTTOM CONTROLS -->
+    <!-- ATTACKS & ACTION CONTROLS -->
     <div class="battle-actions-panel" id="controls-section">
       <div class="attacks-row">
         <button id="btn-fast-atk" class="attack-btn" onclick="executeMoveLocally('fast')">
@@ -632,6 +681,9 @@
     var p1ActiveIdx = 0;
     var p2ActiveIdx = 0;
     var activeTurn = 'p1';
+
+    var p1SwitchCooldown = 0;
+    var p2SwitchCooldown = 0;
 
     var p1HasMegaStone = true;
     var p2HasMegaStone = true;
@@ -985,19 +1037,25 @@
       document.getElementById('screen-battle').classList.remove('hidden');
       p1ActiveIdx = 0;
       p2ActiveIdx = 0;
+      p1SwitchCooldown = 0;
+      p2SwitchCooldown = 0;
       p1HasMegaStone = true;
       p2HasMegaStone = true;
       activeTurn = 'p1';
       showPopup("⚔️ BATTLE START!", "crit");
-      updateBattleUI();
       startTurn();
     }
 
-    // Render Side Benches (5 Pokémon each: 2x2 grid + 1 bottom centered)
+    // Render Bench with Types, Fainted state, and Cooldown display
     function renderBenchGrid(containerId, team, activeIdx, isInteractive) {
       var container = document.getElementById(containerId);
       if (!container) return;
       container.innerHTML = '';
+
+      var myActive = (myRole === 'p1') ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var isForcedSwitch = myActive && myActive.currentHp <= 0;
+      var isMyTurn = (activeTurn === myRole);
+      var currentCooldown = (myRole === 'p1') ? p1SwitchCooldown : p2SwitchCooldown;
 
       var benchPokemons = [];
       team.forEach(function(p, originalIdx) {
@@ -1009,17 +1067,28 @@
       benchPokemons.forEach(function(item, idx) {
         var p = item.pokemon;
         var isFainted = p.currentHp <= 0;
-        var isCanClick = isInteractive && !isFainted && (activeTurn === myRole);
+        
+        // Allowed to switch if forced (fainted) OR voluntary switch with 0 cooldown on your turn
+        var isCanClick = isInteractive && !isFainted && (isForcedSwitch || (isMyTurn && currentCooldown === 0));
 
         var card = document.createElement('div');
         card.className = 'bench-card ' + (isFainted ? 'fainted ' : '') + (isCanClick ? 'clickable ' : '') + (idx === 4 ? 'bench-slot-5th' : '');
-        card.title = p.name + ' (' + p.currentHp + '/' + p.maxHp + ' HP)';
+        card.title = p.name + ' (' + p.type + ') - ' + p.currentHp + '/' + p.maxHp + ' HP';
 
-        card.innerHTML = '<img src="' + p.sprite + '" class="pixel-art" alt="' + p.name + '" />';
+        var typeColor = TYPE_COLORS[p.type] || '#64748b';
+        var typeBadgeHtml = '<span class="type-badge" style="background:' + typeColor + '; font-size:0.55rem; padding:0 4px;">' + p.type + '</span>';
+        
+        var cdBadgeHtml = (isInteractive && currentCooldown > 0 && !isForcedSwitch && !isFainted) ? 
+          '<span class="cooldown-badge">CD: ' + currentCooldown + '</span>' : '';
+
+        card.innerHTML = 
+          '<img src="' + p.sprite + '" class="pixel-art" alt="' + p.name + '" />' +
+          typeBadgeHtml +
+          cdBadgeHtml;
 
         if (isCanClick) {
           card.onclick = function() {
-            var actionData = { newIndex: item.index, isForced: false };
+            var actionData = { newIndex: item.index, isForced: isForcedSwitch };
             if (!isAiMode) {
               sendNet('BATTLE_ACTION', { action: 'SWITCH', data: actionData });
             }
@@ -1072,15 +1141,21 @@
       document.getElementById('opp-energy-fill').style.width = p2EnergyPct + '%';
       document.getElementById('opp-energy-text').innerText = '⚡ ' + p2Active.energy + '/3';
 
-      // Render Bench Grids
+      // Bench Labels & Render
+      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? 'Your Bench' : 'Opponent Bench';
+      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? 'Your Bench' : 'Opponent Bench';
+
       renderBenchGrid('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
       renderBenchGrid('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
     }
 
     function startTurn() {
+      updateBattleUI();
+
       var isMyTurn = (activeTurn === myRole);
       var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
       var myHasMega = myRole === 'p1' ? p1HasMegaStone : p2HasMegaStone;
+      var myCooldown = myRole === 'p1' ? p1SwitchCooldown : p2SwitchCooldown;
 
       var turnInd = document.getElementById('turn-indicator');
       var fastBtn = document.getElementById('btn-fast-atk');
@@ -1088,7 +1163,11 @@
       var megaBtn = document.getElementById('btn-mega');
 
       if (isMyTurn) {
-        turnInd.innerText = "👉 Your Turn: Select Attack or Tap Bench Pokémon to Switch";
+        if (myCooldown > 0) {
+          turnInd.innerText = "👉 Your Turn (Switch on CD: " + myCooldown + " moves left)";
+        } else {
+          turnInd.innerText = "👉 Your Turn: Select Attack or Tap Bench Pokémon to Switch";
+        }
         turnInd.style.color = "#38bdf8";
 
         fastBtn.disabled = false;
@@ -1120,7 +1199,6 @@
       }
     }
 
-    // MEGA SELECTION & TRIGGER
     window.handleMegaButtonClick = function() {
       var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
       var forms = MEGA_FORMS[myActive.id];
@@ -1232,19 +1310,17 @@
         playSound('beep');
         if (actorRole === 'p1') {
           p1ActiveIdx = data.newIndex;
+          if (!data.isForced) p1SwitchCooldown = 5;
         } else {
           p2ActiveIdx = data.newIndex;
+          if (!data.isForced) p2SwitchCooldown = 5;
         }
 
         var switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         showPopup((actorRole === myRole ? 'You' : 'Opponent') + ' sent out ' + switchedPoke.name + '!', "crit");
+        
+        activeTurn = targetRole;
         updateBattleUI();
-
-        if (data.isForced) {
-          activeTurn = targetRole;
-        } else {
-          activeTurn = targetRole;
-        }
         startTurn();
         return;
       }
@@ -1253,6 +1329,10 @@
         var attacker = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         var defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         var targetCardId = targetRole === myRole ? 'me-card' : 'opp-card';
+
+        // Decrement voluntary switch cooldown on move execution
+        if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
+        if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
 
         var damage = data.damage;
         var mult = data.mult;
@@ -1313,13 +1393,21 @@
       }
 
       activeTurn = faintedRole;
+      updateBattleUI();
+
       if (faintedRole === myRole) {
-        showPopup("Choose your next Pokémon from your bench!", "crit");
+        showPopup("Choose your next Pokémon!", "crit");
         document.getElementById('turn-indicator').innerText = "⚠️ Your Pokémon fainted! Tap an active Pokémon on your bench to send out.";
         document.getElementById('turn-indicator').style.color = "var(--hp-red)";
+        document.getElementById('btn-fast-atk').disabled = true;
+        document.getElementById('btn-charged-atk').disabled = true;
+        document.getElementById('btn-mega').classList.add('hidden');
       } else {
         document.getElementById('turn-indicator').innerText = "Opponent is choosing replacement...";
         document.getElementById('turn-indicator').style.color = "var(--text-muted)";
+        document.getElementById('btn-fast-atk').disabled = true;
+        document.getElementById('btn-charged-atk').disabled = true;
+        document.getElementById('btn-mega').classList.add('hidden');
       }
     }
 
