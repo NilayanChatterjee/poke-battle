@@ -115,6 +115,9 @@
       box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
     }
 
+    /* ================================================= */
+    /* DESKTOP BATTLE ARENA (DEFAULT)                    */
+    /* ================================================= */
     .wireframe-arena {
       display: grid;
       grid-template-columns: 125px 1fr 34px 1fr 125px;
@@ -227,6 +230,11 @@
       width: 76px;
       height: 76px;
     }
+    .fighter-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
     .vs-divider {
       display: flex;
@@ -286,44 +294,75 @@
       max-width: 240px;
     }
 
+    /* ================================================= */
+    /* COMPACT MOBILE SIDE-BY-SIDE ARENA                 */
+    /* ================================================= */
     @media (max-width: 720px) {
       .wireframe-arena {
-        grid-template-columns: 1fr 28px 1fr;
+        display: grid;
+        grid-template-columns: 1fr 20px 1fr;
         grid-template-rows: auto auto;
-        gap: 8px;
+        gap: 6px;
       }
-      .bench-container:first-of-type {
-        grid-column: 1 / 2;
-        grid-row: 2;
+      
+      .active-fighter-card.me  { grid-column: 1 / 2; grid-row: 1; min-height: unset; padding: 6px; }
+      .vs-divider              { grid-column: 2 / 3; grid-row: 1; font-size: 0.75rem; }
+      .active-fighter-card.opp { grid-column: 3 / 4; grid-row: 1; min-height: unset; padding: 6px; }
+      #my-bench-container      { grid-column: 1 / 2; grid-row: 2; }
+      #opp-bench-container     { grid-column: 3 / 4; grid-row: 2; }
+
+      .fighter-inner-box {
+        padding: 4px;
+        margin-bottom: 4px;
       }
-      .bench-container:last-of-type {
-        grid-column: 3 / 4;
-        grid-row: 2;
+      .fighter-inner-box img {
+        width: 48px;
+        height: 48px;
       }
-      .active-fighter-card.me {
-        grid-column: 1 / 2;
-        grid-row: 1;
+      .fighter-meta strong {
+        font-size: 0.78rem;
+        margin-top: 1px;
       }
-      .vs-divider {
-        grid-column: 2 / 3;
-        grid-row: 1;
+      .fighter-meta .type-badge {
+        font-size: 0.8rem;
+        padding: 0 4px;
+        margin-top: 1px;
+        border-radius: 6px;
+        line-height: 1.2;
       }
-      .active-fighter-card.opp {
-        grid-column: 3 / 4;
-        grid-row: 1;
-      }
+
       .bench-grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
       }
       .bench-slot-5th {
         grid-column: span 1;
       }
       .bench-card {
-        min-height: 52px;
+        min-height: 44px;
+        padding: 2px;
       }
       .bench-card img {
-        width: 30px;
-        height: 30px;
+        width: 24px;
+        height: 24px;
+      }
+      .bench-card .type-badge {
+        font-size: 0.7rem;
+        padding: 0 3px;
+        border-radius: 4px;
+      }
+      .bench-title {
+        font-size: 0.65rem;
+        margin-bottom: 2px;
+      }
+      
+      .attacks-row {
+        gap: 8px;
+      }
+      .attack-btn {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+        min-height: 48px;
       }
     }
 
@@ -486,7 +525,6 @@
     <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
     <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:6px;">Roll all 6 fully evolved Pokémon. 1 Re-Roll allowed!</p>
 
-    <!-- Two Glowing Ready Ticks -->
     <div class="ready-indicators-container">
       <div id="badge-my-ready" class="ready-badge">
         <span class="tick-circle" id="tick-my-ready">✓</span>
@@ -515,22 +553,23 @@
     <div id="popup-layer" class="popup-container"></div>
     <p id="turn-indicator" style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:10px; font-weight:600;">Battle Commenced</p>
 
-    <!-- 5-COLUMN / RESPONSIVE ARENA -->
     <div class="wireframe-arena" id="arena-box">
       
-      <!-- 1. Rest of P1 Bench -->
-      <div class="bench-container">
-        <div class="bench-title" id="p1-bench-label">Rest of P1</div>
+      <!-- P1 Bench -->
+      <div class="bench-container" id="my-bench-container">
+        <div class="bench-title" id="p1-bench-label">Your Bench</div>
         <div class="bench-grid" id="p1-bench-slots"></div>
       </div>
 
-      <!-- 2. Active P1 Card -->
+      <!-- Active P1 Card -->
       <div class="active-fighter-card me" id="me-card">
         <div class="fighter-inner-box">
-          <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:2px;" id="p1-title-label">Active Pokemon P1</div>
           <img id="my-active-sprite" class="pixel-art" src="" alt="P1" />
-          <strong id="my-active-name" style="font-size:0.9rem; margin-top:4px;">---</strong>
-          <span id="my-active-type" class="type-badge">TYPE</span>
+          <div class="fighter-meta">
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1px;" id="p1-title-label">Active: You (P1)</div>
+            <strong id="my-active-name" style="font-size:0.9rem;">---</strong>
+            <span id="my-active-type" class="type-badge">TYPE</span>
+          </div>
         </div>
         <div class="stat-block">
           <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
@@ -542,16 +581,18 @@
         </div>
       </div>
 
-      <!-- 3. Center VS Tag -->
+      <!-- Center VS Divider -->
       <div class="vs-divider">VS</div>
 
-      <!-- 4. Active P2 Card -->
+      <!-- Active P2 Card -->
       <div class="active-fighter-card opp" id="opp-card">
         <div class="fighter-inner-box">
-          <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:2px;" id="p2-title-label">Active Pokemon P2</div>
           <img id="opp-active-sprite" class="pixel-art" src="" alt="P2" />
-          <strong id="opp-active-name" style="font-size:0.9rem; margin-top:4px;">---</strong>
-          <span id="opp-active-type" class="type-badge">TYPE</span>
+          <div class="fighter-meta">
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1px;" id="p2-title-label">Active: Opponent (P2)</div>
+            <strong id="opp-active-name" style="font-size:0.9rem;">---</strong>
+            <span id="opp-active-type" class="type-badge">TYPE</span>
+          </div>
         </div>
         <div class="stat-block">
           <div class="hp-bar-bg"><div id="opp-hp-fill" class="hp-bar-fill"></div></div>
@@ -563,9 +604,9 @@
         </div>
       </div>
 
-      <!-- 5. Rest of P2 Bench -->
-      <div class="bench-container">
-        <div class="bench-title" id="p2-bench-label">Rest of P2</div>
+      <!-- P2 Bench -->
+      <div class="bench-container" id="opp-bench-container">
+        <div class="bench-title" id="p2-bench-label">Opponent Bench</div>
         <div class="bench-grid" id="p2-bench-slots"></div>
       </div>
 
@@ -589,7 +630,7 @@
     </div>
   </div>
 
-  <!-- PERSISTENT RULES SECTION (VISIBLE IN ALL STAGES) -->
+  <!-- PERSISTENT RULES SECTION -->
   <div class="rules-panel">
     <div class="rules-title">📜 How to Play & Game Rules</div>
     <ul class="rules-list">
@@ -598,7 +639,7 @@
         <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
           <li><strong>Fast Attack:</strong> Deals light damage and grants +1 Energy.</li>
           <li><strong>Charged Attack:</strong> Unlocks at 3/3 Energy to deal massive burst damage (resets energy to 0).</li>
-          <li><strong>Switch Pokémon:</strong> Tap any healthy Pokémon on your side bench to tag them into battle (ends your turn).</li>
+          <li><strong>Switch Pokémon:</strong> Tap any healthy Pokémon on your bench to tag them into battle (ends your turn).</li>
         </ul>
       </li>
       <li><strong>Switching Rules & Cooldowns:</strong>
@@ -620,6 +661,14 @@
       Ground: '#ca8a04', Flying: '#818cf8', Psychic: '#ec4899', Bug: '#84cc16',
       Rock: '#78716c', Ghost: '#6366f1', Dragon: '#7c3aed', Steel: '#64748b',
       Dark: '#334155', Fairy: '#f472b6'
+    };
+
+    const TYPE_SYMBOLS = {
+      Normal: '⚪', Fire: '🔥', Water: '💧', Grass: '🌿',
+      Electric: '⚡', Ice: '❄️', Fighting: '🥊', Poison: '☠️',
+      Ground: '🏜️', Flying: '🦅', Psychic: '👁️', Bug: '🐛',
+      Rock: '🪨', Ghost: '👻', Dragon: '🐉', Steel: '⚙️',
+      Dark: '🌑', Fairy: '✨'
     };
 
     const TYPE_CHART = {
@@ -814,6 +863,10 @@
 
     var PREFIX = "pk1v-";
     var audioCtx = null;
+
+    function isMobileView() {
+      return window.innerWidth <= 720;
+    }
 
     function playSound(type) {
       try {
@@ -1044,7 +1097,6 @@
     }
 
     function resetToDraftScreen() {
-      // Rebuild controls section UI
       document.getElementById('controls-section').innerHTML = 
         '<div class="attacks-row">' +
           '<button id="btn-fast-atk" class="attack-btn" onclick="executeMoveLocally(\'fast\')">' +
@@ -1155,7 +1207,6 @@
       var isMyReady = myRole === 'p1' ? p1Ready : p2Ready;
       var isOppReady = myRole === 'p1' ? p2Ready : p1Ready;
 
-      // Update Glowing Ready Badges
       var myBadge = document.getElementById('badge-my-ready');
       var myText = document.getElementById('text-my-ready');
       if (isMyReady) {
@@ -1245,6 +1296,7 @@
       var isForcedSwitch = myActive && myActive.currentHp <= 0;
       var isMyTurn = (activeTurn === myRole);
       var currentCooldown = (myRole === 'p1') ? p1SwitchCooldown : p2SwitchCooldown;
+      var mobile = isMobileView();
 
       var benchPokemons = [];
       team.forEach(function(p, originalIdx) {
@@ -1256,7 +1308,6 @@
       benchPokemons.forEach(function(item, idx) {
         var p = item.pokemon;
         var isFainted = p.currentHp <= 0;
-        
         var isCanClick = isInteractive && !isFainted && (isForcedSwitch || (isMyTurn && currentCooldown === 0));
 
         var card = document.createElement('div');
@@ -1264,10 +1315,11 @@
         card.title = p.name + ' (' + p.type + ') - ' + p.currentHp + '/' + p.maxHp + ' HP';
 
         var typeColor = TYPE_COLORS[p.type] || '#64748b';
-        var typeBadgeHtml = '<span class="type-badge" style="background:' + typeColor + '; font-size:0.55rem; padding:0 4px;">' + p.type + '</span>';
+        var typeDisplay = mobile ? (TYPE_SYMBOLS[p.type] || p.type) : p.type;
+        var typeBadgeHtml = '<span class="type-badge" style="background:' + typeColor + ';">' + typeDisplay + '</span>';
         
         var cdBadgeHtml = (isInteractive && currentCooldown > 0 && !isForcedSwitch && !isFainted) ? 
-          '<span class="cooldown-badge">CD: ' + currentCooldown + '</span>' : '';
+          '<span class="cooldown-badge">' + (mobile ? 'CD ' + currentCooldown : 'CD: ' + currentCooldown) + '</span>' : '';
 
         card.innerHTML = 
           '<img src="' + p.sprite + '" class="pixel-art" alt="' + p.name + '" />' +
@@ -1292,13 +1344,20 @@
       var p1Active = p1Team[p1ActiveIdx];
       var p2Active = p2Team[p2ActiveIdx];
       if (!p1Active || !p2Active) return;
+      var mobile = isMobileView();
 
-      // Active Left Card (P1)
-      document.getElementById('p1-title-label').innerText = myRole === 'p1' ? 'Active: You (P1)' : 'Active: Opponent (P1)';
+      // P1 Header Label
+      var p1Label = document.getElementById('p1-title-label');
+      if (mobile) {
+        p1Label.innerText = myRole === 'p1' ? 'You (P1)' : 'Opp. (P1)';
+      } else {
+        p1Label.innerText = myRole === 'p1' ? 'Active: You (P1)' : 'Active: Opponent (P1)';
+      }
       document.getElementById('my-active-sprite').src = p1Active.sprite;
       document.getElementById('my-active-name').innerText = p1Active.name + (p1Active.isMega ? ' 🧬' : '');
+      
       var p1Type = document.getElementById('my-active-type');
-      p1Type.innerText = p1Active.type;
+      p1Type.innerText = mobile ? (TYPE_SYMBOLS[p1Active.type] || p1Active.type) : p1Active.type;
       p1Type.style.background = TYPE_COLORS[p1Active.type];
 
       var p1HpPct = Math.max(0, (p1Active.currentHp / p1Active.maxHp) * 100);
@@ -1311,12 +1370,18 @@
       document.getElementById('my-energy-fill').style.width = p1EnergyPct + '%';
       document.getElementById('my-energy-text').innerText = '⚡ ' + p1Active.energy + '/3';
 
-      // Active Right Card (P2)
-      document.getElementById('p2-title-label').innerText = myRole === 'p2' ? 'Active: You (P2)' : (isAiMode ? 'Active: AI (P2)' : 'Active: Opponent (P2)');
+      // P2 Header Label
+      var p2Label = document.getElementById('p2-title-label');
+      if (mobile) {
+        p2Label.innerText = myRole === 'p2' ? 'You (P2)' : (isAiMode ? 'AI (P2)' : 'Opp. (P2)');
+      } else {
+        p2Label.innerText = myRole === 'p2' ? 'Active: You (P2)' : (isAiMode ? 'Active: AI (P2)' : 'Active: Opponent (P2)');
+      }
       document.getElementById('opp-active-sprite').src = p2Active.sprite;
       document.getElementById('opp-active-name').innerText = p2Active.name + (p2Active.isMega ? ' 🧬' : '');
+      
       var p2Type = document.getElementById('opp-active-type');
-      p2Type.innerText = p2Active.type;
+      p2Type.innerText = mobile ? (TYPE_SYMBOLS[p2Active.type] || p2Active.type) : p2Active.type;
       p2Type.style.background = TYPE_COLORS[p2Active.type];
 
       var p2HpPct = Math.max(0, (p2Active.currentHp / p2Active.maxHp) * 100);
@@ -1330,8 +1395,8 @@
       document.getElementById('opp-energy-text').innerText = '⚡ ' + p2Active.energy + '/3';
 
       // Bench Labels & Render
-      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? 'Your Bench' : 'Opponent Bench';
-      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? 'Your Bench' : 'Opponent Bench';
+      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
 
       renderBenchGrid('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
       renderBenchGrid('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
@@ -1624,6 +1689,10 @@
         executeMoveLocally('fast');
       }
     }
+
+    window.addEventListener('resize', function() {
+      updateBattleUI();
+    });
 
     window.addEventListener('load', function() {
       var hash = window.location.hash.substring(1).toUpperCase().trim();
