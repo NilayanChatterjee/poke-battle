@@ -273,6 +273,40 @@
       }
     }
 
+    /* Rules Footer Section */
+    .rules-panel {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px 20px;
+      width: 100%;
+      max-width: 860px;
+      margin-top: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .rules-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rules-list {
+      list-style-type: disc;
+      padding-left: 20px;
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .rules-list strong {
+      color: #f8fafc;
+    }
+
     #flash-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
@@ -491,6 +525,30 @@
         <button id="btn-mega" class="btn btn-mega hidden" onclick="handleMegaButtonClick()">🧬 Mega Evolve</button>
       </div>
     </div>
+  </div>
+
+  <!-- PERSISTENT RULES SECTION (VISIBLE IN ALL STAGES) -->
+  <div class="rules-panel">
+    <div class="rules-title">📜 How to Play & Game Rules</div>
+    <ul class="rules-list">
+      <li><strong>Draft Your Squad:</strong> Click <em>Roll All 6</em> to get 6 fully evolved Kanto Pokémon. Use your 1 free Re-Roll if you don't like the lineup, then hit <em>Ready for Battle</em>.</li>
+      <li><strong>Turn Options:</strong> On your turn, choose one action:
+        <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
+          <li><strong>Fast Attack:</strong> Deals light damage and grants +1 Energy.</li>
+          <li><strong>Charged Attack:</strong> Unlocks at 3/3 Energy to deal massive burst damage (resets energy to 0).</li>
+          <li><strong>Switch Pokémon:</strong> Tap any healthy Pokémon on your side bench to tag them into battle (ends your turn).</li>
+        </ul>
+      </li>
+      <li><strong>Switching Rules & Cooldowns:</strong>
+        <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
+          <li><strong>Voluntary Swap:</strong> Puts switching on a 5-move cooldown. You must make 5 attacks before you can voluntarily swap again.</li>
+          <li><strong>Fainted Swap:</strong> If your active Pokémon reaches 0 HP, you get a free immediate swap from your bench without triggering the cooldown.</li>
+        </ul>
+      </li>
+      <li><strong>Mega Evolution:</strong> You get 1 Mega Evolution per match. If your active Pokémon can Mega Evolve, the pink Mega Evolve button will appear. Mega Evolving is a free action (you can still attack on the same turn) and grants +40% Attack, +30% HP, boosted move damage, and 25% damage reduction. For Pokémon with two forms, pick your preferred form/typing from the pop-up menu.</li>
+      <li><strong>Type Advantage Matters:</strong> Matchups deal 2x damage for Super Effective hits, 0.5x for Not Very Effective hits, and 0 for Immunities.</li>
+      <li><strong>Win the Match:</strong> Knock out all 6 of your opponent's Pokémon to win the Arena.</li>
+    </ul>
   </div>
 
   <script>
@@ -1046,7 +1104,6 @@
       startTurn();
     }
 
-    // Render Bench with Types, Fainted state, and Cooldown display
     function renderBenchGrid(containerId, team, activeIdx, isInteractive) {
       var container = document.getElementById(containerId);
       if (!container) return;
@@ -1068,7 +1125,6 @@
         var p = item.pokemon;
         var isFainted = p.currentHp <= 0;
         
-        // Allowed to switch if forced (fainted) OR voluntary switch with 0 cooldown on your turn
         var isCanClick = isInteractive && !isFainted && (isForcedSwitch || (isMyTurn && currentCooldown === 0));
 
         var card = document.createElement('div');
@@ -1330,7 +1386,6 @@
         var defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         var targetCardId = targetRole === myRole ? 'me-card' : 'opp-card';
 
-        // Decrement voluntary switch cooldown on move execution
         if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
         if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
 
