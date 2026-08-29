@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Pokémon 1v1 Battle Arena</title>
+  <title>Pokémon 1v1 Arena</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -176,7 +176,7 @@
   </div>
 
   <h1>Pokémon 1v1 Arena</h1>
-  <p class="subtitle">Random 6 Pokemons to win it all!</p>
+  <p class="subtitle">Your Team on Top • Forward Sprites • Multi-Megas</p>
 
   <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
@@ -208,7 +208,11 @@
     <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Selection</h2>
     <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:10px;">Roll all 6 fully evolved Pokémon. 1 Re-Roll allowed!</p>
 
-    <div style="display:flex; flex-direction:column; gap:8px;">
+    <!-- Player's Team (Top) -->
+    <h3 style="margin-top:12px; font-size:0.9rem;">Your Team <span id="my-ready-status" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;"></span></h3>
+    <div id="my-draft-roster" class="roster-grid"></div>
+
+    <div style="display:flex; flex-direction:column; gap:8px; margin: 12px 0;">
       <div style="display:flex; gap:8px;">
         <button id="btn-roll-all" class="btn" onclick="triggerOneClickRoll()">🎲 Roll All 6</button>
         <button id="btn-reroll" class="btn btn-secondary hidden" onclick="triggerReroll()">🔄 Re-Roll (1 Left)</button>
@@ -216,9 +220,7 @@
       <button id="btn-ready" class="btn btn-ready hidden" onclick="triggerReady()">✅ Ready for Battle</button>
     </div>
 
-    <h3 style="margin-top:16px; font-size:0.9rem;">Your Team <span id="my-ready-status" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;"></span></h3>
-    <div id="my-draft-roster" class="roster-grid"></div>
-
+    <!-- Opponent's Team (Bottom) -->
     <h3 style="margin-top:12px; font-size:0.9rem;">Opponent Team <span id="opp-ready-status" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;"></span></h3>
     <div id="opp-draft-roster" class="roster-grid"></div>
   </div>
@@ -226,7 +228,9 @@
   <!-- BATTLE SCREEN -->
   <div id="screen-battle" class="panel hidden">
     <div id="popup-layer" class="popup-container"></div>
-<!-- Player Card -->
+
+    <div class="battle-arena" id="arena-box">
+      <!-- Player Card (TOP HALF) -->
       <div class="fighter-card me" id="me-card">
         <div class="fighter-header">
           <div class="sprite-box">
@@ -248,9 +252,8 @@
         </div>
         <div id="my-bench" class="roster-grid" style="margin-top:6px;"></div>
       </div>
-    </div>
-    <div class="battle-arena" id="arena-box">
-      <!-- Opponent Card -->
+
+      <!-- Opponent Card (BOTTOM HALF) -->
       <div class="fighter-card opp" id="opp-card">
         <div class="fighter-header">
           <div class="sprite-box">
@@ -272,8 +275,7 @@
         </div>
         <div id="opp-bench" class="roster-grid" style="margin-top:6px;"></div>
       </div>
-
-      
+    </div>
 
     <!-- Battle Actions -->
     <div id="battle-controls" style="margin-top:8px;">
@@ -479,7 +481,6 @@
     var p2HasMegaStone = true;
     var hasRerolled = false;
 
-    // READY FLAGS
     var p1Ready = false;
     var p2Ready = false;
 
@@ -845,7 +846,7 @@
 
       if (!myActive || !oppActive) return;
 
-      // Player Card (Forward Facing)
+      // Player Card (TOP HALF)
       document.getElementById('my-active-sprite').src = myActive.sprite;
       document.getElementById('my-active-name').innerText = "You: " + myActive.name;
       var myType = document.getElementById('my-active-type');
@@ -864,7 +865,7 @@
       document.getElementById('my-mega-badge').classList.toggle('hidden', !myActive.isMega);
       renderRoster('my-bench', myRole === 'p1' ? p1Team : p2Team, myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx);
 
-      // Opponent Card (Forward Facing)
+      // Opponent Card (BOTTOM HALF)
       document.getElementById('opp-active-sprite').src = oppActive.sprite;
       document.getElementById('opp-active-name').innerText = (isAiMode ? 'AI: ' : 'Opp: ') + oppActive.name;
       var oppType = document.getElementById('opp-active-type');
