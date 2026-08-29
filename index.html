@@ -294,6 +294,49 @@
       max-width: 240px;
     }
 
+    /* Type Legend Panel (Mobile Only) */
+    .type-legend-panel {
+      display: none;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 12px;
+      width: 100%;
+      max-width: 860px;
+      margin-top: 14px;
+    }
+    .type-legend-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .type-legend-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .type-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      background: #1e293b;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border-left: 3px solid transparent;
+    }
+    .type-legend-item .symbol {
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
     /* ================================================= */
     /* COMPACT MOBILE SIDE-BY-SIDE ARENA                 */
     /* ================================================= */
@@ -363,6 +406,10 @@
         padding: 8px 4px;
         font-size: 0.75rem;
         min-height: 48px;
+      }
+
+      .type-legend-panel {
+        display: block;
       }
     }
 
@@ -627,6 +674,31 @@
       <div class="mega-btn-container">
         <button id="btn-mega" class="btn btn-mega hidden" onclick="handleMegaButtonClick()">🧬 Mega Evolve</button>
       </div>
+    </div>
+  </div>
+
+  <!-- TYPE SYMBOLS LEGEND (MOBILE ONLY) -->
+  <div class="type-legend-panel">
+    <div class="type-legend-title">🏷️ Type Icon Legend</div>
+    <div class="type-legend-grid">
+      <div class="type-legend-item" style="border-left-color: #9ca3af;"><span class="symbol">⚪</span> Normal</div>
+      <div class="type-legend-item" style="border-left-color: #f97316;"><span class="symbol">🔥</span> Fire</div>
+      <div class="type-legend-item" style="border-left-color: #0ea5e9;"><span class="symbol">💧</span> Water</div>
+      <div class="type-legend-item" style="border-left-color: #22c55e;"><span class="symbol">🌿</span> Grass</div>
+      <div class="type-legend-item" style="border-left-color: #eab308;"><span class="symbol">⚡</span> Electric</div>
+      <div class="type-legend-item" style="border-left-color: #38bdf8;"><span class="symbol">❄️</span> Ice</div>
+      <div class="type-legend-item" style="border-left-color: #b91c1c;"><span class="symbol">🥊</span> Fighting</div>
+      <div class="type-legend-item" style="border-left-color: #a855f7;"><span class="symbol">☠️</span> Poison</div>
+      <div class="type-legend-item" style="border-left-color: #ca8a04;"><span class="symbol">🏜️</span> Ground</div>
+      <div class="type-legend-item" style="border-left-color: #818cf8;"><span class="symbol">🦅</span> Flying</div>
+      <div class="type-legend-item" style="border-left-color: #ec4899;"><span class="symbol">👁️</span> Psychic</div>
+      <div class="type-legend-item" style="border-left-color: #84cc16;"><span class="symbol">🐛</span> Bug</div>
+      <div class="type-legend-item" style="border-left-color: #78716c;"><span class="symbol">🪨</span> Rock</div>
+      <div class="type-legend-item" style="border-left-color: #6366f1;"><span class="symbol">👻</span> Ghost</div>
+      <div class="type-legend-item" style="border-left-color: #7c3aed;"><span class="symbol">🐉</span> Dragon</div>
+      <div class="type-legend-item" style="border-left-color: #64748b;"><span class="symbol">⚙️</span> Steel</div>
+      <div class="type-legend-item" style="border-left-color: #334155;"><span class="symbol">🌑</span> Dark</div>
+      <div class="type-legend-item" style="border-left-color: #f472b6;"><span class="symbol">✨</span> Fairy</div>
     </div>
   </div>
 
@@ -1346,7 +1418,6 @@
       if (!p1Active || !p2Active) return;
       var mobile = isMobileView();
 
-      // P1 Header Label
       var p1Label = document.getElementById('p1-title-label');
       if (mobile) {
         p1Label.innerText = myRole === 'p1' ? 'You (P1)' : 'Opp. (P1)';
@@ -1370,7 +1441,6 @@
       document.getElementById('my-energy-fill').style.width = p1EnergyPct + '%';
       document.getElementById('my-energy-text').innerText = '⚡ ' + p1Active.energy + '/3';
 
-      // P2 Header Label
       var p2Label = document.getElementById('p2-title-label');
       if (mobile) {
         p2Label.innerText = myRole === 'p2' ? 'You (P2)' : (isAiMode ? 'AI (P2)' : 'Opp. (P2)');
@@ -1394,9 +1464,8 @@
       document.getElementById('opp-energy-fill').style.width = p2EnergyPct + '%';
       document.getElementById('opp-energy-text').innerText = '⚡ ' + p2Active.energy + '/3';
 
-      // Bench Labels & Render
-      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
-      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? 'Your Bench' : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? 'Your Bench' : (mobile ? 'Opp. Bench' : 'Opponent Bench');
 
       renderBenchGrid('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
       renderBenchGrid('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
