@@ -6,10 +6,10 @@
   <title>Pokémon 1v1 Arena</title>
   <style>
     :root {
-      --bg-dark: #070e1b;
-      --card-bg: rgba(15, 23, 42, 0.88);
-      --card-inner: #0b1424;
-      --accent: #2563eb;
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --card-inner: #0f172a;
+      --accent: #3b82f6;
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --p1: #38bdf8;
@@ -18,60 +18,14 @@
       --hp-yellow: #eab308;
       --hp-red: #ef4444;
       --energy-blue: #06b6d4;
-      
-      /* Vibrant Starter Palette Inspired by Poster */
-      --poke-yellow: #facc15;
-      --poke-electric: #fbbf24;
-      --poke-fire: #f97316;
-      --poke-water: #0ea5e9;
-      --poke-grass: #10b981;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    
-    body {
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 12px;
-      overflow-x: hidden;
-      position: relative;
-      background-color: var(--bg-dark);
-    }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; overflow-x: hidden; }
+    h1 { font-size: 1.45rem; text-align: center; margin-bottom: 2px; }
+    .subtitle { color: var(--text-muted); margin-bottom: 12px; text-align: center; font-size: 0.8rem; }
 
-    /* Fixed Thematic Wallpaper Backdrop with Soft Glassmorphic Overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: url('Pokebattle-1.jpg') no-repeat center center fixed;
-      background-size: cover;
-      filter: saturate(1.15) brightness(0.65);
-      z-index: -2;
-    }
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(180deg, rgba(7, 14, 27, 0.6) 0%, rgba(7, 14, 27, 0.82) 100%);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: -1;
-    }
-
-    .panel {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 16px;
-      padding: 16px;
-      width: 100%;
-      max-width: 860px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
-      position: relative;
-    }
+    .panel { background: var(--card-bg); border-radius: 12px; padding: 14px; width: 100%; max-width: 860px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); position: relative; }
     .hidden { display: none !important; }
 
     .pixel-art {
@@ -80,220 +34,31 @@
       image-rendering: crisp-edges;
     }
 
-    .btn {
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: white;
-      border: none;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.95rem;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
-    }
+    .btn { background: var(--accent); color: white; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.95rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .btn:active:not(:disabled) { transform: scale(0.98); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-secondary { background: #334155; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-    .btn-secondary:hover:not(:disabled) { background: #475569; }
-    .btn-ready { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); }
-    .btn-ready:hover:not(:disabled) { background: linear-gradient(135deg, #059669, #047857); }
-    .btn-mega { background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 0 14px rgba(236,72,153,0.6); }
+    .btn-secondary { background: #475569; }
+    .btn-ready { background: #16a34a; }
+    .btn-ready:hover:not(:disabled) { background: #15803d; }
+    .btn-mega { background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 0 10px rgba(236,72,153,0.5); }
     .btn-mega:hover:not(:disabled) { background: linear-gradient(135deg, #db2777, #7c3aed); }
 
-    /* ================================================= */
-    /* HERO BRANDING & HOMEPAGE UI                       */
-    /* ================================================= */
-    .hero-banner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 12px;
-      text-align: center;
-    }
-    .hero-title-wrap {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .hero-title {
-      font-size: 1.85rem;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      background: linear-gradient(180deg, #fef08a 0%, #facc15 50%, #ea580c 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 10px rgba(234, 88, 12, 0.5));
-    }
-    .hero-subtitle {
-      color: #cbd5e1;
-      font-size: 0.85rem;
-      margin-top: 2px;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-    }
+    input[type="text"] { background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; width: 100%; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
+    input[type="text"]:focus { border-color: var(--accent); }
 
-    /* Starter Mascot Ribbon */
-    .mascot-strip {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-      padding: 6px 14px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(250, 204, 21, 0.3);
-      border-radius: 999px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-    }
-    .mascot-strip img {
-      width: 34px;
-      height: 34px;
-      transition: transform 0.2s ease;
-      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
-    }
-    .mascot-strip img:hover {
-      transform: scale(1.3) translateY(-3px);
-    }
+    .lobby-block { border: 1px solid #334155; padding: 12px; border-radius: 8px; margin-bottom: 12px; background: #0f172a; text-align: center; }
+    .code-tag { background: #334155; padding: 6px 14px; border-radius: 6px; font-family: monospace; font-size: 1.3rem; color: #38bdf8; font-weight: bold; letter-spacing: 3px; display: inline-block; margin: 6px 0; user-select: all; }
 
-    .lobby-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 12px;
-    }
-
-    @media (max-width: 620px) {
-      .hero-title { font-size: 1.5rem; }
-      .lobby-grid { grid-template-columns: 1fr; gap: 10px; }
-      .mascot-strip img:nth-child(n+5) { display: none; }
-    }
-
-    .lobby-block {
-      border: 1.5px solid rgba(255, 255, 255, 0.12);
-      padding: 18px 14px;
-      border-radius: 14px;
-      background: linear-gradient(180deg, rgba(19, 29, 49, 0.85) 0%, rgba(12, 20, 36, 0.95) 100%);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .lobby-block.host-theme {
-      border-color: rgba(14, 165, 233, 0.5);
-      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2);
-    }
-    .lobby-block.join-theme {
-      border-color: rgba(249, 115, 22, 0.5);
-      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.2);
-    }
-
-    .lobby-block-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .lobby-icon-badge {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-      background: #090e17;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    }
-    .host-theme .lobby-icon-badge { border-color: #0ea5e9; color: #38bdf8; }
-    .join-theme .lobby-icon-badge { border-color: #f97316; color: #fb923c; }
-
-    .btn-host-action {
-      background: linear-gradient(135deg, #0284c7, #0369a1);
-      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
-    }
-    .btn-host-action:hover:not(:disabled) {
-      background: linear-gradient(135deg, #0369a1, #075985);
-    }
-    .btn-join-action {
-      background: linear-gradient(135deg, #ea580c, #c2410c);
-      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.4);
-    }
-    .btn-join-action:hover:not(:disabled) {
-      background: linear-gradient(135deg, #c2410c, #9a3412);
-    }
-
-    .code-tag {
-      background: #070d18;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 1.4rem;
-      color: #38bdf8;
-      font-weight: 800;
-      letter-spacing: 4px;
-      display: inline-block;
-      margin: 8px 0;
-      user-select: all;
-      border: 1.5px dashed #0284c7;
-      text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
-    }
-
-    input[type="text"] {
-      background: #070d18;
-      border: 1.5px solid #475569;
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 1.05rem;
-      font-weight: bold;
-      outline: none;
-      width: 100%;
-      text-transform: uppercase;
-      text-align: center;
-      letter-spacing: 3px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input[type="text"]:focus {
-      border-color: #f97316;
-      box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
-    }
-
-    .btn-ai-arena {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border: 1.5px solid #3b82f6;
-      color: #f8fafc;
-      font-weight: 700;
-      padding: 13px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-    .btn-ai-arena:hover {
-      background: linear-gradient(135deg, #334155, #1e293b);
-      border-color: #60a5fa;
-    }
-
-    /* Roster Chips */
     .roster-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
-    .poke-chip { background: #1e293b; border-radius: 8px; padding: 6px 4px; text-align: center; font-size: 0.72rem; border: 1.5px solid #334155; display: flex; flex-direction: column; align-items: center; }
-    .poke-chip.active { border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
+    .poke-chip { background: #334155; border-radius: 6px; padding: 6px 4px; text-align: center; font-size: 0.72rem; border: 1.5px solid transparent; display: flex; flex-direction: column; align-items: center; }
+    .poke-chip.active { border-color: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.5); }
     .poke-chip.fainted { opacity: 0.3; filter: grayscale(1); }
     .poke-chip img { width: 44px; height: 44px; }
 
     .hidden-card {
-      background: #090e17;
+      background: #0f172a;
       border: 1.5px dashed #334155;
-      border-radius: 8px;
+      border-radius: 6px;
       height: 78px;
       display: flex;
       align-items: center;
@@ -305,9 +70,9 @@
     .type-badge { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 0.62rem; font-weight: bold; text-transform: uppercase; margin-top: 2px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
     .draft-choice-box {
-      background: #0b1424;
+      background: #0f172a;
       border: 2px solid #334155;
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 14px;
       margin: 12px 0;
       text-align: center;
@@ -321,7 +86,7 @@
     .draft-pick-card {
       background: #1e293b;
       border: 2px solid #475569;
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 12px 8px;
       cursor: pointer;
       display: flex;
@@ -333,12 +98,12 @@
     .draft-pick-card:hover {
       border-color: #38bdf8;
       transform: translateY(-2px);
-      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
     }
     .draft-pick-card.selected {
       border-color: #22c55e;
       background: #143528;
-      box-shadow: 0 0 16px rgba(34, 197, 94, 0.55);
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.5);
     }
     .draft-pick-card img {
       width: 64px;
@@ -380,7 +145,7 @@
     .bench-card {
       background: #113854;
       border: 1px solid #1e527a;
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 3px 2px;
       display: flex;
       flex-direction: column;
@@ -428,14 +193,14 @@
     .active-fighter-card {
       background: #113854;
       border: 2px solid #1e527a;
-      border-radius: 12px;
+      border-radius: 8px;
       padding: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 250px;
       position: relative;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
     }
     .active-fighter-card.me { border-color: var(--p1); }
     .active-fighter-card.opp { border-color: var(--p2); }
@@ -443,7 +208,7 @@
     .fighter-inner-box {
       background: #0b1e2e;
       border: 1px solid #1e527a;
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 8px;
       width: 100%;
       display: flex;
@@ -475,9 +240,9 @@
     }
 
     .stat-block { width: 100%; margin-top: auto; }
-    .hp-bar-bg { background: #070d18; height: 8px; border-radius: 4px; overflow: hidden; margin: 4px 0; border: 1px solid #334155; }
+    .hp-bar-bg { background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden; margin: 4px 0; border: 1px solid #334155; }
     .hp-bar-fill { background: var(--hp-green); height: 100%; width: 100%; transition: width 0.3s ease, background-color 0.3s; }
-    .energy-bar-bg { background: #070d18; height: 5px; border-radius: 3px; overflow: hidden; margin-top: 3px; border: 1px solid #334155; }
+    .energy-bar-bg { background: #0f172a; height: 5px; border-radius: 3px; overflow: hidden; margin-top: 3px; border: 1px solid #334155; }
     .energy-bar-fill { background: var(--energy-blue); height: 100%; width: 0%; transition: width 0.3s ease; }
 
     .battle-actions-panel {
@@ -496,11 +261,11 @@
       max-width: 480px;
     }
     .attack-btn {
-      background: #0b1424;
+      background: #0f172a;
       border: 1.5px solid #38bdf8;
       color: #f8fafc;
       padding: 12px 10px;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 0.85rem;
       cursor: pointer;
       text-align: center;
@@ -523,9 +288,9 @@
 
     .type-legend-panel {
       display: none;
-      background: #0b1424;
+      background: #0f172a;
       border: 1px solid #334155;
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 10px 12px;
       width: 100%;
       max-width: 860px;
@@ -637,16 +402,14 @@
     }
 
     .rules-panel {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 14px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
       padding: 16px 20px;
       width: 100%;
       max-width: 860px;
       margin-top: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .rules-title {
       font-size: 1rem;
@@ -764,65 +527,32 @@
     </div>
   </div>
 
-  <!-- HERO BRANDING -->
-  <div class="hero-banner">
-    <div class="hero-title-wrap">
-      <span style="font-size:1.5rem;">⚡</span>
-      <h1 class="hero-title">Pokémon 1v1 Arena</h1>
-      <span style="font-size:1.5rem;">⚡</span>
-    </div>
-    <p class="hero-subtitle">Pair-Draft Tactics & Real-Time Battle Arena</p>
-  </div>
+  <h1>Pokémon 1v1 Arena</h1>
+  <p class="subtitle">6 Pokémon to win it all!</p>
 
   <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
-    
-    <!-- Mascot Showcase -->
-    <div class="mascot-strip">
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png" class="pixel-art" alt="Charizard" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" class="pixel-art" alt="Blastoise" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" class="pixel-art" alt="Venusaur" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png" class="pixel-art" alt="Raichu" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png" class="pixel-art" alt="Gengar" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png" class="pixel-art" alt="Dragonite" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png" class="pixel-art" alt="Mewtwo" />
-    </div>
-
-    <div class="lobby-grid">
-      <!-- Host Card -->
-      <div class="lobby-block host-theme">
-        <div class="lobby-block-header">
-          <div class="lobby-icon-badge">🎮</div>
-          <h3 style="color:#38bdf8; font-size:1.1rem; font-weight:800;">Host Match</h3>
-          <p style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">Create an arena and invite a challenger.</p>
-        </div>
-        <div>
-          <button id="btn-create-room" class="btn btn-host-action" onclick="hostRoom()">✨ Create Room</button>
-          <div id="host-info" class="hidden" style="margin-top:10px;">
-            <p style="font-size:0.75rem; color:#94a3b8; font-weight:700;">YOUR BATTLE CODE:</p>
-            <span id="my-peer-id" class="code-tag">CONNECTING...</span>
-            <br />
-            <button id="btn-copy-link" class="btn btn-secondary" style="margin: 6px auto; width: auto; font-size:0.8rem; padding:6px 14px;" onclick="copyInviteLink()">📋 Copy Invite Link</button>
-            <p style="font-size:0.75rem; color:#38bdf8; margin-top:4px;">Waiting for challenger to connect...</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Join Card -->
-      <div class="lobby-block join-theme">
-        <div class="lobby-block-header">
-          <div class="lobby-icon-badge">⚔️</div>
-          <h3 style="color:#f97316; font-size:1.1rem; font-weight:800;">Join Match</h3>
-          <p style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">Enter your rival's 6-character code.</p>
-        </div>
-        <div>
-          <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
-          <button id="btn-join-room" class="btn btn-join-action" style="margin-top:8px;" onclick="joinRoom()">🔥 Enter Arena</button>
-        </div>
+    <div class="lobby-block">
+      <h3>Host Match</h3>
+      <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Get a room code or instant link to share.</p>
+      <button id="btn-create-room" class="btn" onclick="hostRoom()">Create Room</button>
+      <div id="host-info" class="hidden" style="margin-top:10px;">
+        <p style="font-size:0.85rem;">Room Code:</p>
+        <span id="my-peer-id" class="code-tag">CONNECTING...</span>
+        <br />
+        <button id="btn-copy-link" class="btn btn-secondary" style="margin: 6px auto; width: auto; font-size:0.8rem; padding:6px 14px;" onclick="copyInviteLink()">📋 Copy Invite Link</button>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Waiting for opponent to connect...</p>
       </div>
     </div>
 
-    <button id="btn-singleplayer" class="btn btn-ai-arena" onclick="startSinglePlayer()">🤖 Practice vs. AI Trainer</button>
+    <div class="lobby-block">
+      <h3>Join Match</h3>
+      <p style="color:var(--text-muted); font-size:0.8rem; margin:4px 0 10px;">Enter 6-digit code:</p>
+      <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
+      <button id="btn-join-room" class="btn" style="margin-top:8px;" onclick="joinRoom()">Join Match</button>
+    </div>
+
+    <button id="btn-singleplayer" class="btn btn-secondary" onclick="startSinglePlayer()">Practice vs. AI</button>
   </div>
 
   <!-- DRAFT SCREEN (PAIR-BASED SELECTION) -->
@@ -1050,7 +780,7 @@
       15:  [{ name: "Mega Beedrill", type: "Bug", spriteId: 10090 }],
       18:  [{ name: "Mega Pidgeot", type: "Flying", spriteId: 10073 }],
       26:  [
-             { name: "Mega Raichu X", type: "Fighting", spriteId: 10100 },
+             { name: "Mega Raichu X", type: "Fighting", spriteId: 26 },
              { name: "Mega Raichu Y", type: "Electric", spriteId: 26 }
            ],
       65:  [{ name: "Mega Alakazam", type: "Psychic", spriteId: 10037 }],
@@ -1182,10 +912,12 @@
     var p1HasMegaStone = true;
     var p2HasMegaStone = true;
 
+    // Draft Session Variables
     var draftPoolPairs = [];
-    var currentDraftRound = 0;
+    var currentDraftRound = 0; // 0 to 5 (6 total rounds; 3 rounds per player)
     var selectedDraftCardIdx = null;
 
+    // Track self-picked Pokémon for each player (3 each)
     var myPicks = [];
     var oppPicks = [];
 
@@ -1430,6 +1162,7 @@
       selectedDraftCardIdx = null;
       document.getElementById('btn-confirm-draft').disabled = true;
 
+      // Check if Draft is complete (6 Pokémon total on each team)
       if (p1Team.length === 6 && p2Team.length === 6) {
         document.getElementById('draft-status-title').innerText = "Teams Finalized!";
         document.getElementById('draft-status-desc').innerText = "Entering Battle Arena...";
@@ -1439,9 +1172,11 @@
         return;
       }
 
+      // Display ONLY the 3 Pokémon the player personally picked
       document.getElementById('draft-team-count').innerText = myPicks.length;
       renderDraftRoster('my-draft-roster', myPicks);
 
+      // Determine who picks in this round: Rounds 0, 2, 4 -> P1; Rounds 1, 3, 5 -> P2
       var activePickerRole = (currentDraftRound % 2 === 0) ? 'p1' : 'p2';
       var isMyPick = (myRole === activePickerRole);
 
@@ -1526,6 +1261,7 @@
         p1Team.push(otherPoke);
       }
 
+      // Track personal chosen picks (3 per player)
       if (pickerRole === myRole) {
         myPicks.push(chosenPoke);
       } else {
@@ -1540,6 +1276,7 @@
       var el = document.getElementById(elId);
       if (!el) return;
       var slots = [];
+      // Show exactly 3 slots representing the 3 chosen picks
       for (var i = 0; i < 3; i++) {
         if (team[i]) {
           var p = team[i];
@@ -1729,8 +1466,8 @@
       document.getElementById('opp-energy-fill').style.width = p2EnergyPct + '%';
       document.getElementById('opp-energy-text').innerText = '⚡ ' + p2Active.energy + '/3';
 
-      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
-      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? 'Your Bench' : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? 'Your Bench' : (mobile ? 'Opp. Bench' : 'Opponent Bench');
 
       renderBenchGrid('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
       renderBenchGrid('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
