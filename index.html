@@ -69,9 +69,6 @@
 
     .type-badge { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 0.62rem; font-weight: bold; text-transform: uppercase; margin-top: 2px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
-    /* ================================================= */
-    /* NEW PAIR-DRAFT SELECTION STYLES                   */
-    /* ================================================= */
     .draft-choice-box {
       background: #0f172a;
       border: 2px solid #334155;
@@ -564,7 +561,7 @@
     <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:6px;">Choose 1 Pokémon. The other goes to your opponent!</p>
 
     <div id="draft-choice-section" class="draft-choice-box">
-      <h3 id="draft-choice-title" style="font-size:0.95rem; color:#38bdf8;">Your Pick (Round 1/3)</h3>
+      <h3 id="draft-choice-title" style="font-size:0.95rem; color:#38bdf8;">Your Pick (Choice 1/3)</h3>
       <p id="draft-choice-sub" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Tap a Pokémon to select, then confirm.</p>
       
       <div id="draft-pair-container" class="draft-pair-container"></div>
@@ -577,7 +574,7 @@
       <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Waiting for opponent to choose from their pair.</p>
     </div>
 
-    <h3 style="margin-top:10px; font-size:0.9rem;">Your Current Team (<span id="draft-team-count">0</span>/6)</h3>
+    <h3 style="margin-top:10px; font-size:0.9rem;">Your Chosen Team (<span id="draft-team-count">0</span>/3)</h3>
     <div id="my-draft-roster" class="roster-grid"></div>
   </div>
 
@@ -920,6 +917,10 @@
     var currentDraftRound = 0; // 0 to 5 (6 total rounds; 3 rounds per player)
     var selectedDraftCardIdx = null;
 
+    // Track self-picked Pokémon for each player (3 each)
+    var myPicks = [];
+    var oppPicks = [];
+
     var PREFIX = "pk1v-";
     var audioCtx = null;
 
@@ -1107,6 +1108,8 @@
         currentDraftRound = 0;
         p1Team = [];
         p2Team = [];
+        myPicks = [];
+        oppPicks = [];
         startDraftScreen();
       } else if (msg.type === 'DRAFT_PICK_MADE') {
         applyDraftPick(msg.payload.pickerRole, msg.payload.chosenPoke, msg.payload.otherPoke);
@@ -1117,9 +1120,6 @@
       }
     }
 
-    // ===================================================
-    // DRAFT LOGIC: 6 PAIRS, 3 ROUNDS PER PLAYER
-    // ===================================================
     function generate12UniquePokemon() {
       var shuffled = POKEDEX.slice().sort(function() { return 0.5 - Math.random(); });
       var chosen12 = shuffled.slice(0, 12).map(function(base) {
@@ -1140,6 +1140,8 @@
     function initDraftSession() {
       p1Team = [];
       p2Team = [];
+      myPicks = [];
+      oppPicks = [];
       currentDraftRound = 0;
       draftPoolPairs = generate12UniquePokemon();
 
@@ -1160,7 +1162,7 @@
       selectedDraftCardIdx = null;
       document.getElementById('btn-confirm-draft').disabled = true;
 
-      // Check if Draft is complete (6 Pokémon on each team)
+      // Check if Draft is complete (6 Pokémon total on each team)
       if (p1Team.length === 6 && p2Team.length === 6) {
         document.getElementById('draft-status-title').innerText = "Teams Finalized!";
         document.getElementById('draft-status-desc').innerText = "Entering Battle Arena...";
@@ -1170,9 +1172,9 @@
         return;
       }
 
-      var myTeam = myRole === 'p1' ? p1Team : p2Team;
-      document.getElementById('draft-team-count').innerText = myTeam.length;
-      renderDraftRoster('my-draft-roster', myTeam);
+      // Display ONLY the 3 Pokémon the player personally picked
+      document.getElementById('draft-team-count').innerText = myPicks.length;
+      renderDraftRoster('my-draft-roster', myPicks);
 
       // Determine who picks in this round: Rounds 0, 2, 4 -> P1; Rounds 1, 3, 5 -> P2
       var activePickerRole = (currentDraftRound % 2 === 0) ? 'p1' : 'p2';
@@ -1185,7 +1187,7 @@
         choiceBox.classList.remove('hidden');
         waitingBox.classList.add('hidden');
 
-        var humanRoundNum = Math.floor(currentDraftRound / 2) + 1;
+        var humanRoundNum = myPicks.length + 1;
         document.getElementById('draft-choice-title').innerText = "Your Pick (Choice " + humanRoundNum + "/3)";
 
         var currentPair = draftPoolPairs[currentDraftRound];
@@ -1259,6 +1261,13 @@
         p1Team.push(otherPoke);
       }
 
+      // Track personal chosen picks (3 per player)
+      if (pickerRole === myRole) {
+        myPicks.push(chosenPoke);
+      } else {
+        oppPicks.push(chosenPoke);
+      }
+
       currentDraftRound++;
       renderDraftRound();
     }
@@ -1267,7 +1276,8 @@
       var el = document.getElementById(elId);
       if (!el) return;
       var slots = [];
-      for (var i = 0; i < 6; i++) {
+      // Show exactly 3 slots representing the 3 chosen picks
+      for (var i = 0; i < 3; i++) {
         if (team[i]) {
           var p = team[i];
           slots.push(
@@ -1456,8 +1466,8 @@
       document.getElementById('opp-energy-fill').style.width = p2EnergyPct + '%';
       document.getElementById('opp-energy-text').innerText = '⚡ ' + p2Active.energy + '/3';
 
-      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
-      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? 'Your Bench' : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? 'Your Bench' : (mobile ? 'Opp. Bench' : 'Opponent Bench');
 
       renderBenchGrid('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
       renderBenchGrid('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
