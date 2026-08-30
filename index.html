@@ -204,21 +204,112 @@
       align-items: center;
       margin-bottom: 10px;
     }
+    /* ---- Lobby icon badges: chunky, textured console plates ---- */
     .lobby-icon-badge {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-      background: #090e17;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      --badge-accent: #9ae6ff;
+      --badge-deep: rgba(14, 165, 233, .22);
+      --badge-edge: rgba(14, 165, 233, .58);
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      width: 58px;
+      height: 58px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 10px;
+      background:
+        radial-gradient(115% 85% at 50% -10%, rgba(255,255,255,.20), transparent 60%),
+        radial-gradient(90% 80% at 50% 118%, var(--badge-deep), transparent 68%),
+        repeating-linear-gradient(135deg, rgba(255,255,255,.055) 0 2px, rgba(0,0,0,0) 2px 6px),
+        linear-gradient(180deg, #16202e 0%, #070c15 100%);
+      border: 1.5px solid var(--badge-edge);
+      box-shadow:
+        0 5px 0 rgba(0,0,0,.36),
+        0 11px 20px rgba(0,0,0,.42),
+        0 0 22px -4px var(--badge-deep),
+        inset 0 1px 0 rgba(255,255,255,.22),
+        inset 0 -8px 14px rgba(0,0,0,.42);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
-    .host-theme .lobby-icon-badge { border-color: #0ea5e9; color: #38bdf8; }
-    .join-theme .lobby-icon-badge { border-color: #f97316; color: #fb923c; }
+
+    /* glossy top sweep */
+    .lobby-icon-badge::before {
+      content: "";
+      position: absolute;
+      inset: 1px 1px auto 1px;
+      height: 46%;
+      border-radius: 15px 15px 60% 60% / 15px 15px 22px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,.03));
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* travelling shine streak */
+    .lobby-icon-badge::after {
+      content: "";
+      position: absolute;
+      top: -60%;
+      left: -120%;
+      width: 55%;
+      height: 220%;
+      transform: rotate(20deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent);
+      animation: badge-sheen 5.2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    @keyframes badge-sheen {
+      0%, 62% { left: -120%; }
+      86%, 100% { left: 160%; }
+    }
+
+    .lobby-icon-badge .badge-glyph {
+      width: 36px;
+      height: 36px;
+      display: block;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,.55));
+      animation: badge-float 3.6s ease-in-out infinite;
+    }
+
+    @keyframes badge-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    .lobby-block:hover .lobby-icon-badge {
+      transform: translateY(-2px);
+      box-shadow:
+        0 7px 0 rgba(0,0,0,.36),
+        0 14px 24px rgba(0,0,0,.46),
+        0 0 30px -2px var(--badge-deep),
+        inset 0 1px 0 rgba(255,255,255,.26),
+        inset 0 -8px 14px rgba(0,0,0,.42);
+    }
+
+    .host-theme .lobby-icon-badge {
+      --badge-accent: #7dd3fc;
+      --badge-deep: rgba(14, 165, 233, .30);
+      --badge-edge: rgba(56, 189, 248, .62);
+    }
+    .join-theme .lobby-icon-badge {
+      --badge-accent: #fdba74;
+      --badge-deep: rgba(249, 115, 22, .30);
+      --badge-edge: rgba(251, 146, 60, .64);
+    }
+
+    @media (max-width: 420px) {
+      .lobby-icon-badge { width: 50px; height: 50px; border-radius: 15px; }
+      .lobby-icon-badge .badge-glyph { width: 31px; height: 31px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .lobby-icon-badge::after,
+      .lobby-icon-badge .badge-glyph { animation: none; }
+    }
 
     .btn-host-action {
       background: linear-gradient(135deg, #0284c7, #0369a1);
@@ -415,6 +506,16 @@
     }
     .bench-card.clickable:active {
       transform: scale(0.96);
+    }
+
+    /* Locked (cooldown / not your turn): still tappable so it can explain itself */
+    .bench-card.blocked {
+      cursor: help;
+    }
+    .bench-card.blocked:active {
+      transform: scale(0.97);
+      border-color: #f0a021;
+      box-shadow: 0 0 10px rgba(240, 160, 33, .55);
     }
 
     .cooldown-badge {
@@ -718,6 +819,100 @@
     .popup-badge.crit { background: #eab308; color: #422006; }
     .popup-badge.dmg { background: #ef4444; color: #ffffff; font-size: 1.1rem; }
     .popup-badge.mega { background: #ec4899; color: #ffffff; font-size: 1.05rem; }
+    .popup-badge.warn {
+      background: linear-gradient(180deg, #ffd76a, #f0a021);
+      color: #3a2606;
+      font-size: 0.9rem;
+      border: 2px solid rgba(58,38,6,.35);
+      box-shadow: 0 5px 0 rgba(120,72,8,.55), 0 10px 18px rgba(0,0,0,.5);
+      text-transform: none;
+      letter-spacing: .01em;
+    }
+
+    /* ---------- TEAM FINALIZED / LET'S BATTLE ---------- */
+    .draft-final-box {
+      border-color: rgba(217, 242, 59, .5);
+      background:
+        radial-gradient(120% 90% at 50% -20%, rgba(217,242,59,.10), transparent 62%),
+        linear-gradient(180deg, rgba(33,45,40,.96), rgba(13,21,19,.97));
+      box-shadow: 0 8px 24px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .draft-final-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: .02em;
+      color: #d9f23b;
+      text-shadow: 0 2px 0 rgba(0,0,0,.45);
+    }
+    .draft-final-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .final-team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 12px 0 14px;
+    }
+    .final-team-grid .poke-chip {
+      background:
+        linear-gradient(180deg, rgba(255,248,214,.06), transparent 45%),
+        linear-gradient(180deg, #22302b, #131b19);
+      border-color: rgba(217,242,59,.30);
+      position: relative;
+      padding-top: 14px;
+      box-shadow: 0 4px 0 rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .final-team-grid .poke-chip strong { color: #fff8dc; }
+    .final-slot-no {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      font-size: 0.58rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: #9fb04f;
+    }
+    .final-stat-line {
+      font-size: 0.62rem;
+      color: #9aa79a;
+      margin-top: 3px;
+      letter-spacing: .02em;
+    }
+    .btn-battle-start {
+      --btn-top: #f46650;
+      --btn-bottom: #d94739;
+      --btn-edge: #852a25;
+      --btn-glow: rgba(239, 90, 67, .34);
+      color: #fff8ee;
+      border-color: rgba(255,232,224,.46);
+      animation: battle-btn-pulse 2.2s ease-in-out infinite;
+    }
+    .btn-battle-start .btn-icon,
+    .btn-battle-start .btn-arrow {
+      background: rgba(84,24,22,.20);
+      border-color: rgba(255,240,232,.26);
+    }
+    .btn-battle-start .btn-copy small { color: #ffe0d7; opacity: .93; }
+    @keyframes battle-btn-pulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.10) saturate(1.06); }
+    }
+    .battle-ready-status {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #d9f23b;
+      letter-spacing: .02em;
+    }
+    @media (max-width: 480px) {
+      .final-team-grid { gap: 6px; }
+      .final-team-grid .poke-chip img { width: 38px; height: 38px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn-battle-start { animation: none; }
+    }
 
     @keyframes popFade {
       0% { opacity: 0; transform: translateY(12px) scale(0.85); }
@@ -1230,20 +1425,24 @@
     .lobby-block-header p { color: #c8d4c8 !important; }
 
     .lobby-icon-badge {
-      background: #101815;
+      background:
+        radial-gradient(115% 85% at 50% -10%, rgba(255,248,214,.18), transparent 60%),
+        radial-gradient(90% 80% at 50% 118%, var(--badge-deep), transparent 68%),
+        repeating-linear-gradient(135deg, rgba(255,248,214,.06) 0 2px, rgba(0,0,0,0) 2px 6px),
+        linear-gradient(180deg, #253530 0%, #0d1512 100%);
       color: #fff8dc;
-      border-color: rgba(255,248,220,.18);
-      box-shadow: 0 4px 0 rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.05);
     }
+
     .host-theme .lobby-icon-badge {
-      color: #d9f23b;
-      border-color: rgba(217,242,59,.62);
-      background: rgba(78, 92, 31, .23);
+      --badge-accent: #d9f23b;
+      --badge-deep: rgba(217, 242, 59, .26);
+      --badge-edge: rgba(217, 242, 59, .68);
     }
+
     .join-theme .lobby-icon-badge {
-      color: #ff8a74;
-      border-color: rgba(239,90,67,.65);
-      background: rgba(102, 39, 31, .28);
+      --badge-accent: #ff8a74;
+      --badge-deep: rgba(239, 90, 67, .28);
+      --badge-edge: rgba(239, 90, 67, .70);
     }
 
     .btn-host-action {
@@ -1722,7 +1921,43 @@
       <!-- Host Card -->
       <div class="lobby-block host-theme">
         <div class="lobby-block-header">
-          <div class="lobby-icon-badge">🎮</div>
+          <div class="lobby-icon-badge" role="img" aria-label="Host a match">
+            <svg class="badge-glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="hostBallTop" x1="12" y1="13" x2="36" y2="27" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#f6ff9c"/>
+                  <stop offset=".55" stop-color="#d9f23b"/>
+                  <stop offset="1" stop-color="#9ec42a"/>
+                </linearGradient>
+                <linearGradient id="hostBallBtm" x1="12" y1="28" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#fffdf0"/>
+                  <stop offset="1" stop-color="#b6bfa6"/>
+                </linearGradient>
+                <radialGradient id="hostGloss" cx="0" cy="0" r="1"
+                  gradientTransform="translate(18.5 18) rotate(38) scale(10.5 6.6)"
+                  gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#ffffff" stop-opacity=".9"/>
+                  <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+
+              <!-- broadcast arcs: "hosting" signal -->
+              <path d="M7.1 19.8A18 18 0 0 1 17.8 9.1" stroke="var(--badge-accent)" stroke-opacity=".85" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M40.9 19.8A18 18 0 0 0 30.2 9.1" stroke="var(--badge-accent)" stroke-opacity=".45" stroke-width="2.6" stroke-linecap="round"/>
+
+              <!-- ball body -->
+              <path d="M11 26a13 13 0 0 1 26 0Z" fill="url(#hostBallTop)"/>
+              <path d="M11 26a13 13 0 0 0 26 0Z" fill="url(#hostBallBtm)"/>
+              <path d="M11.3 24.5h25.4v3.1H11.3z" fill="#141c12"/>
+              <circle cx="24" cy="26" r="13" stroke="#141c12" stroke-width="2.2"/>
+              <ellipse cx="19" cy="19" rx="6.4" ry="3.6" transform="rotate(-32 19 19)" fill="url(#hostGloss)"/>
+
+              <!-- centre button -->
+              <circle cx="24" cy="26" r="5" fill="#141c12"/>
+              <circle cx="24" cy="26" r="3" fill="#fffdf0"/>
+              <circle cx="22.9" cy="24.9" r="1" fill="#ffffff"/>
+            </svg>
+          </div>
           <h3 style="color:#38bdf8; font-size:1.1rem; font-weight:800;">Host Match</h3>
           <p style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">Create an arena and invite a challenger.</p>
         </div>
@@ -1747,7 +1982,44 @@
       <!-- Join Card -->
       <div class="lobby-block join-theme">
         <div class="lobby-block-header">
-          <div class="lobby-icon-badge">⚔️</div>
+          <div class="lobby-icon-badge" role="img" aria-label="Join a match">
+            <svg class="badge-glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="joinBlade" x1="20" y1="6" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#fff4ef"/>
+                  <stop offset=".45" stop-color="#ffb9a5"/>
+                  <stop offset="1" stop-color="#ef5a43"/>
+                </linearGradient>
+                <linearGradient id="joinGuard" x1="16" y1="28" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#ffd98a"/>
+                  <stop offset="1" stop-color="#c98a2a"/>
+                </linearGradient>
+                <linearGradient id="joinGrip" x1="22" y1="31" x2="26" y2="40" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#7c4230"/>
+                  <stop offset="1" stop-color="#42211a"/>
+                </linearGradient>
+              </defs>
+
+              <g transform="rotate(-30 24 24)">
+                <path d="M24 6.5 27 13v15h-6V13z" fill="url(#joinBlade)" stroke="#5c2018" stroke-width="1.1" stroke-linejoin="round"/>
+                <path d="M24 8.4V27" stroke="#ffffff" stroke-opacity=".55" stroke-width="1.1" stroke-linecap="round"/>
+                <rect x="16.2" y="28" width="15.6" height="3.4" rx="1.6" fill="url(#joinGuard)" stroke="#5c2018" stroke-width="1"/>
+                <rect x="22" y="31.2" width="4" height="7.6" rx="1.9" fill="url(#joinGrip)"/>
+                <circle cx="24" cy="39.8" r="2.3" fill="url(#joinGuard)" stroke="#5c2018" stroke-width="1"/>
+              </g>
+
+              <g transform="rotate(30 24 24)">
+                <path d="M24 6.5 27 13v15h-6V13z" fill="url(#joinBlade)" stroke="#5c2018" stroke-width="1.1" stroke-linejoin="round"/>
+                <path d="M24 8.4V27" stroke="#ffffff" stroke-opacity=".55" stroke-width="1.1" stroke-linecap="round"/>
+                <rect x="16.2" y="28" width="15.6" height="3.4" rx="1.6" fill="url(#joinGuard)" stroke="#5c2018" stroke-width="1"/>
+                <rect x="22" y="31.2" width="4" height="7.6" rx="1.9" fill="url(#joinGrip)"/>
+                <circle cx="24" cy="39.8" r="2.3" fill="url(#joinGuard)" stroke="#5c2018" stroke-width="1"/>
+              </g>
+
+              <!-- clash spark -->
+              <path d="M24 14.6l2 4.6 4.6 2-4.6 2-2 4.6-2-4.6-4.6-2 4.6-2z" fill="var(--badge-accent)" fill-opacity=".95"/>
+            </svg>
+          </div>
           <h3 style="color:#f97316; font-size:1.1rem; font-weight:800;">Join Match</h3>
           <p style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">Enter your rival's 6-character code.</p>
         </div>
@@ -1755,7 +2027,7 @@
           <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
           <button id="btn-join-room" class="btn btn-join-action btn-lobby-action" style="margin-top:8px;" onclick="joinRoom()" aria-label="Enter arena">
             <span class="btn-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M13.5 5.25 18.75 10.5l-8.9 8.9-5.25.75.75-5.25 8.15-8.15Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m14.9 3.85 5.25 5.25M5.35 14.9l3.75 3.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <svg viewBox="0 0 24 24" fill="none"><path d="M3.5 20.5V12a8.5 8.5 0 0 1 17 0v8.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M2.25 20.5h19.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9.25 20.5v-5.75a2.75 2.75 0 0 1 5.5 0v5.75" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 1.6v1.7M8.9 2.6l.9 1.5M15.1 2.6l-.9 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M1.7 15.2h5.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m5.5 13 2.2 2.2-2.2 2.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
             <span class="btn-copy"><small>JOIN BATTLE</small><strong>Enter Arena</strong></span>
             <span class="btn-arrow" aria-hidden="true">›</span>
@@ -1792,8 +2064,22 @@
       <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Waiting for opponent to choose from their pair.</p>
     </div>
 
-    <h3 style="margin-top:10px; font-size:0.9rem;">Your Chosen Team (<span id="draft-team-count">0</span>/3)</h3>
-    <div id="my-draft-roster" class="roster-grid"></div>
+    <div id="draft-final-section" class="draft-choice-box draft-final-box hidden">
+      <div id="final-team-grid" class="final-team-grid"></div>
+      <button id="btn-lets-battle" class="btn btn-lobby-action btn-battle-start" onclick="confirmBattleStart()" aria-label="Start the battle">
+        <span class="btn-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 3.5h2.6l10.9 12.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.6 17.2l2.2-2.2 2.2 2.4a1.6 1.6 0 0 1-2.3 2.2l-2.1-2.4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M20 3.5h-2.6L6.5 15.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.4 17.2l-2.2-2.2-2.2 2.4a1.6 1.6 0 0 0 2.3 2.2l2.1-2.4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="btn-copy"><small>ARENA READY</small><strong>Let's Battle!</strong></span>
+        <span class="btn-arrow" aria-hidden="true">›</span>
+      </button>
+      <p id="battle-ready-status" class="battle-ready-status hidden">Waiting for your opponent to lock in…</p>
+    </div>
+
+    <div id="draft-progress-block">
+      <h3 style="margin-top:10px; font-size:0.9rem;">Your Chosen Team (<span id="draft-team-count">0</span>/3)</h3>
+      <div id="my-draft-roster" class="roster-grid"></div>
+    </div>
   </div>
 
   <!-- BATTLE SCREEN -->
@@ -1969,6 +2255,14 @@
 
     const SPRITE_URL = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
+    /* Mega Dragonite has no official sprite in the PokeAPI set, so the game ships
+       its own 8-bit Mega Dragonite: crimson scales, oversized violet wings and a
+       dragon-energy halo. Embedded as a data URI so it always loads offline. */
+    const MEGA_DRAGONITE_SPRITE = "data:image/png;base64,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";
+
+    /* A mega form may override the sprite outright via spriteUrl. */
+    const MEGA_SPRITE = (form) => form.spriteUrl || SPRITE_URL(form.spriteId);
+
     const TYPE_MOVES = {
       Normal:   { fast: "Body Slam", charged: "Hyper Beam" },
       Fire:     { fast: "Fire Spin", charged: "Blast Burn" },
@@ -2010,7 +2304,7 @@
       127: [{ name: "Mega Pinsir", type: "Bug", spriteId: 10040 }],
       130: [{ name: "Mega Gyarados", type: "Dark", spriteId: 10041 }],
       142: [{ name: "Mega Aerodactyl", type: "Rock", spriteId: 10042 }],
-      149: [{ name: "Mega Dragonite", type: "Dragon", spriteId: 149 }],
+      149: [{ name: "Mega Dragonite", type: "Dragon", spriteId: 149, spriteUrl: MEGA_DRAGONITE_SPRITE }],
       150: [
              { name: "Mega Mewtwo X", type: "Fighting", spriteId: 10043 },
              { name: "Mega Mewtwo Y", type: "Psychic", spriteId: 10044 }
@@ -2128,6 +2422,9 @@
 
     var p1SwitchCooldown = 0;
     var p2SwitchCooldown = 0;
+
+    var myBattleReady = false;
+    var oppBattleReady = false;
 
     var p1HasMegaStone = true;
     var p2HasMegaStone = true;
@@ -2390,11 +2687,15 @@
         p2Team = [];
         myPicks = [];
         oppPicks = [];
+        myBattleReady = false;
+        oppBattleReady = false;
         startDraftScreen();
       } else if (msg.type === 'DRAFT_PICK_MADE') {
         applyDraftPick(msg.payload.pickerRole, msg.payload.chosenPoke, msg.payload.otherPoke);
       } else if (msg.type === 'BATTLE_ACTION') {
         applyActionLocally(msg.payload.action, msg.payload.data);
+      } else if (msg.type === 'BATTLE_READY') {
+        handleOpponentBattleReady();
       } else if (msg.type === 'REMATCH_START') {
         resetToDraftScreen();
       }
@@ -2423,6 +2724,8 @@
       myPicks = [];
       oppPicks = [];
       currentDraftRound = 0;
+      myBattleReady = false;
+      oppBattleReady = false;
       draftPoolPairs = generate12UniquePokemon();
 
       if (!isAiMode) {
@@ -2444,14 +2747,12 @@
       document.getElementById('btn-confirm-draft').disabled = true;
 
       if (p1Team.length === 6 && p2Team.length === 6) {
-        document.getElementById('draft-status-title').innerText = "Teams Finalized!";
-        document.getElementById('draft-status-desc').innerText = "Entering Battle Arena...";
-        document.getElementById('draft-choice-section').classList.add('hidden');
-        document.getElementById('draft-waiting-section').classList.add('hidden');
-        setTimeout(initBattle, 1200);
+        showTeamFinalizedScreen();
         return;
       }
 
+      document.getElementById('draft-final-section').classList.add('hidden');
+      document.getElementById('draft-progress-block').classList.remove('hidden');
       document.getElementById('draft-team-count').innerText = myPicks.length;
       renderDraftRoster('my-draft-roster', myPicks);
 
@@ -2549,6 +2850,80 @@
       renderDraftRound();
     }
 
+    function showTeamFinalizedScreen() {
+      myBattleReady = false;
+      oppBattleReady = false;
+
+      document.getElementById('draft-status-title').innerText = "Teams Finalized!";
+      document.getElementById('draft-status-desc').innerText = "Your squad of 6 is locked in. Step into the arena when you're ready.";
+      document.getElementById('draft-choice-section').classList.add('hidden');
+      document.getElementById('draft-waiting-section').classList.add('hidden');
+      document.getElementById('draft-progress-block').classList.add('hidden');
+
+      renderFinalTeamGrid();
+
+      var btn = document.getElementById('btn-lets-battle');
+      btn.disabled = false;
+      btn.querySelector('.btn-copy strong').innerText = "Let's Battle!";
+      document.getElementById('battle-ready-status').classList.add('hidden');
+      document.getElementById('draft-final-section').classList.remove('hidden');
+
+      playSound('beep');
+    }
+
+    function renderFinalTeamGrid() {
+      var myTeam = (myRole === 'p1') ? p1Team : p2Team;
+      var grid = document.getElementById('final-team-grid');
+      if (!grid) return;
+
+      grid.innerHTML = myTeam.map(function(p, i) {
+        var draftedByMe = myPicks.some(function(mp) { return mp.id === p.id; });
+        return '<div class="poke-chip">' +
+                 '<span class="final-slot-no">' + (draftedByMe ? 'DRAFTED' : 'PASSED') + '</span>' +
+                 '<img src="' + p.sprite + '" class="pixel-art" alt="' + p.name + '" />' +
+                 '<strong>' + p.name + '</strong>' +
+                 '<span class="type-badge" style="background:' + (TYPE_COLORS[p.type] || '#64748b') + '">' + p.type + '</span>' +
+                 '<div class="final-stat-line">HP ' + p.maxHp + ' · ATK ' + p.atk + ' · DEF ' + p.def + '</div>' +
+               '</div>';
+      }).join('');
+    }
+
+    window.confirmBattleStart = function() {
+      if (myBattleReady) return;
+      myBattleReady = true;
+      playSound('beep');
+      triggerHaptics([40, 30, 60]);
+
+      var btn = document.getElementById('btn-lets-battle');
+
+      if (isAiMode) {
+        btn.disabled = true;
+        initBattle();
+        return;
+      }
+
+      sendNet('BATTLE_READY', {});
+
+      if (oppBattleReady) {
+        initBattle();
+      } else {
+        btn.disabled = true;
+        btn.querySelector('.btn-copy strong').innerText = "Locked In";
+        document.getElementById('battle-ready-status').classList.remove('hidden');
+      }
+    };
+
+    function handleOpponentBattleReady() {
+      oppBattleReady = true;
+      if (myBattleReady) {
+        initBattle();
+      } else {
+        var status = document.getElementById('battle-ready-status');
+        status.innerText = "Your opponent is ready — hit Let's Battle!";
+        status.classList.remove('hidden');
+      }
+    }
+
     function renderDraftRoster(elId, team) {
       var el = document.getElementById(elId);
       if (!el) return;
@@ -2625,6 +3000,7 @@
 
     function initBattle() {
       setGameInfoMode(true);
+      document.getElementById('draft-final-section').classList.add('hidden');
       document.getElementById('screen-draft').classList.add('hidden');
       document.getElementById('screen-battle').classList.remove('hidden');
       p1ActiveIdx = 0;
@@ -2685,10 +3061,42 @@
             }
             applyActionLocally('SWITCH', actionData);
           };
+        } else if (isInteractive) {
+          card.classList.add('blocked');
+          card.onclick = function() {
+            explainBlockedSwitch(card, p, isFainted, isMyTurn, currentCooldown);
+          };
         }
 
         container.appendChild(card);
       });
+    }
+
+    /* Tapping a bench Pokemon you are not allowed to send out explains why
+       instead of silently doing nothing. */
+    function explainBlockedSwitch(card, poke, isFainted, isMyTurn, cooldown) {
+      var msg;
+
+      if (isFainted) {
+        msg = '\u274C ' + poke.name + ' has fainted!';
+      } else if (cooldown > 0) {
+        msg = '\u23F3 Switch on cooldown \u2014 ' + cooldown + ' more ' + (cooldown === 1 ? 'move' : 'moves') + '!';
+      } else if (!isMyTurn) {
+        msg = '\u23F8 Not your turn yet!';
+      } else {
+        msg = '\u26D4 You can\'t switch right now.';
+      }
+
+      showPopup(msg, 'warn');
+      playSound('beep');
+      triggerHaptics([25, 40, 25]);
+
+      if (card) {
+        card.classList.remove('shake-anim');
+        void card.offsetWidth;
+        card.classList.add('shake-anim');
+        setTimeout(function() { card.classList.remove('shake-anim'); }, 400);
+      }
     }
 
     function updateBattleUI() {
@@ -2963,7 +3371,7 @@
         if (chosenForm) {
           actorPoke.name = chosenForm.name;
           actorPoke.type = chosenForm.type;
-          actorPoke.sprite = SPRITE_URL(chosenForm.spriteId);
+          actorPoke.sprite = MEGA_SPRITE(chosenForm);
           actorPoke.fastMove = { name: TYPE_MOVES[chosenForm.type].fast, type: chosenForm.type, minDmg: 24, maxDmg: 32 };
           actorPoke.chargedMove = { name: TYPE_MOVES[chosenForm.type].charged, type: chosenForm.type, minDmg: 90, maxDmg: 110 };
         }
