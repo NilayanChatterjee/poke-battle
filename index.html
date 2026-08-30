@@ -2745,12 +2745,14 @@
 
       isHost = false;
       myRole = 'p2';
-      document.getElementById('btn-join-room').disabled = true;
-      document.getElementById('btn-join-room').innerText = "Connecting...";
+      var joinBtn = document.getElementById('btn-join-room');
+      joinBtn.disabled = true;
+      joinBtn.innerText = "Connecting...";
 
       if (typeof Peer === "undefined") {
         alert("Peer network library is still loading. Please retry in 3 seconds.");
-        document.getElementById('btn-join-room').disabled = false;
+        joinBtn.disabled = false;
+        joinBtn.innerText = "Enter Arena";
         return;
       }
 
@@ -2760,14 +2762,24 @@
       peer.on('open', function() {
         var targetFullId = PREFIX + input;
         conn = peer.connect(targetFullId, { reliable: true });
-        setupConnection();
+        
+        conn.on('open', function() {
+          setupConnection();
+        });
+
+        conn.on('error', function(err) {
+          console.error("Connection error:", err);
+          alert("Could not connect to room. Make sure the host code is correct and active.");
+          joinBtn.disabled = false;
+          joinBtn.innerText = "Enter Arena";
+        });
       });
 
       peer.on('error', function(err) {
         console.error("Peer join error:", err);
         alert("Connection failed. Check code and try again.");
-        document.getElementById('btn-join-room').disabled = false;
-        document.getElementById('btn-join-room').innerText = "Enter Arena";
+        joinBtn.disabled = false;
+        joinBtn.innerText = "Enter Arena";
       });
     };
 
@@ -3081,8 +3093,9 @@
       document.getElementById('screen-lobby').classList.remove('hidden');
       setGameInfoMode(false);
       document.getElementById('btn-create-room').disabled = false;
-      document.getElementById('btn-join-room').disabled = false;
-      document.getElementById('btn-join-room').innerText = "Enter Arena";
+      var joinBtn = document.getElementById('btn-join-room');
+      joinBtn.disabled = false;
+      joinBtn.innerText = "Enter Arena";
       document.getElementById('host-info').classList.add('hidden');
       try { if (peer) peer.destroy(); } catch(e) {}
     };
