@@ -2702,7 +2702,8 @@
         initDraftSession();
       });
 
-      peer.on('error', function() {
+      peer.on('error', function(err) {
+        console.error("Peer host error:", err);
         var fallback6 = generate6DigitCode();
         peer = new Peer(PREFIX + fallback6.toLowerCase());
         peer.on('open', function(id) {
@@ -2729,7 +2730,7 @@
 
     window.joinRoom = function() {
       playSound('beep');
-      var input = document.getElementById('join-id-input').value.trim().toUpperCase();
+      var input = document.getElementById('join-id-input').value.trim().toLowerCase();
       if (input.length !== 6) return alert('Please enter a 6-digit room code.');
 
       isHost = false;
@@ -2747,15 +2748,16 @@
       peer = new Peer();
 
       peer.on('open', function() {
-        var targetFullId = PREFIX + input.toLowerCase();
+        var targetFullId = PREFIX + input;
         conn = peer.connect(targetFullId, { reliable: true });
         setupConnection();
       });
 
-      peer.on('error', function() {
+      peer.on('error', function(err) {
+        console.error("Peer join error:", err);
         alert("Connection failed. Check code and try again.");
         document.getElementById('btn-join-room').disabled = false;
-        document.getElementById('btn-join-room').innerText = "Join Match";
+        document.getElementById('btn-join-room').innerText = "Enter Arena";
       });
     };
 
@@ -3078,7 +3080,7 @@
     window.triggerRematch = function() {
       playSound('beep');
       if (!isAiMode) {
-        sendNet('REMATCH_START', {},);
+        sendNet('REMATCH_START', {});
       }
       resetToDraftScreen();
     };
@@ -3434,7 +3436,6 @@
           } else {
             clearInterval(turnTimer);
             turnTimer = null;
-            // Time out: default to fast attack or auto pass
             if (!fastBtn.disabled) {
               executeMoveLocally('fast');
             }
@@ -3657,9 +3658,9 @@
     }
 
     function handleFaint(faintedRole) {
-      if (faintedRole === 'p2') {
+      if (faintedRole === 'p2' && p1Score < 6) {
         p1Score++;
-      } else {
+      } else if (faintedRole === 'p1' && p2Score < 6) {
         p2Score++;
       }
       updateScoreboardUI();
@@ -3690,13 +3691,11 @@
         return;
       }
 
-      // Check if AI or player needs auto swap timer
       activeTurn = faintedRole;
       isSwapPhase = true;
       updateBattleUI();
 
       if (faintedRole === 'p2' && isAiMode) {
-        // AI instantly swaps after a tiny delay
         setTimeout(function() {
           if (!isSwapPhase) return;
           clearAllTimers();
@@ -3709,7 +3708,6 @@
         return;
       }
 
-      // 5 seconds swap timer for human player
       swapTimeLeft = 5;
       var turnInd = document.getElementById('turn-indicator');
       turnInd.style.color = "var(--hp-red)";
@@ -3727,7 +3725,6 @@
           } else {
             clearInterval(swapTimer);
             swapTimer = null;
-            // Auto swap to random healthy pokemon
             autoSelectRandomHealthy(faintedRole);
           }
         }, 1000);
