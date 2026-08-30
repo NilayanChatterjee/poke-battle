@@ -3204,12 +3204,24 @@
       startTurn();
     }
 
+    function getCurrentScores() {
+      // Score is always derived from the number of opponent Pokémon that have
+      // actually fainted. This prevents the final scoreboard from becoming
+      // inverted or stale when the two multiplayer clients have different roles.
+      var p1ScoreNow = p2Team.filter(function(p) { return p && p.currentHp <= 0; }).length;
+      var p2ScoreNow = p1Team.filter(function(p) { return p && p.currentHp <= 0; }).length;
+      return { p1: p1ScoreNow, p2: p2ScoreNow };
+    }
+
     function updateScoreboardUI() {
       var scoreP1El = document.getElementById('score-p1');
       var scoreP2El = document.getElementById('score-p2');
       var oppLabelEl = document.getElementById('score-opp-label');
-      if (scoreP1El) scoreP1El.innerText = (myRole === 'p1' ? p1Score : p2Score);
-      if (scoreP2El) scoreP2El.innerText = (myRole === 'p1' ? p2Score : p1Score);
+      var scores = getCurrentScores();
+      var myScore = myRole === 'p1' ? scores.p1 : scores.p2;
+      var oppScore = myRole === 'p1' ? scores.p2 : scores.p1;
+      if (scoreP1El) scoreP1El.innerText = myScore;
+      if (scoreP2El) scoreP2El.innerText = oppScore;
       if (oppLabelEl) oppLabelEl.innerText = isAiMode ? "AI" : "Opp";
     }
 
@@ -3221,13 +3233,15 @@
       var finalP2 = document.getElementById('sb-final-p2');
       var p1ColLabel = document.getElementById('sb-col-p1-label');
       var p2ColLabel = document.getElementById('sb-col-p2-label');
+      var scores = getCurrentScores();
+      var myScore = myRole === 'p1' ? scores.p1 : scores.p2;
+      var oppScore = myRole === 'p1' ? scores.p2 : scores.p1;
 
       if (subTitle) subTitle.innerText = winnerName + " Wins the Arena!";
-      if (p1ColLabel) p1ColLabel.innerText = myRole === 'p1' ? "You" : (isAiMode ? "AI" : "Opponent");
-      if (p2ColLabel) p2ColLabel.innerText = myRole === 'p1' ? (isAiMode ? "AI" : "Opponent") : "You";
-      
-      if (finalP1) finalP1.innerText = myRole === 'p1' ? p1Score : p2Score;
-      if (finalP2) finalP2.innerText = myRole === 'p1' ? p2Score : p1Score;
+      if (p1ColLabel) p1ColLabel.innerText = "You";
+      if (p2ColLabel) p2ColLabel.innerText = isAiMode ? "AI" : "Opponent";
+      if (finalP1) finalP1.innerText = myScore;
+      if (finalP2) finalP2.innerText = oppScore;
 
       if (overlay) {
         overlay.classList.add('visible');
@@ -3323,62 +3337,52 @@
     }
 
     function updateBattleUI() {
-      var p1Active = p1Team[p1ActiveIdx];
-      var p2Active = p2Team[p2ActiveIdx];
-      if (!p1Active || !p2Active) return;
+      // Visual layout is always player-left / opponent-right.
+      // P1/P2 remain the internal network roles and are never used to decide
+      // which side of the arena the player sees.
+      var playerTeam = myRole === 'p1' ? p1Team : p2Team;
+      var playerActiveIdx = myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx;
+      var opponentTeam = myRole === 'p1' ? p2Team : p1Team;
+      var opponentActiveIdx = myRole === 'p1' ? p2ActiveIdx : p1ActiveIdx;
+      var playerActive = playerTeam[playerActiveIdx];
+      var opponentActive = opponentTeam[opponentActiveIdx];
+      if (!playerActive || !opponentActive) return;
       var mobile = isMobileView();
 
       var p1Label = document.getElementById('p1-title-label');
-      if (mobile) {
-        p1Label.innerText = myRole === 'p1' ? 'You (P1)' : 'Opp. (P1)';
-      } else {
-        p1Label.innerText = myRole === 'p1' ? 'Active: You (P1)' : 'Active: Opponent (P1)';
-      }
-      document.getElementById('my-active-sprite').src = p1Active.sprite;
-      document.getElementById('my-active-name').innerText = p1Active.name + (p1Active.isMega ? ' 🧬' : '');
-      
+      p1Label.innerText = mobile ? 'You' : 'Active: You';
+      document.getElementById('my-active-sprite').src = playerActive.sprite;
+      document.getElementById('my-active-name').innerText = playerActive.name + (playerActive.isMega ? ' 🧬' : '');
       var p1Type = document.getElementById('my-active-type');
-      p1Type.innerText = mobile ? (TYPE_SYMBOLS[p1Active.type] || p1Active.type) : p1Active.type;
-      p1Type.style.background = TYPE_COLORS[p1Active.type];
-
-      var p1HpPct = Math.max(0, (p1Active.currentHp / p1Active.maxHp) * 100);
+      p1Type.innerText = mobile ? (TYPE_SYMBOLS[playerActive.type] || playerActive.type) : playerActive.type;
+      p1Type.style.background = TYPE_COLORS[playerActive.type];
+      var p1HpPct = Math.max(0, (playerActive.currentHp / playerActive.maxHp) * 100);
       var p1HpFill = document.getElementById('my-hp-fill');
       p1HpFill.style.width = p1HpPct + '%';
       p1HpFill.style.backgroundColor = p1HpPct < 25 ? 'var(--hp-red)' : p1HpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
-      document.getElementById('my-hp-text').innerText = p1Active.currentHp + '/' + p1Active.maxHp + ' HP';
-
-      var p1EnergyPct = Math.min(100, (p1Active.energy / 3) * 100);
-      document.getElementById('my-energy-fill').style.width = p1EnergyPct + '%';
-      document.getElementById('my-energy-text').innerText = '⚡ ' + p1Active.energy + '/3';
+      document.getElementById('my-hp-text').innerText = playerActive.currentHp + '/' + playerActive.maxHp + ' HP';
+      document.getElementById('my-energy-fill').style.width = Math.min(100, (playerActive.energy / 3) * 100) + '%';
+      document.getElementById('my-energy-text').innerText = '⚡ ' + playerActive.energy + '/3';
 
       var p2Label = document.getElementById('p2-title-label');
-      if (mobile) {
-        p2Label.innerText = myRole === 'p2' ? 'You (P2)' : (isAiMode ? 'AI (P2)' : 'Opp. (P2)');
-      } else {
-        p2Label.innerText = myRole === 'p2' ? 'Active: You (P2)' : (isAiMode ? 'Active: AI (P2)' : 'Active: Opponent (P2)');
-      }
-      document.getElementById('opp-active-sprite').src = p2Active.sprite;
-      document.getElementById('opp-active-name').innerText = p2Active.name + (p2Active.isMega ? ' 🧬' : '');
-      
+      p2Label.innerText = mobile ? 'Opponent' : (isAiMode ? 'Active: AI' : 'Active: Opponent');
+      document.getElementById('opp-active-sprite').src = opponentActive.sprite;
+      document.getElementById('opp-active-name').innerText = opponentActive.name + (opponentActive.isMega ? ' 🧬' : '');
       var p2Type = document.getElementById('opp-active-type');
-      p2Type.innerText = mobile ? (TYPE_SYMBOLS[p2Active.type] || p2Active.type) : p2Active.type;
-      p2Type.style.background = TYPE_COLORS[p2Active.type];
-
-      var p2HpPct = Math.max(0, (p2Active.currentHp / p2Active.maxHp) * 100);
+      p2Type.innerText = mobile ? (TYPE_SYMBOLS[opponentActive.type] || opponentActive.type) : opponentActive.type;
+      p2Type.style.background = TYPE_COLORS[opponentActive.type];
+      var p2HpPct = Math.max(0, (opponentActive.currentHp / opponentActive.maxHp) * 100);
       var p2HpFill = document.getElementById('opp-hp-fill');
       p2HpFill.style.width = p2HpPct + '%';
       p2HpFill.style.backgroundColor = p2HpPct < 25 ? 'var(--hp-red)' : p2HpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
-      document.getElementById('opp-hp-text').innerText = p2Active.currentHp + '/' + p2Active.maxHp + ' HP';
+      document.getElementById('opp-hp-text').innerText = opponentActive.currentHp + '/' + opponentActive.maxHp + ' HP';
+      document.getElementById('opp-energy-fill').style.width = Math.min(100, (opponentActive.energy / 3) * 100) + '%';
+      document.getElementById('opp-energy-text').innerText = '⚡ ' + opponentActive.energy + '/3';
 
-      var p2EnergyPct = Math.min(100, (p2Active.energy / 3) * 100);
-      document.getElementById('opp-energy-fill').style.width = p2EnergyPct + '%';
-      document.getElementById('opp-energy-text').innerText = '⚡ ' + p2Active.energy + '/3';
-
-      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
-      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
-
-      renderBenchGrid('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
-      renderBenchGrid('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
+      document.getElementById('p1-bench-label').innerText = 'Your Bench';
+      document.getElementById('p2-bench-label').innerText = isAiMode ? 'AI Bench' : 'Opponent Bench';
+      renderBenchGrid('p1-bench-slots', playerTeam, playerActiveIdx, true);
+      renderBenchGrid('p2-bench-slots', opponentTeam, opponentActiveIdx, false);
 
       // Never allow attacks while either active Pokemon is fainted.
       // This is a UI safety guard during the short forced-switch window;
@@ -3760,11 +3764,11 @@
     }
 
     function handleFaint(faintedRole) {
-      if (faintedRole === 'p2' && p1Score < 6) {
-        p1Score++;
-      } else if (faintedRole === 'p1' && p2Score < 6) {
-        p2Score++;
-      }
+      // Keep legacy score variables synchronized, but derive the displayed
+      // score from the actual fainted teams so both clients show the same result.
+      var scoreSnapshot = getCurrentScores();
+      p1Score = scoreSnapshot.p1;
+      p2Score = scoreSnapshot.p2;
       updateScoreboardUI();
 
       var team = faintedRole === 'p1' ? p1Team : p2Team;
@@ -3782,6 +3786,10 @@
         turnInd.innerText = "🏁 Match Finished!";
         turnInd.style.color = "#4ade80";
 
+        var finalScores = getCurrentScores();
+        p1Score = finalScores.p1;
+        p2Score = finalScores.p2;
+        updateScoreboardUI();
         flashFinalScoreboard(winner);
 
         document.getElementById('controls-section').innerHTML = 
