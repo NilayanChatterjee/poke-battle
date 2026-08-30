@@ -718,9 +718,9 @@
       }
       
       .active-fighter-card.me  { grid-column: 1 / 2; grid-row: 1; min-height: unset; padding: 6px; }
-      .vs-divider             { grid-column: 2 / 3; grid-row: 1; font-size: 0.75rem; }
+      .vs-divider              { grid-column: 2 / 3; grid-row: 1; font-size: 0.75rem; }
       .active-fighter-card.opp { grid-column: 3 / 4; grid-row: 1; min-height: unset; padding: 6px; }
-      #my-bench-container     { grid-column: 1 / 2; grid-row: 2; }
+      #my-bench-container      { grid-column: 1 / 2; grid-row: 2; }
       #opp-bench-container     { grid-column: 3 / 4; grid-row: 2; }
 
       .fighter-inner-box {
@@ -2371,15 +2371,15 @@
     const MEGA_FORMS = {
       3:   [{ name: "Mega Venusaur", type: "Grass", spriteId: 10033 }],
       6:   [
-              { name: "Mega Charizard X", type: "Dragon", spriteId: 10034 },
-              { name: "Mega Charizard Y", type: "Fire", spriteId: 10035 }
+             { name: "Mega Charizard X", type: "Dragon", spriteId: 10034 },
+             { name: "Mega Charizard Y", type: "Fire", spriteId: 10035 }
            ],
       9:   [{ name: "Mega Blastoise", type: "Water", spriteId: 10036 }],
       15:  [{ name: "Mega Beedrill", type: "Bug", spriteId: 10090 }],
       18:  [{ name: "Mega Pidgeot", type: "Flying", spriteId: 10073 }],
       26:  [
-              { name: "Mega Raichu X", type: "Fighting", spriteId: 10304 },
-              { name: "Mega Raichu Y", type: "Electric", spriteId: 10305 }
+             { name: "Mega Raichu X", type: "Fighting", spriteId: 10304 },
+             { name: "Mega Raichu Y", type: "Electric", spriteId: 10305 }
            ],
       65:  [{ name: "Mega Alakazam", type: "Psychic", spriteId: 10037 }],
       80:  [{ name: "Mega Slowbro", type: "Water", spriteId: 10071 }],
@@ -2390,8 +2390,8 @@
       142: [{ name: "Mega Aerodactyl", type: "Rock", spriteId: 10042 }],
       149: [{ name: "Mega Dragonite", type: "Dragon", spriteId: 10281 }],
       150: [
-              { name: "Mega Mewtwo X", type: "Fighting", spriteId: 10043 },
-              { name: "Mega Mewtwo Y", type: "Psychic", spriteId: 10044 }
+             { name: "Mega Mewtwo X", type: "Fighting", spriteId: 10043 },
+             { name: "Mega Mewtwo Y", type: "Psychic", spriteId: 10044 }
            ]
     };
 
@@ -3154,4 +3154,757 @@
     function showPopup(text, type) {
       var layer = document.getElementById('popup-layer');
       if (!layer) return;
-Sorry, something went wrong. Please try your request again.
+      var badge = document.createElement('div');
+      badge.className = 'popup-badge ' + (type || 'dmg');
+      badge.innerText = text;
+      layer.appendChild(badge);
+      setTimeout(function() { badge.remove(); }, 1600);
+    }
+
+    function triggerScreenFlash(color) {
+      var overlay = document.getElementById('flash-overlay');
+      overlay.style.background = color || 'white';
+      overlay.style.opacity = '0.75';
+      setTimeout(function() { overlay.style.opacity = '0'; }, 120);
+    }
+
+    function triggerShake(elementId) {
+      var el = document.getElementById(elementId);
+      if (!el) return;
+      el.classList.remove('shake-anim');
+      void el.offsetWidth;
+      el.classList.add('shake-anim');
+      setTimeout(function() { el.classList.remove('shake-anim'); }, 400);
+    }
+
+    function clearAllTimers() {
+      if (turnTimer) { clearInterval(turnTimer); turnTimer = null; }
+      if (swapTimer) { clearInterval(swapTimer); swapTimer = null; }
+      isSwapPhase = false;
+    }
+
+    function initBattle() {
+      setGameInfoMode(true);
+      document.getElementById('draft-final-section').classList.add('hidden');
+      document.getElementById('screen-draft').classList.add('hidden');
+      document.getElementById('screen-battle').classList.remove('hidden');
+      p1ActiveIdx = 0;
+      p2ActiveIdx = 0;
+      p1SwitchCooldown = 0;
+      p2SwitchCooldown = 0;
+      p1HasMegaStone = true;
+      p2HasMegaStone = true;
+      activeTurn = 'p1';
+
+      p1Score = 0;
+      p2Score = 0;
+      updateScoreboardUI();
+      var overlay = document.getElementById('final-scoreboard-overlay');
+      if (overlay) overlay.classList.remove('visible');
+
+      showPopup("⚔️ BATTLE START!", "crit");
+      startTurn();
+    }
+
+    function getCurrentScores() {
+      // Score is always derived from the number of opponent Pokémon that have
+      // actually fainted. This prevents the final scoreboard from becoming
+      // inverted or stale when the two multiplayer clients have different roles.
+      var p1ScoreNow = p2Team.filter(function(p) { return p && p.currentHp <= 0; }).length;
+      var p2ScoreNow = p1Team.filter(function(p) { return p && p.currentHp <= 0; }).length;
+      return { p1: p1ScoreNow, p2: p2ScoreNow };
+    }
+
+    function updateScoreboardUI() {
+      var scoreP1El = document.getElementById('score-p1');
+      var scoreP2El = document.getElementById('score-p2');
+      var oppLabelEl = document.getElementById('score-opp-label');
+      var scores = getCurrentScores();
+      var myScore = myRole === 'p1' ? scores.p1 : scores.p2;
+      var oppScore = myRole === 'p1' ? scores.p2 : scores.p1;
+      if (scoreP1El) scoreP1El.innerText = myScore;
+      if (scoreP2El) scoreP2El.innerText = oppScore;
+      if (oppLabelEl) oppLabelEl.innerText = isAiMode ? "AI" : "Opp";
+    }
+
+    function flashFinalScoreboard(winnerName) {
+      clearAllTimers();
+      var overlay = document.getElementById('final-scoreboard-overlay');
+      var subTitle = document.getElementById('sb-winner-subtitle');
+      var finalP1 = document.getElementById('sb-final-p1');
+      var finalP2 = document.getElementById('sb-final-p2');
+      var p1ColLabel = document.getElementById('sb-col-p1-label');
+      var p2ColLabel = document.getElementById('sb-col-p2-label');
+      var scores = getCurrentScores();
+      var myScore = myRole === 'p1' ? scores.p1 : scores.p2;
+      var oppScore = myRole === 'p1' ? scores.p2 : scores.p1;
+
+      if (subTitle) subTitle.innerText = winnerName + " Wins the Arena!";
+      if (p1ColLabel) p1ColLabel.innerText = "You";
+      if (p2ColLabel) p2ColLabel.innerText = isAiMode ? "AI" : "Opponent";
+      if (finalP1) finalP1.innerText = myScore;
+      if (finalP2) finalP2.innerText = oppScore;
+
+      if (overlay) {
+        overlay.classList.add('visible');
+        playSound('fanfare');
+        triggerHaptics([80, 50, 100, 50, 150]);
+      }
+    }
+
+    function renderBenchGrid(containerId, team, activeIdx, isInteractive) {
+      var container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      var myActive = (myRole === 'p1') ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var isForcedSwitch = isSwapPhase && (myRole === activeTurn) && myActive && myActive.currentHp <= 0;
+      var isMyTurn = (activeTurn === myRole) && !isSwapPhase;
+      var currentCooldown = (myRole === 'p1') ? p1SwitchCooldown : p2SwitchCooldown;
+      var mobile = isMobileView();
+
+      var benchPokemons = [];
+      team.forEach(function(p, originalIdx) {
+        if (originalIdx !== activeIdx) {
+          benchPokemons.push({ pokemon: p, index: originalIdx });
+        }
+      });
+
+      benchPokemons.forEach(function(item, idx) {
+        var p = item.pokemon;
+        var isFainted = p.currentHp <= 0;
+        var isCanClick = isInteractive && !isFainted && (isForcedSwitch || (isMyTurn && currentCooldown === 0));
+
+        var card = document.createElement('div');
+        card.className = 'bench-card ' + (isFainted ? 'fainted ' : '') + (isCanClick ? 'clickable ' : '') + (idx === 4 ? 'bench-slot-5th' : '');
+        card.title = p.name + ' (' + p.type + ') - ' + p.currentHp + '/' + p.maxHp + ' HP';
+
+        var typeColor = TYPE_COLORS[p.type] || '#64748b';
+        var typeDisplay = mobile ? (TYPE_SYMBOLS[p.type] || p.type) : p.type;
+        var typeBadgeHtml = '<span class="type-badge" style="background:' + typeColor + ';">' + typeDisplay + '</span>';
+        
+        var cdBadgeHtml = (isInteractive && currentCooldown > 0 && !isForcedSwitch && !isFainted) ? 
+          '<span class="cooldown-badge">' + (mobile ? 'CD ' + currentCooldown : 'CD: ' + currentCooldown) + '</span>' : '';
+
+        card.innerHTML = 
+          '<img src="' + p.sprite + '" class="pixel-art" alt="' + p.name + '" />' +
+          typeBadgeHtml +
+          cdBadgeHtml;
+
+        if (isCanClick) {
+          card.onclick = function() {
+            if (isSwapPhase) {
+              clearAllTimers();
+            }
+            var actionData = { newIndex: item.index, isForced: isForcedSwitch };
+            if (!isAiMode) {
+              sendNet('BATTLE_ACTION', { action: 'SWITCH', data: actionData, actorRole: myRole });
+            }
+            applyActionLocally('SWITCH', actionData, myRole);
+          };
+        } else if (isInteractive) {
+          card.classList.add('blocked');
+          card.onclick = function() {
+            explainBlockedSwitch(card, p, isFainted, isMyTurn, currentCooldown);
+          };
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function explainBlockedSwitch(card, poke, isFainted, isMyTurn, cooldown) {
+      var msg;
+
+      if (isFainted) {
+        msg = '❌ ' + poke.name + ' has fainted!';
+      } else if (cooldown > 0 && !isSwapPhase) {
+        msg = '⏳ Switch on cooldown — ' + cooldown + ' more ' + (cooldown === 1 ? 'move' : 'moves') + '!';
+      } else if (!isMyTurn && !isSwapPhase) {
+        msg = '⏸️ Not your turn yet!';
+      } else {
+        msg = '⛔ You can\'t switch right now.';
+      }
+
+      showPopup(msg, 'warn');
+      playSound('beep');
+      triggerHaptics([25, 40, 25]);
+
+      if (card) {
+        card.classList.remove('shake-anim');
+        void card.offsetWidth;
+        card.classList.add('shake-anim');
+        setTimeout(function() { card.classList.remove('shake-anim'); }, 400);
+      }
+    }
+
+    function updateBattleUI() {
+      // Visual layout is always player-left / opponent-right.
+      // P1/P2 remain the internal network roles and are never used to decide
+      // which side of the arena the player sees.
+      var playerTeam = myRole === 'p1' ? p1Team : p2Team;
+      var playerActiveIdx = myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx;
+      var opponentTeam = myRole === 'p1' ? p2Team : p1Team;
+      var opponentActiveIdx = myRole === 'p1' ? p2ActiveIdx : p1ActiveIdx;
+      var playerActive = playerTeam[playerActiveIdx];
+      var opponentActive = opponentTeam[opponentActiveIdx];
+      if (!playerActive || !opponentActive) return;
+      var mobile = isMobileView();
+
+      var p1Label = document.getElementById('p1-title-label');
+      p1Label.innerText = mobile ? 'You' : 'Active: You';
+      document.getElementById('my-active-sprite').src = playerActive.sprite;
+      document.getElementById('my-active-name').innerText = playerActive.name + (playerActive.isMega ? ' 🧬' : '');
+      var p1Type = document.getElementById('my-active-type');
+      p1Type.innerText = mobile ? (TYPE_SYMBOLS[playerActive.type] || playerActive.type) : playerActive.type;
+      p1Type.style.background = TYPE_COLORS[playerActive.type];
+      var p1HpPct = Math.max(0, (playerActive.currentHp / playerActive.maxHp) * 100);
+      var p1HpFill = document.getElementById('my-hp-fill');
+      p1HpFill.style.width = p1HpPct + '%';
+      p1HpFill.style.backgroundColor = p1HpPct < 25 ? 'var(--hp-red)' : p1HpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+      document.getElementById('my-hp-text').innerText = playerActive.currentHp + '/' + playerActive.maxHp + ' HP';
+      document.getElementById('my-energy-fill').style.width = Math.min(100, (playerActive.energy / 3) * 100) + '%';
+      document.getElementById('my-energy-text').innerText = '⚡ ' + playerActive.energy + '/3';
+
+      var p2Label = document.getElementById('p2-title-label');
+      p2Label.innerText = mobile ? 'Opponent' : (isAiMode ? 'Active: AI' : 'Active: Opponent');
+      document.getElementById('opp-active-sprite').src = opponentActive.sprite;
+      document.getElementById('opp-active-name').innerText = opponentActive.name + (opponentActive.isMega ? ' 🧬' : '');
+      var p2Type = document.getElementById('opp-active-type');
+      p2Type.innerText = mobile ? (TYPE_SYMBOLS[opponentActive.type] || opponentActive.type) : opponentActive.type;
+      p2Type.style.background = TYPE_COLORS[opponentActive.type];
+      var p2HpPct = Math.max(0, (opponentActive.currentHp / opponentActive.maxHp) * 100);
+      var p2HpFill = document.getElementById('opp-hp-fill');
+      p2HpFill.style.width = p2HpPct + '%';
+      p2HpFill.style.backgroundColor = p2HpPct < 25 ? 'var(--hp-red)' : p2HpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+      document.getElementById('opp-hp-text').innerText = opponentActive.currentHp + '/' + opponentActive.maxHp + ' HP';
+      document.getElementById('opp-energy-fill').style.width = Math.min(100, (opponentActive.energy / 3) * 100) + '%';
+      document.getElementById('opp-energy-text').innerText = '⚡ ' + opponentActive.energy + '/3';
+
+      document.getElementById('p1-bench-label').innerText = 'Your Bench';
+      document.getElementById('p2-bench-label').innerText = isAiMode ? 'AI Bench' : 'Opponent Bench';
+      renderBenchGrid('p1-bench-slots', playerTeam, playerActiveIdx, true);
+      renderBenchGrid('p2-bench-slots', opponentTeam, opponentActiveIdx, false);
+
+      // Never allow attacks while either active Pokemon is fainted.
+      // This is a UI safety guard during the short forced-switch window;
+      // startTurn() will re-enable the buttons once both active Pokemon
+      // are alive and it is this player's turn.
+      var attackFastBtn = document.getElementById('btn-fast-atk');
+      var attackChargedBtn = document.getElementById('btn-charged-atk');
+      var activePokemonAlive = p1Active.currentHp > 0 && p2Active.currentHp > 0;
+      if (!activePokemonAlive) {
+        if (attackFastBtn) attackFastBtn.disabled = true;
+        if (attackChargedBtn) attackChargedBtn.disabled = true;
+      }
+    }
+
+    var battleCinematicTimer = null;
+
+    function showBattleCinematic(options, onComplete) {
+      options = options || {};
+      var overlay = document.getElementById('battle-cinematic');
+      var sprite = document.getElementById('cinematic-pokemon');
+      var kicker = document.getElementById('cinematic-kicker');
+      var label = document.getElementById('cinematic-message-label');
+      var name = document.getElementById('cinematic-message-name');
+      var sub = document.getElementById('cinematic-message-sub');
+      if (!overlay || !sprite || !kicker || !label || !name || !sub) {
+        if (typeof onComplete === 'function') onComplete();
+        return;
+      }
+
+      if (battleCinematicTimer) {
+        clearTimeout(battleCinematicTimer);
+        battleCinematicTimer = null;
+      }
+
+      var kind = options.kind === 'mega' ? 'mega' : 'ultimate';
+      var duration = Math.max(650, Number(options.duration) || (kind === 'mega' ? 1900 : 1550));
+      var color = options.color || (kind === 'mega' ? '#ec4899' : '#f8fafc');
+      var title = options.title || (kind === 'mega' ? 'MEGA EVOLUTION' : 'ULTIMATE MOVE');
+      var moveName = options.moveName || 'POWER UNLEASHED';
+      var pokemonName = options.pokemonName || 'Pokémon';
+
+      overlay.classList.remove('mega', 'ultimate', 'hidden');
+      overlay.classList.add(kind);
+      overlay.style.setProperty('--fx-color', color);
+      overlay.setAttribute('aria-hidden', 'false');
+
+      sprite.src = options.sprite || '';
+      sprite.alt = pokemonName + ' facing forward';
+      kicker.textContent = title;
+      label.textContent = title;
+      name.textContent = moveName;
+      sub.textContent = kind === 'mega'
+        ? pokemonName + ' changed form!'
+        : pokemonName + ' unleashed its ultimate!';
+
+      overlay.querySelectorAll('.cinematic-burst').forEach(function(node) { node.remove(); });
+      var burstCount = kind === 'mega' ? 14 : 10;
+      for (var i = 0; i < burstCount; i++) {
+        var burst = document.createElement('span');
+        burst.className = 'cinematic-burst';
+        var angle = (Math.PI * 2 * i / burstCount) + (kind === 'mega' ? 0.18 : 0);
+        var distance = 110 + (i % 4) * 42;
+        burst.style.left = '50%';
+        burst.style.top = '43%';
+        burst.style.setProperty('--burst-x', Math.round(Math.cos(angle) * distance) + 'px');
+        burst.style.setProperty('--burst-y', Math.round(Math.sin(angle) * distance) + 'px');
+        burst.style.animationDelay = (0.18 + (i % 5) * 0.06) + 's';
+        overlay.appendChild(burst);
+      }
+
+      void overlay.offsetWidth;
+
+      battleCinematicTimer = setTimeout(function() {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('mega', 'ultimate');
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.querySelectorAll('.cinematic-burst').forEach(function(node) { node.remove(); });
+        battleCinematicTimer = null;
+        if (typeof onComplete === 'function') onComplete();
+      }, duration);
+    }
+
+    function startTurn() {
+      clearAllTimers();
+      updateBattleUI();
+
+      var isMyTurn = (activeTurn === myRole);
+      var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var opponentActive = myRole === 'p1' ? p2Team[p2ActiveIdx] : p1Team[p1ActiveIdx];
+      var bothActiveAlive = !!(myActive && opponentActive &&
+        myActive.currentHp > 0 && opponentActive.currentHp > 0);
+      var myHasMega = myRole === 'p1' ? p1HasMegaStone : p2HasMegaStone;
+      var myCooldown = myRole === 'p1' ? p1SwitchCooldown : p2SwitchCooldown;
+
+      var turnInd = document.getElementById('turn-indicator');
+      var fastBtn = document.getElementById('btn-fast-atk');
+      var chargedBtn = document.getElementById('btn-charged-atk');
+      var megaBtn = document.getElementById('btn-mega');
+
+      if (!fastBtn || !chargedBtn) return;
+
+      if (isMyTurn) {
+        turnTimeLeft = 10;
+        if (myCooldown > 0) {
+          turnInd.innerText = "👉 Your Turn (" + turnTimeLeft + "s) | Switch CD: " + myCooldown;
+        } else {
+          turnInd.innerText = "👉 Your Turn (" + turnTimeLeft + "s): Select Attack or Switch";
+        }
+        turnInd.style.color = "#38bdf8";
+
+        // Attacks are only possible when BOTH active Pokemon are alive.
+        fastBtn.disabled = !bothActiveAlive;
+        fastBtn.querySelector('strong').innerText = '⚡ ' + myActive.fastMove.name;
+        document.getElementById('lbl-fast-info').innerText = 'Fast | +1 Energy';
+
+        var chargedReady = myActive.energy >= 3;
+        chargedBtn.disabled = !(bothActiveAlive && chargedReady);
+        chargedBtn.querySelector('strong').innerText = '💥 ' + myActive.chargedMove.name;
+        document.getElementById('lbl-charged-info').innerText = chargedReady ? 'READY TO STRIKE!' : 'Need ' + (3 - myActive.energy) + ' Energy';
+
+        if (myHasMega && myActive.canMega && !myActive.isMega) {
+          megaBtn.classList.remove('hidden');
+        } else {
+          megaBtn.classList.add('hidden');
+        }
+
+        turnTimer = setInterval(function() {
+          turnTimeLeft--;
+          if (turnTimeLeft > 0) {
+            if (myCooldown > 0) {
+              turnInd.innerText = "👉 Your Turn (" + turnTimeLeft + "s) | Switch CD: " + myCooldown;
+            } else {
+              turnInd.innerText = "👉 Your Turn (" + turnTimeLeft + "s): Select Attack or Switch";
+            }
+          } else {
+            clearInterval(turnTimer);
+            turnTimer = null;
+            if (!fastBtn.disabled) {
+              executeMoveLocally('fast');
+            }
+          }
+        }, 1000);
+
+      } else {
+        turnInd.innerText = isAiMode ? "⏳ AI is thinking..." : "⏳ Opponent is taking their turn...";
+        turnInd.style.color = "var(--text-muted)";
+
+        fastBtn.disabled = true;
+        chargedBtn.disabled = true;
+        megaBtn.classList.add('hidden');
+
+        if (isAiMode && activeTurn === 'p2') {
+          setTimeout(aiTakeTurn, 700);
+        }
+      }
+    }
+
+    window.handleMegaButtonClick = function() {
+      var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var forms = MEGA_FORMS[myActive.id];
+      if (!forms || forms.length === 0) return;
+
+      if (forms.length === 1) {
+        triggerMegaEvolution(0);
+      } else {
+        var modal = document.getElementById('mega-modal');
+        var choices = document.getElementById('mega-choices');
+        choices.innerHTML = '';
+
+        forms.forEach(function(form, index) {
+          var btn = document.createElement('button');
+          btn.className = 'btn btn-mega';
+          btn.innerHTML = '<strong>' + form.name + '</strong> (' + form.type + ' Type)';
+          btn.onclick = function() {
+            closeMegaModal();
+            triggerMegaEvolution(index);
+          };
+          choices.appendChild(btn);
+        });
+
+        modal.classList.remove('hidden');
+      }
+    };
+
+    window.closeMegaModal = function() {
+      document.getElementById('mega-modal').classList.add('hidden');
+    };
+
+    function triggerMegaEvolution(formIndex) {
+      playSound('beep');
+      var payload = { formIndex: formIndex || 0 };
+      if (!isAiMode) {
+        sendNet('BATTLE_ACTION', { action: 'MEGA', data: payload, actorRole: myRole });
+      }
+      applyActionLocally('MEGA', payload, myRole);
+    }
+
+    function executeMoveLocally(moveType) {
+      var currentP1 = p1Team[p1ActiveIdx];
+      var currentP2 = p2Team[p2ActiveIdx];
+      if (!currentP1 || !currentP2 || currentP1.currentHp <= 0 || currentP2.currentHp <= 0) {
+        console.warn('Attack blocked: an active Pokemon is fainted.');
+        startTurn();
+        return;
+      }
+
+      clearAllTimers();
+      var isP1 = activeTurn === 'p1';
+      var attacker = isP1 ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var defender = isP1 ? p2Team[p2ActiveIdx] : p1Team[p1ActiveIdx];
+      var move = moveType === 'charged' ? attacker.chargedMove : attacker.fastMove;
+
+      var baseDmg = Math.floor(Math.random() * (move.maxDmg - move.minDmg + 1)) + move.minDmg;
+      var mult = 1.0;
+      if (TYPE_CHART[move.type] && TYPE_CHART[move.type][defender.type] !== undefined) {
+        mult = TYPE_CHART[move.type][defender.type];
+      }
+
+      var damage = 0;
+      if (mult > 0) {
+        var rawDmg = ((attacker.atk / defender.def) * baseDmg * 0.75) * mult;
+        var resistance = defender.isMega ? 0.75 : 1.0;
+        damage = Math.max(5, Math.round(rawDmg * resistance));
+      }
+
+      var actionData = {
+        moveType: moveType,
+        damage: damage,
+        mult: mult,
+        moveColor: TYPE_COLORS[move.type] || 'white'
+      };
+
+      var moveActorRole = activeTurn;
+      if (!isAiMode) {
+        sendNet('BATTLE_ACTION', { action: 'MOVE', data: actionData, actorRole: moveActorRole });
+      }
+      applyActionLocally('MOVE', actionData, moveActorRole);
+    }
+
+    function applyActionLocally(actionType, data, explicitActorRole) {
+      // Multiplayer actions must carry the role of the player who performed them.
+      // Never infer the actor from local activeTurn: the two clients can briefly
+      // be on different turn states while a WebRTC message is in flight.
+      var actorRole = explicitActorRole || activeTurn;
+      var isP1 = actorRole === 'p1';
+      var targetRole = isP1 ? 'p2' : 'p1';
+
+      if (actionType === 'MEGA') {
+        var actorPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        var forms = MEGA_FORMS[actorPoke.id];
+        var chosenForm = (forms && forms[data.formIndex]) ? forms[data.formIndex] : (forms ? forms[0] : null);
+
+        actorPoke.isMega = true;
+        actorPoke.atk *= 1.4;
+        actorPoke.maxHp = Math.round(actorPoke.maxHp * 1.3);
+        actorPoke.currentHp = Math.round(actorPoke.currentHp * 1.3);
+
+        if (chosenForm) {
+          actorPoke.name = chosenForm.name;
+          actorPoke.type = chosenForm.type;
+          actorPoke.sprite = MEGA_SPRITE(chosenForm);
+          actorPoke.fastMove = { name: TYPE_MOVES[chosenForm.type].fast, type: chosenForm.type, minDmg: 24, maxDmg: 32 };
+          actorPoke.chargedMove = { name: TYPE_MOVES[chosenForm.type].charged, type: chosenForm.type, minDmg: 90, maxDmg: 110 };
+        }
+        
+        if (actorRole === 'p1') p1HasMegaStone = false;
+        else p2HasMegaStone = false;
+
+        playSound('mega');
+        triggerHaptics([80, 50, 80, 50, 120]);
+        updateBattleUI();
+
+        showBattleCinematic({
+          kind: 'mega',
+          color: '#ec4899',
+          sprite: actorPoke.sprite,
+          pokemonName: actorPoke.name,
+          title: 'MEGA EVOLUTION',
+          moveName: actorPoke.name,
+          duration: 1950
+        }, function() {
+          triggerScreenFlash('#ec4899');
+          showPopup('🧬 ' + actorPoke.name + ' AWAKENED!', 'mega');
+          startTurn();
+        });
+        return;
+      }
+
+      if (actionType === 'SWITCH') {
+        clearAllTimers();
+        playSound('beep');
+
+        var switchTeam = actorRole === 'p1' ? p1Team : p2Team;
+        var newIndex = Number(data.newIndex);
+        if (!switchTeam || !switchTeam[newIndex] || switchTeam[newIndex].currentHp <= 0) {
+          console.warn('Ignoring invalid SWITCH action', { actorRole: actorRole, newIndex: data.newIndex });
+          return;
+        }
+
+        if (actorRole === 'p1') {
+          p1ActiveIdx = newIndex;
+          if (!data.isForced) p1SwitchCooldown = 5;
+        } else {
+          p2ActiveIdx = newIndex;
+          if (!data.isForced) p2SwitchCooldown = 5;
+        }
+
+        var switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        showPopup((actorRole === myRole ? 'You' : 'Opponent') + ' sent out ' + switchedPoke.name + '!', "crit");
+
+        // The replacement resolves the forced-switch phase for BOTH clients.
+        isSwapPhase = false;
+        activeTurn = targetRole;
+        updateBattleUI();
+        startTurn();
+        return;
+      }
+
+      if (actionType === 'MOVE') {
+        var attacker = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        var defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        var targetCardId = targetRole === myRole ? 'me-card' : 'opp-card';
+
+        if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
+        if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
+
+        var damage = data.damage;
+        var mult = data.mult;
+
+        function resolveMoveImpact() {
+          defender.currentHp = Math.max(0, defender.currentHp - damage);
+
+          if (data.moveType === 'fast') {
+            attacker.energy = (attacker.energy || 0) + 1;
+            playSound('hit');
+            triggerHaptics([30]);
+            triggerShake(targetCardId);
+          } else {
+            triggerScreenFlash(data.moveColor);
+            triggerShake(targetCardId);
+          }
+
+          showPopup('-' + damage + ' HP', "dmg");
+          if (mult === 0) setTimeout(function() { showPopup("No Effect!", "immune"); }, 250);
+          else if (mult > 1.0) setTimeout(function() { showPopup("Super Effective!", "super"); }, 250);
+          else if (mult < 1.0) setTimeout(function() { showPopup("Not Very Effective...", "not-very"); }, 250);
+
+          updateBattleUI();
+
+          if (defender.currentHp <= 0) {
+            setTimeout(function() { showPopup(defender.name + ' Fainted!', "crit"); }, 400);
+            handleFaint(targetRole);
+          } else {
+            activeTurn = targetRole;
+            startTurn();
+          }
+        }
+
+        if (data.moveType === 'charged') {
+          attacker.energy = 0;
+          playSound('charged');
+          triggerHaptics([60, 40, 80, 40, 120]);
+          updateBattleUI();
+
+          showBattleCinematic({
+            kind: 'ultimate',
+            color: data.moveColor,
+            sprite: attacker.sprite,
+            pokemonName: attacker.name,
+            title: 'ULTIMATE MOVE',
+            moveName: attacker.chargedMove.name,
+            duration: 1580
+          }, resolveMoveImpact);
+          return;
+        }
+
+        resolveMoveImpact();
+      }
+    }
+
+    function handleFaint(faintedRole) {
+      // Keep legacy score variables synchronized, but derive the displayed
+      // score from the actual fainted teams so both clients show the same result.
+      var scoreSnapshot = getCurrentScores();
+      p1Score = scoreSnapshot.p1;
+      p2Score = scoreSnapshot.p2;
+      updateScoreboardUI();
+
+      var team = faintedRole === 'p1' ? p1Team : p2Team;
+      var aliveIdx = -1;
+      for (var i = 0; i < team.length; i++) {
+        if (team[i].currentHp > 0) { aliveIdx = i; break; }
+      }
+
+      if (aliveIdx === -1) {
+        var winner = faintedRole === myRole ? (isAiMode ? "AI" : "Opponent") : "You";
+        playSound('fanfare');
+        showPopup('🏆 ' + winner + ' Won!', "crit");
+        
+        var turnInd = document.getElementById('turn-indicator');
+        turnInd.innerText = "🏁 Match Finished!";
+        turnInd.style.color = "#4ade80";
+
+        var finalScores = getCurrentScores();
+        p1Score = finalScores.p1;
+        p2Score = finalScores.p2;
+        updateScoreboardUI();
+        flashFinalScoreboard(winner);
+
+        document.getElementById('controls-section').innerHTML = 
+          '<h2 style="text-align:center; color:#4ade80; margin:12px 0;">🎉 ' + winner + ' Won the Arena!</h2>' +
+          '<div style="display:flex; gap:10px; width:100%; max-width:360px;">' +
+            '<button class="btn btn-ready" onclick="triggerRematch()">🔄 Play Again</button>' +
+            '<button class="btn btn-secondary" onclick="returnToLobby()">🚪 Return to Lobby</button>' +
+          '</div>';
+        return;
+      }
+
+      activeTurn = faintedRole;
+      isSwapPhase = true;
+      updateBattleUI();
+
+      if (faintedRole === 'p2' && isAiMode) {
+        setTimeout(function() {
+          if (!isSwapPhase) return;
+          clearAllTimers();
+          p2ActiveIdx = aliveIdx;
+          isSwapPhase = false;
+          activeTurn = 'p1';
+          updateBattleUI();
+          startTurn();
+        }, 1000);
+        return;
+      }
+
+      swapTimeLeft = 5;
+      var turnInd = document.getElementById('turn-indicator');
+      turnInd.style.color = "var(--hp-red)";
+
+      if (faintedRole === myRole) {
+        turnInd.innerText = "⚠️ Your Pokémon fainted! Choose replacement (" + swapTimeLeft + "s)";
+        document.getElementById('btn-fast-atk').disabled = true;
+        document.getElementById('btn-charged-atk').disabled = true;
+        document.getElementById('btn-mega').classList.add('hidden');
+
+        swapTimer = setInterval(function() {
+          swapTimeLeft--;
+          if (swapTimeLeft > 0) {
+            turnInd.innerText = "⚠️ Your Pokémon fainted! Choose replacement (" + swapTimeLeft + "s)";
+          } else {
+            clearInterval(swapTimer);
+            swapTimer = null;
+            autoSelectRandomHealthy(faintedRole);
+          }
+        }, 1000);
+      } else {
+        // In multiplayer, ONLY the player whose Pokemon fainted may choose
+        // (or auto-select) the replacement. The opponent must wait for the
+        // SWITCH message, otherwise both clients can independently pick
+        // different random Pokemon and corrupt the turn state.
+        turnInd.innerText = "⏳ Opponent choosing replacement (5s)...";
+      }
+    }
+
+    function autoSelectRandomHealthy(role) {
+      if (!isSwapPhase) return;
+
+      // Never let the spectator/opponent side make its own replacement
+      // decision in multiplayer. The actual owner sends the selected index.
+      if (!isAiMode && role !== myRole) return;
+
+      clearAllTimers();
+      var team = role === 'p1' ? p1Team : p2Team;
+      var healthyIndices = [];
+      team.forEach(function(p, idx) {
+        if (p.currentHp > 0) healthyIndices.push(idx);
+      });
+
+      if (healthyIndices.length > 0) {
+        var randomIdx = healthyIndices[Math.floor(Math.random() * healthyIndices.length)];
+        var actionData = { newIndex: randomIdx, isForced: true };
+        if (!isAiMode && role === myRole) {
+          sendNet('BATTLE_ACTION', { action: 'SWITCH', data: actionData, actorRole: role });
+        }
+        applyActionLocally('SWITCH', actionData, role);
+      }
+    }
+
+    function aiTakeTurn() {
+      var aiPoke = p2Team[p2ActiveIdx];
+      if (p2HasMegaStone && aiPoke.canMega && !aiPoke.isMega) {
+        var forms = MEGA_FORMS[aiPoke.id];
+        var formIdx = forms ? Math.floor(Math.random() * forms.length) : 0;
+        applyActionLocally('MEGA', { formIndex: formIdx }, 'p2');
+        return;
+      }
+      if (aiPoke.energy >= 3) {
+        executeMoveLocally('charged');
+      } else {
+        executeMoveLocally('fast');
+      }
+    }
+
+    window.addEventListener('resize', function() {
+      updateBattleUI();
+    });
+
+    window.addEventListener('load', function() {
+      setGameInfoMode(false);
+      var hash = window.location.hash.substring(1).toUpperCase().trim();
+      if (hash && hash.length === 6) {
+        document.getElementById('join-id-input').value = hash;
+        var checkPeer = setInterval(function() {
+          if (typeof Peer !== "undefined") {
+            clearInterval(checkPeer);
+            window.joinRoom();
+          }
+        }, 100);
+      }
+    });
+  </script>
+</body>
+</html>
