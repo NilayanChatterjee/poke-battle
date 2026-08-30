@@ -3793,22 +3793,21 @@
           }
         }, 1000);
       } else {
-        turnInd.innerText = "⏳ Opponent choosing replacement (" + swapTimeLeft + "s)...";
-        swapTimer = setInterval(function() {
-          swapTimeLeft--;
-          if (swapTimeLeft > 0) {
-            turnInd.innerText = "⏳ Opponent choosing replacement (" + swapTimeLeft + "s)...";
-          } else {
-            clearInterval(swapTimer);
-            swapTimer = null;
-            autoSelectRandomHealthy(faintedRole);
-          }
-        }, 1000);
+        // In multiplayer, ONLY the player whose Pokemon fainted may choose
+        // (or auto-select) the replacement. The opponent must wait for the
+        // SWITCH message, otherwise both clients can independently pick
+        // different random Pokemon and corrupt the turn state.
+        turnInd.innerText = "⏳ Opponent choosing replacement (5s)...";
       }
     }
 
     function autoSelectRandomHealthy(role) {
       if (!isSwapPhase) return;
+
+      // Never let the spectator/opponent side make its own replacement
+      // decision in multiplayer. The actual owner sends the selected index.
+      if (!isAiMode && role !== myRole) return;
+
       clearAllTimers();
       var team = role === 'p1' ? p1Team : p2Team;
       var healthyIndices = [];
