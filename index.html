@@ -2775,13 +2775,17 @@
       try { if (peer) peer.destroy(); } catch(e) {}
       peer = new Peer(undefined, peerConfig);
 
+      var targetFullId = PREFIX + input;
+
       peer.on('open', function() {
-        var targetFullId = PREFIX + input;
         conn = peer.connect(targetFullId, { reliable: true });
+
+        // Register the data listener immediately so the first host message
+        // cannot arrive before setupConnection() is attached.
+        setupConnection();
         
         conn.on('open', function() {
           console.log('Joined room successfully:', targetFullId);
-          setupConnection();
           joinBtn.disabled = false;
           joinBtn.innerText = 'Connected!';
         });
