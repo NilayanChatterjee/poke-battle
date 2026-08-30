@@ -2709,7 +2709,17 @@
       peer.on('connection', function(c) {
         conn = c;
         setupConnection();
-        initDraftSession();
+
+        // PeerJS emits 'connection' before the data channel is guaranteed to be open.
+        // Send the initial draft state only after the connection is open.
+        c.on('open', function() {
+          console.log('Multiplayer connection opened:', c.peer);
+          initDraftSession();
+        });
+
+        c.on('close', function() {
+          console.warn('Opponent disconnected.');
+        });
       });
 
       peer.on('error', function(err) {
@@ -2722,7 +2732,13 @@
         peer.on('connection', function(c) {
           conn = c;
           setupConnection();
-          initDraftSession();
+          c.on('open', function() {
+            console.log('Fallback multiplayer connection opened:', c.peer);
+            initDraftSession();
+          });
+          c.on('close', function() {
+            console.warn('Opponent disconnected.');
+          });
         });
       });
     };
@@ -2764,7 +2780,16 @@
         conn = peer.connect(targetFullId, { reliable: true });
         
         conn.on('open', function() {
+          console.log('Joined room successfully:', targetFullId);
           setupConnection();
+          joinBtn.disabled = false;
+          joinBtn.innerText = 'Connected!';
+        });
+
+        conn.on('close', function() {
+          console.warn('Connection to host closed.');
+          joinBtn.disabled = false;
+          joinBtn.innerText = 'Enter Arena';
         });
 
         conn.on('error', function(err) {
@@ -2781,6 +2806,18 @@
         joinBtn.disabled = false;
         joinBtn.innerText = "Enter Arena";
       });
+
+      // Prevent the UI from remaining stuck on "Connecting..." forever.
+      setTimeout(function() {
+        if (conn && !conn.open) {
+          console.warn('Join timed out:', targetFullId);
+          try { conn.close(); } catch(e) {}
+          try { peer.destroy(); } catch(e) {}
+          joinBtn.disabled = false;
+          joinBtn.innerText = "Enter Arena";
+          alert("Could not connect to that arena. Ask the host to create a new room and share the new code.");
+        }
+      }, 15000);
     };
 
     function setupConnection() {
