@@ -20,6 +20,7 @@
       --hp-red: #ef4444;
       --energy-blue: #06b6d4;
       
+      /* Vibrant Starter Palette Inspired by Poster */
       --poke-yellow: #facc15;
       --poke-electric: #fbbf24;
       --poke-fire: #f97316;
@@ -41,6 +42,7 @@
       background-color: var(--bg-dark);
     }
 
+    /* Fixed Thematic Wallpaper Backdrop with Soft Glassmorphic Overlay */
     body::before {
       content: '';
       position: fixed;
@@ -105,6 +107,9 @@
     .btn-mega { background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 0 14px rgba(236,72,153,0.6); }
     .btn-mega:hover:not(:disabled) { background: linear-gradient(135deg, #db2777, #7c3aed); }
 
+    /* ================================================= */
+    /* HERO BRANDING & HOMEPAGE UI                       */
+    /* ================================================= */
     .hero-banner {
       display: flex;
       flex-direction: column;
@@ -133,12 +138,9 @@
       letter-spacing: 0.5px;
       font-weight: 600;
       text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
     }
 
+    /* Starter Mascot Ribbon */
     .mascot-strip {
       display: flex;
       justify-content: center;
@@ -186,6 +188,14 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+    }
+    .lobby-block.host-theme {
+      border-color: rgba(14, 165, 233, 0.5);
+      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2);
+    }
+    .lobby-block.join-theme {
+      border-color: rgba(249, 115, 22, 0.5);
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.2);
     }
 
     .lobby-block-header {
@@ -339,44 +349,27 @@
       text-transform: uppercase;
       text-align: center;
       letter-spacing: 3px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #f97316;
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
     }
 
-    /* Scoreboard styles */
-    .arena-scoreboard {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(11, 20, 36, 0.9);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 12px;
-      padding: 8px 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-    }
-    .arena-scoreboard.flash-win {
-      background: rgba(34, 197, 94, 0.25);
-      border-color: #22c55e;
-      box-shadow: 0 0 24px rgba(34, 197, 94, 0.6);
-      transform: scale(1.02);
-    }
-    .arena-scoreboard.flash-loss {
-      background: rgba(239, 68, 68, 0.25);
-      border-color: #ef4444;
-      box-shadow: 0 0 24px rgba(239, 68, 68, 0.6);
-      transform: scale(1.02);
-    }
-    .score-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 0.75rem;
+    .btn-ai-arena {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1.5px solid #3b82f6;
+      color: #f8fafc;
       font-weight: 700;
-      color: var(--text-muted);
+      padding: 13px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
+    /* Roster Chips */
     .roster-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
     .poke-chip { background: #1e293b; border-radius: 8px; padding: 6px 4px; text-align: center; font-size: 0.72rem; border: 1.5px solid #334155; display: flex; flex-direction: column; align-items: center; }
+    .poke-chip.active { border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
+    .poke-chip.fainted { opacity: 0.3; filter: grayscale(1); }
     .poke-chip img { width: 44px; height: 44px; }
 
     .hidden-card {
@@ -417,13 +410,22 @@
       flex-direction: column;
       align-items: center;
       transition: all 0.2s ease;
+      user-select: none;
+    }
+    .draft-pick-card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
     }
     .draft-pick-card.selected {
       border-color: #22c55e;
       background: #143528;
       box-shadow: 0 0 16px rgba(34, 197, 94, 0.55);
     }
-    .draft-pick-card img { width: 64px; height: 64px; }
+    .draft-pick-card img {
+      width: 64px;
+      height: 64px;
+    }
 
     .wireframe-arena {
       display: grid;
@@ -443,6 +445,7 @@
       color: var(--text-muted);
       margin-bottom: 6px;
       text-align: center;
+      white-space: nowrap;
       font-weight: 600;
     }
     .bench-grid {
@@ -466,6 +469,8 @@
       align-items: center;
       justify-content: center;
       position: relative;
+      cursor: default;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
       min-height: 58px;
     }
     .bench-card img {
@@ -522,6 +527,7 @@
       align-items: center;
       min-height: 250px;
       position: relative;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
     }
     .active-fighter-card.me { border-color: var(--p1); }
     .active-fighter-card.opp { border-color: var(--p2); }
@@ -537,8 +543,17 @@
       align-items: center;
       text-align: center;
       margin-bottom: 8px;
+      position: relative;
     }
-    .fighter-inner-box img { width: 76px; height: 76px; }
+    .fighter-inner-box img {
+      width: 76px;
+      height: 76px;
+    }
+    .fighter-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
     .vs-divider {
       display: flex;
@@ -547,11 +562,13 @@
       font-weight: 900;
       font-size: 1.1rem;
       color: #94a3b8;
+      height: 100%;
+      align-self: center;
     }
 
     .stat-block { width: 100%; margin-top: auto; }
     .hp-bar-bg { background: #070d18; height: 8px; border-radius: 4px; overflow: hidden; margin: 4px 0; border: 1px solid #334155; }
-    .hp-bar-fill { background: var(--hp-green); height: 100%; width: 100%; transition: width 0.3s ease; }
+    .hp-bar-fill { background: var(--hp-green); height: 100%; width: 100%; transition: width 0.3s ease, background-color 0.3s; }
     .energy-bar-bg { background: #070d18; height: 5px; border-radius: 3px; overflow: hidden; margin-top: 3px; border: 1px solid #334155; }
     .energy-bar-fill { background: var(--energy-blue); height: 100%; width: 0%; transition: width 0.3s ease; }
 
@@ -578,31 +595,196 @@
       border-radius: 10px;
       font-size: 0.85rem;
       cursor: pointer;
+      text-align: center;
+      transition: 0.15s;
       min-height: 58px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
     }
+    .attack-btn:active:not(:disabled) { transform: scale(0.98); }
     .attack-btn:disabled { opacity: 0.35; cursor: not-allowed; border-color: #475569; }
     .attack-btn.charged { border-color: #f59e0b; }
+    .attack-btn.charged:not(:disabled) { background: #451a03; }
+
+    .mega-btn-container {
+      width: 100%;
+      max-width: 240px;
+    }
+
+    .type-legend-panel {
+      display: none;
+      background: #0b1424;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 10px 12px;
+      width: 100%;
+      max-width: 860px;
+      margin-top: 14px;
+    }
+    .type-legend-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .type-legend-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .type-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      background: #1e293b;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border-left: 3px solid transparent;
+    }
+    .type-legend-item .symbol {
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
+    @media (max-width: 720px) {
+      .wireframe-arena {
+        display: grid;
+        grid-template-columns: 1fr 20px 1fr;
+        grid-template-rows: auto auto;
+        gap: 6px;
+      }
+      
+      .active-fighter-card.me  { grid-column: 1 / 2; grid-row: 1; min-height: unset; padding: 6px; }
+      .vs-divider              { grid-column: 2 / 3; grid-row: 1; font-size: 0.75rem; }
+      .active-fighter-card.opp { grid-column: 3 / 4; grid-row: 1; min-height: unset; padding: 6px; }
+      #my-bench-container      { grid-column: 1 / 2; grid-row: 2; }
+      #opp-bench-container     { grid-column: 3 / 4; grid-row: 2; }
+
+      .fighter-inner-box {
+        padding: 4px;
+        margin-bottom: 4px;
+      }
+      .fighter-inner-box img {
+        width: 48px;
+        height: 48px;
+      }
+      .fighter-meta strong {
+        font-size: 0.78rem;
+        margin-top: 1px;
+      }
+      .fighter-meta .type-badge {
+        font-size: 0.8rem;
+        padding: 0 4px;
+        margin-top: 1px;
+        border-radius: 6px;
+        line-height: 1.2;
+      }
+
+      .bench-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+      }
+      .bench-slot-5th {
+        grid-column: span 1;
+      }
+      .bench-card {
+        min-height: 44px;
+        padding: 2px;
+      }
+      .bench-card img {
+        width: 24px;
+        height: 24px;
+      }
+      .bench-card .type-badge {
+        font-size: 0.7rem;
+        padding: 0 3px;
+        border-radius: 4px;
+      }
+      .bench-title {
+        font-size: 0.65rem;
+        margin-bottom: 2px;
+      }
+      
+      .attacks-row {
+        gap: 8px;
+      }
+      .attack-btn {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+        min-height: 48px;
+      }
+
+      .type-legend-panel {
+        display: block;
+      }
+    }
 
     .rules-panel {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 14px;
       padding: 16px 20px;
       width: 100%;
       max-width: 860px;
       margin-top: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
-    .rules-title { font-size: 1rem; font-weight: 700; color: #38bdf8; margin-bottom: 8px; }
-    .rules-list { list-style-type: disc; padding-left: 20px; color: #cbd5e1; font-size: 0.82rem; line-height: 1.5; }
+    .rules-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rules-list {
+      list-style-type: disc;
+      padding-left: 20px;
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .rules-list strong {
+      color: #f8fafc;
+    }
+
+    #flash-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      transition: opacity 0.05s ease-out;
+    }
+
+    .shake-anim { animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+    @keyframes screenShake {
+      10%, 90% { transform: translate3d(-3px, 0, 0); }
+      20%, 80% { transform: translate3d(5px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+      40%, 60% { transform: translate3d(5px, 0, 0); }
+    }
 
     .popup-container {
       position: absolute;
-      top: 35%; left: 50%;
+      top: 35%;
+      left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
       z-index: 50;
@@ -610,6 +792,7 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
+      width: 100%;
     }
     .popup-badge {
       padding: 6px 14px;
@@ -618,6 +801,7 @@
       font-size: 0.95rem;
       text-transform: uppercase;
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      animation: popFade 1.6s ease-out forwards;
     }
     .popup-badge.super { background: #22c55e; color: #022c22; }
     .popup-badge.not-very { background: #64748b; color: #f8fafc; }
@@ -747,8 +931,13 @@
       width: 100%;
       max-width: 360px;
       text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
     }
 
+
+    /* ================================================= */
+    /* GAME BOOT / LOADING SCREEN                        */
+    /* ================================================= */
     #loading-screen {
       position: fixed;
       inset: 0;
@@ -756,131 +945,205 @@
       display: grid;
       place-items: center;
       padding: 24px;
-      background: #070e1b;
-      transition: opacity 0.45s ease;
+      background-image:
+        linear-gradient(180deg, rgba(9, 16, 32, 0.20) 0%, rgba(7, 14, 27, 0.82) 72%, rgba(7, 14, 27, 0.96) 100%),
+        var(--poster-image);
+      background-size: cover;
+      background-position: center 28%;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+      overflow: hidden;
     }
-    #loading-screen.is-ready { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    #loading-screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(250, 204, 21, 0.16), transparent 34%),
+        linear-gradient(90deg, rgba(14,165,233,0.10), transparent 28%, transparent 72%, rgba(249,115,22,0.10));
+      pointer-events: none;
+    }
+
+    #loading-screen.is-ready {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
     .loading-card {
+      position: relative;
       width: min(440px, 92vw);
-      padding: 18px;
+      margin-top: min(46vh, 410px);
+      padding: 18px 18px 16px;
       text-align: center;
+      color: white;
       background: rgba(8, 17, 34, 0.86);
       border: 2px solid rgba(255,255,255,0.18);
       border-radius: 22px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.62), inset 0 0 0 2px rgba(250,204,21,0.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
+
+    .loading-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: clamp(1.35rem, 5vw, 1.9rem);
+      font-weight: 950;
+      letter-spacing: 0.4px;
+      color: #facc15;
+      text-shadow: 0 2px 0 #9a3412, 0 0 14px rgba(250,204,21,0.42);
+    }
+
+    .loading-kicker {
+      color: #dbeafe;
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
     .pokeball-loader {
-      width: 44px; height: 44px; margin: 14px auto 10px;
-      border-radius: 50%; border: 3px solid #f8fafc;
+      width: 44px;
+      height: 44px;
+      margin: 14px auto 10px;
+      border-radius: 50%;
+      border: 3px solid #f8fafc;
       background: linear-gradient(#ef4444 0 46%, #111827 46% 54%, #f8fafc 54% 100%);
+      box-shadow: 0 0 0 2px #111827, 0 5px 16px rgba(0,0,0,0.45);
+      position: relative;
       animation: pokeSpin 0.95s linear infinite;
     }
+
+    .pokeball-loader::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #f8fafc;
+      border: 3px solid #111827;
+    }
+
     @keyframes pokeSpin { to { transform: rotate(360deg); } }
 
+    .loading-track {
+      height: 10px;
+      width: 100%;
+      overflow: hidden;
+      border: 2px solid #0f172a;
+      border-radius: 999px;
+      background: #020617;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.65);
+    }
+
+    #loading-progress {
+      width: 8%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 48%, #facc15 72%, #f97316 100%);
+      transition: width 0.28s ease;
+    }
+
+    #loading-label {
+      margin-top: 8px;
+      color: #cbd5e1;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    /* ================================================= */
+    /* IN-GAME INFO BUTTON + RULES MODAL                 */
+    /* ================================================= */
     .game-info-button {
-      position: fixed; top: 12px; right: 12px; z-index: 180;
-      width: 44px; height: 44px; border: 3px solid #f8fafc;
-      border-radius: 50%; display: grid; place-items: center;
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 180;
+      width: 44px;
+      height: 44px;
+      border: 3px solid #f8fafc;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
       background: linear-gradient(145deg, #facc15, #f97316);
-      color: #0f172a; font-weight: 950; cursor: pointer;
+      color: #0f172a;
+      font-family: ui-rounded, system-ui, sans-serif;
+      font-size: 1.2rem;
+      font-weight: 950;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #9a3412, 0 10px 22px rgba(0,0,0,0.36);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
-    @media (max-width: 720px) {
-      .wireframe-arena {
-        grid-template-columns: 1fr 20px 1fr;
-        grid-template-rows: auto auto;
-        gap: 6px;
-      }
-      .active-fighter-card.me { grid-column: 1 / 2; grid-row: 1; min-height: unset; padding: 6px; }
-      .vs-divider { grid-column: 2 / 3; grid-row: 1; font-size: 0.75rem; }
-      .active-fighter-card.opp { grid-column: 3 / 4; grid-row: 1; min-height: unset; padding: 6px; }
-      #my-bench-container { grid-column: 1 / 2; grid-row: 2; }
-      #opp-bench-container { grid-column: 3 / 4; grid-row: 2; }
-      .bench-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
-      .bench-slot-5th { grid-column: span 1; }
-      .bench-card { min-height: 44px; padding: 2px; }
-      .bench-card img { width: 24px; height: 24px; }
+    .game-info-button:hover { transform: translateY(-1px) scale(1.03); }
+    .game-info-button:active { transform: translateY(3px); box-shadow: 0 2px 0 #9a3412, 0 6px 14px rgba(0,0,0,0.35); }
+
+    .rules-modal-box {
+      max-width: 760px;
+      max-height: min(86vh, 760px);
+      overflow-y: auto;
+      text-align: left;
+      border: 2px solid rgba(250,204,21,0.5);
+      box-shadow: 0 18px 55px rgba(0,0,0,0.7), 0 0 0 3px rgba(14,165,233,0.08);
     }
-  </style>
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-</head>
-<body>
 
-  <div id="loading-screen">
-    <div class="loading-card">
-      <div style="font-weight:900; color:#facc15;">Pokémon 1v1 Arena</div>
-      <div class="pokeball-loader"></div>
-      <div id="loading-label" style="font-size:0.75rem; color:#cbd5e1;">Preparing arena…</div>
-    </div>
-  </div>
+    .rules-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
 
-  <button id="game-info-btn" class="game-info-button hidden" type="button" onclick="openInfoModal()">i</button>
+    .rules-modal-header h3 {
+      font-size: 1.05rem;
+      color: #facc15;
+      text-shadow: 0 0 10px rgba(250,204,21,0.2);
+    }
 
-  <div id="rules-modal" class="modal-backdrop hidden" onclick="closeInfoModal()">
-    <div class="modal-box" style="max-width:500px; text-align:left;" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <h3 style="color:#facc15;">Game Rules & Matchups</h3>
-        <button class="btn-secondary" style="width:auto; padding:2px 8px;" onclick="closeInfoModal()">✕</button>
-      </div>
-      <div id="rules-modal-slot"></div>
-    </div>
-  </div>
+    .modal-close-btn {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid #64748b;
+      background: #111827;
+      color: #f8fafc;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
 
-  <div class="hero-banner">
-    <h1 class="hero-title">Pokémon 1v1 Arena</h1>
-    <p class="hero-subtitle">
-      <span>Real-Time Battle Arena</span>
-      <span style="font-size:0.75rem; color:#facc15; font-weight:800; letter-spacing:0.5px;">6 Pokémons to win it all</span>
-    </p>
-  </div>
+    #rules-modal-slot .rules-panel {
+      max-width: none;
+      margin-top: 0;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
 
-  <div id="screen-lobby" class="panel">
-    <div class="mascot-strip">
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png" class="pixel-art" alt="Charizard" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" class="pixel-art" alt="Blastoise" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" class="pixel-art" alt="Venusaur" />
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" class="pixel-art" alt="Pikachu" />
-    </div>
+    #rules-modal-slot .rules-title { display: none; }
 
-    <div class="lobby-grid">
-      <div class="lobby-block">
-        <div class="lobby-block-header">
-          <!-- Pokeball logo with red top half and white bottom half -->
-          <div class="lobby-icon-badge" role="img" aria-label="Host a match">
-            <svg class="badge-glyph" viewBox="0 0 48 48" fill="none">
-              <path d="M11 24a13 13 0 0 1 26 0Z" fill="#ef5a43"/>
-              <path d="M11 24a13 13 0 0 0 26 0Z" fill="#fffdf0"/>
-              <path d="M10 22.5h28v3H10z" fill="#141c12"/>
-              <circle cx="24" cy="24" r="13" stroke="#141c12" stroke-width="2"/>
-              <circle cx="24" cy="24" r="4.5" fill="#141c12"/>
-              <circle cx="24" cy="24" r="2.5" fill="#fffdf0"/>
-            </svg>
-          </div>
-          <h3>Host Match</h3>
-          <p style="font-size:0.75rem; color:var(--text-muted);">Create room code</p>
-        </div>
-        <button id="btn-create-room" class="btn" onclick="hostRoom()">Create Room</button>
-        <div id="host-info" class="hidden" style="margin-top:10px;">
-          <span id="my-peer-id" class="code-tag">---</span>
-        </div>
-      </div>
+    @media (max-width: 620px) {
+      #loading-screen { background-position: center top; }
+      .loading-card { margin-top: 45vh; padding: 14px; border-radius: 18px; }
+      .game-info-button { width: 40px; height: 40px; top: 10px; right: 10px; font-size: 1.05rem; }
+      .rules-modal-box { max-height: 88vh; padding: 14px; }
+    }
 
-      <div class="lobby-block">
-        <div class="lobby-block-header">
-          <div class="lobby-icon-badge" role="img" aria-label="Join a match">
-            <svg class="badge-glyph" viewBox="0 0 48 48" fill="none">
-              <path d="M24 8l10 16H14z" fill="#38bdf8"/>
-            </svg>
-          </div>
-          <h3>Join Match</h3>
-          <p style="font-size:0.75rem; color:var(--text-muted);">Enter rival code</p>
-        </div>
-        <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
-        <button id="btn-join-room" class="btn btn-ready" style="margin-top:8px;" onclick="joinRoom()">Enter Arena</button>
-      </div>
-    </div>
 
-    <button class="btn btn-secondary" onclick="startSinglePlayer()">Practice vs. AI Trainer</button>
-  </div>
 
     /* ================================================= */
     /* LOBBY ACTIONS — TACTILE CONSOLE-STYLE CONTROLS    */
@@ -1805,18 +2068,20 @@
   <!-- DRAFT SCREEN (PAIR-BASED SELECTION) -->
   <div id="screen-draft" class="panel hidden">
     <h2 id="draft-status-title" style="text-align:center; font-size:1.1rem;">Team Draft</h2>
+    <p id="draft-status-desc" style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-bottom:6px;">Choose 1 Pokémon. The other goes to your opponent!</p>
+
     <div id="draft-choice-section" class="draft-choice-box">
-      <h3 id="draft-choice-title" style="font-size:0.95rem; color:#38bdf8;">Your Pick</h3>
+      <h3 id="draft-choice-title" style="font-size:0.95rem; color:#38bdf8;">Your Pick (Choice 1/3)</h3>
+      <p id="draft-choice-sub" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Tap a Pokémon to select, then confirm.</p>
+      
       <div id="draft-pair-container" class="draft-pair-container"></div>
-      <button id="btn-confirm-draft" class="btn btn-ready" onclick="confirmDraftPick()" disabled>✅ Confirm Selection</button>
+      
+      <button id="btn-confirm-draft" class="btn btn-ready" style="margin-top:8px;" onclick="confirmDraftPick()" disabled>✅ Confirm Selection</button>
     </div>
-    <div id="draft-final-section" class="draft-choice-box hidden">
-      <h3>Teams Ready!</h3>
-      <button id="btn-lets-battle" class="btn btn-ready" style="margin-top:8px;" onclick="confirmBattleStart()">Let's Battle!</button>
-    </div>
-    <div id="draft-progress-block">
-      <h3>Your Team (<span id="draft-team-count">0</span>/6)</h3>
-      <div id="my-draft-roster" class="roster-grid"></div>
+
+    <div id="draft-waiting-section" class="draft-choice-box hidden">
+      <h3 style="font-size:0.95rem; color:#f59e0b;">⏳ Opponent is Picking...</h3>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Waiting for opponent to choose from their pair.</p>
     </div>
 
     <div id="draft-final-section" class="draft-choice-box draft-final-box hidden">
@@ -1837,34 +2102,28 @@
     </div>
   </div>
 
+  <!-- BATTLE SCREEN -->
   <div id="screen-battle" class="panel hidden">
-    <!-- Dynamic Scoreboard -->
-    <div id="arena-scoreboard" class="arena-scoreboard">
-      <div class="score-item p1-score">
-        <span>YOU (P1) KILLS</span>
-        <span id="p1-score-val">0</span>
-      </div>
-      <div class="score-item" style="color:var(--text-muted); font-size:0.65rem;">ARENA SCOREBOARD</div>
-      <div class="score-item p2-score">
-        <span>OPPONENT KILLS</span>
-        <span id="p2-score-val">0</span>
-      </div>
-    </div>
-
     <div id="popup-layer" class="popup-container"></div>
     <p id="turn-indicator" style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:10px; font-weight:600;">Battle Commenced</p>
 
     <div class="wireframe-arena" id="arena-box">
+      
+      <!-- P1 Bench -->
       <div class="bench-container" id="my-bench-container">
         <div class="bench-title" id="p1-bench-label">Your Bench</div>
         <div class="bench-grid" id="p1-bench-slots"></div>
       </div>
 
+      <!-- Active P1 Card -->
       <div class="active-fighter-card me" id="me-card">
         <div class="fighter-inner-box">
           <img id="my-active-sprite" class="pixel-art" src="" alt="P1" />
-          <strong id="my-active-name" style="font-size:0.9rem;">---</strong>
-          <span id="my-active-type" class="type-badge">TYPE</span>
+          <div class="fighter-meta">
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1px;" id="p1-title-label">Active: You (P1)</div>
+            <strong id="my-active-name" style="font-size:0.9rem;">---</strong>
+            <span id="my-active-type" class="type-badge">TYPE</span>
+          </div>
         </div>
         <div class="stat-block">
           <div class="hp-bar-bg"><div id="my-hp-fill" class="hp-bar-fill"></div></div>
@@ -1872,16 +2131,22 @@
             <span id="my-hp-text">100/100 HP</span>
             <span id="my-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
           </p>
+          <div class="energy-bar-bg"><div id="my-energy-fill" class="energy-bar-fill"></div></div>
         </div>
       </div>
 
+      <!-- Center VS Divider -->
       <div class="vs-divider">VS</div>
 
+      <!-- Active P2 Card -->
       <div class="active-fighter-card opp" id="opp-card">
         <div class="fighter-inner-box">
           <img id="opp-active-sprite" class="pixel-art" src="" alt="P2" />
-          <strong id="opp-active-name" style="font-size:0.9rem;">---</strong>
-          <span id="opp-active-type" class="type-badge">TYPE</span>
+          <div class="fighter-meta">
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1px;" id="p2-title-label">Active: Opponent (P2)</div>
+            <strong id="opp-active-name" style="font-size:0.9rem;">---</strong>
+            <span id="opp-active-type" class="type-badge">TYPE</span>
+          </div>
         </div>
         <div class="stat-block">
           <div class="hp-bar-bg"><div id="opp-hp-fill" class="hp-bar-fill"></div></div>
@@ -1889,37 +2154,85 @@
             <span id="opp-hp-text">100/100 HP</span>
             <span id="opp-energy-text" style="color:var(--energy-blue); font-weight:600;">⚡ 0/3</span>
           </p>
+          <div class="energy-bar-bg"><div id="opp-energy-fill" class="energy-bar-fill"></div></div>
         </div>
       </div>
 
+      <!-- P2 Bench -->
       <div class="bench-container" id="opp-bench-container">
         <div class="bench-title" id="p2-bench-label">Opponent Bench</div>
         <div class="bench-grid" id="p2-bench-slots"></div>
       </div>
+
     </div>
 
+    <!-- ATTACKS & ACTION CONTROLS -->
     <div class="battle-actions-panel" id="controls-section">
       <div class="attacks-row">
         <button id="btn-fast-atk" class="attack-btn" onclick="executeMoveLocally('fast')">
           <strong>⚡ Fast Attack</strong>
+          <span id="lbl-fast-info" style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">+1 Energy</span>
         </button>
         <button id="btn-charged-atk" class="attack-btn charged" onclick="executeMoveLocally('charged')" disabled>
           <strong>💥 Charged Attack</strong>
+          <span id="lbl-charged-info" style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">Need 3 Energy</span>
         </button>
       </div>
-      <button id="btn-mega" class="btn btn-mega hidden" onclick="handleMegaButtonClick()">🧬 Mega Evolve</button>
+      <div class="mega-btn-container">
+        <button id="btn-mega" class="btn btn-mega hidden" onclick="handleMegaButtonClick()">🧬 Mega Evolve</button>
+      </div>
     </div>
   </div>
 
-  <div id="rules-home-slot">
-    <div id="game-rules-panel" class="rules-panel">
-      <div class="rules-title">📜 How to Play & Game Rules</div>
-      <ul class="rules-list">
-        <li><strong>Drafting:</strong> Choose 1 of 2 Pokémon pairs each round until you have 6. Unchosen goes to your rival.</li>
-        <li><strong>Actions:</strong> Select Fast Attack (+1 Energy), Charged Attack (needs 3 Energy), or switch bench members.</li>
-        <li><strong>Faint Timer:</strong> When your Pokémon fainted, you have 5 seconds to pick a sub or an auto-sub happens.</li>
-      </ul>
+  <!-- TYPE SYMBOLS LEGEND (MOBILE ONLY) -->
+  <div class="type-legend-panel">
+    <div class="type-legend-title">🏷️ Type Icon Legend</div>
+    <div class="type-legend-grid">
+      <div class="type-legend-item" style="border-left-color: #9ca3af;"><span class="symbol">⚪</span> Normal</div>
+      <div class="type-legend-item" style="border-left-color: #f97316;"><span class="symbol">🔥</span> Fire</div>
+      <div class="type-legend-item" style="border-left-color: #0ea5e9;"><span class="symbol">💧</span> Water</div>
+      <div class="type-legend-item" style="border-left-color: #22c55e;"><span class="symbol">🌿</span> Grass</div>
+      <div class="type-legend-item" style="border-left-color: #eab308;"><span class="symbol">⚡</span> Electric</div>
+      <div class="type-legend-item" style="border-left-color: #38bdf8;"><span class="symbol">❄️</span> Ice</div>
+      <div class="type-legend-item" style="border-left-color: #b91c1c;"><span class="symbol">🥊</span> Fighting</div>
+      <div class="type-legend-item" style="border-left-color: #a855f7;"><span class="symbol">☠️</span> Poison</div>
+      <div class="type-legend-item" style="border-left-color: #ca8a04;"><span class="symbol">🏜️</span> Ground</div>
+      <div class="type-legend-item" style="border-left-color: #818cf8;"><span class="symbol">🦅</span> Flying</div>
+      <div class="type-legend-item" style="border-left-color: #ec4899;"><span class="symbol">👁️</span> Psychic</div>
+      <div class="type-legend-item" style="border-left-color: #84cc16;"><span class="symbol">🐛</span> Bug</div>
+      <div class="type-legend-item" style="border-left-color: #78716c;"><span class="symbol">🪨</span> Rock</div>
+      <div class="type-legend-item" style="border-left-color: #6366f1;"><span class="symbol">👻</span> Ghost</div>
+      <div class="type-legend-item" style="border-left-color: #7c3aed;"><span class="symbol">🐉</span> Dragon</div>
+      <div class="type-legend-item" style="border-left-color: #64748b;"><span class="symbol">⚙️</span> Steel</div>
+      <div class="type-legend-item" style="border-left-color: #334155;"><span class="symbol">🌑</span> Dark</div>
+      <div class="type-legend-item" style="border-left-color: #f472b6;"><span class="symbol">✨</span> Fairy</div>
     </div>
+  </div>
+
+  <!-- HOW TO PLAY / RULES: visible in lobby, moved into info modal in-game -->
+  <div id="rules-home-slot">
+  <div id="game-rules-panel" class="rules-panel">
+    <div class="rules-title">📜 How to Play & Game Rules</div>
+    <ul class="rules-list">
+      <li><strong>Draft Your Squad:</strong> Each player is presented with 3 choices of 2 Pokémon pairs. The Pokémon you pick joins your squad, while the unpicked Pokémon goes to your opponent's squad.</li>
+      <li><strong>Turn Options:</strong> On your turn, choose one action:
+        <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
+          <li><strong>Fast Attack:</strong> Deals light damage and grants +1 Energy.</li>
+          <li><strong>Charged Attack:</strong> Unlocks at 3/3 Energy to deal massive burst damage (resets energy to 0).</li>
+          <li><strong>Switch Pokémon:</strong> Tap any healthy Pokémon on your bench to tag them into battle (ends your turn).</li>
+        </ul>
+      </li>
+      <li><strong>Switching Rules & Cooldowns:</strong>
+        <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
+          <li><strong>Voluntary Swap:</strong> Puts switching on a 5-move cooldown. You must make 5 attacks before you can voluntarily swap again.</li>
+          <li><strong>Fainted Swap:</strong> If your active Pokémon reaches 0 HP, you get a free immediate swap from your bench without triggering the cooldown.</li>
+        </ul>
+      </li>
+      <li><strong>Mega Evolution:</strong> You get 1 Mega Evolution per match. If your active Pokémon can Mega Evolve, the pink Mega Evolve button will appear. Mega Evolving is a free action (you can still attack on the same turn) and grants +40% Attack, +30% HP, boosted move damage, and 25% damage reduction. For Pokémon with two forms, pick your preferred form/typing from the pop-up menu.</li>
+      <li><strong>Type Advantage Matters:</strong> Matchups deal 2x damage for Super Effective hits, 0.5x for Not Very Effective hits, and 0 for Immunities.</li>
+      <li><strong>Win the Match:</strong> Knock out all 6 of your opponent's Pokémon to win the Arena.</li>
+    </ul>
+  </div>
   </div>
 
   <script>
@@ -2017,21 +2330,97 @@
       [3, "Venusaur", "Grass", 180, 28, 24],
       [6, "Charizard", "Fire", 175, 30, 22],
       [9, "Blastoise", "Water", 185, 26, 26],
-      [25, "Pikachu", "Electric", 150, 32, 18],
-      [94, "Gengar", "Ghost", 170, 33, 21],
-      [149, "Dragonite", "Dragon", 195, 32, 26],
+      [12, "Butterfree", "Bug", 160, 25, 21],
+      [15, "Beedrill", "Bug", 160, 30, 19],
+      [18, "Pidgeot", "Flying", 175, 28, 22],
+      [20, "Raticate", "Normal", 160, 27, 21],
+      [22, "Fearow", "Flying", 165, 28, 21],
+      [24, "Arbok", "Poison", 170, 27, 23],
+      [26, "Raichu", "Electric", 170, 30, 20],
+      [28, "Sandslash", "Ground", 175, 28, 26],
+      [31, "Nidoqueen", "Poison", 185, 28, 25],
+      [34, "Nidoking", "Poison", 185, 29, 24],
+      [36, "Clefable", "Fairy", 185, 26, 23],
       [38, "Ninetales", "Fire", 170, 27, 24],
-      [68, "Machamp", "Fighting", 190, 32, 25],
-      [130, "Gyarados", "Water", 190, 32, 24],
-      [143, "Snorlax", "Normal", 225, 28, 22],
+      [40, "Wigglytuff", "Normal", 210, 24, 19],
+      [42, "Golbat", "Poison", 170, 26, 22],
+      [45, "Vileplume", "Grass", 180, 28, 24],
+      [47, "Parasect", "Bug", 165, 28, 24],
+      [49, "Venomoth", "Bug", 170, 27, 21],
+      [51, "Dugtrio", "Ground", 150, 29, 18],
+      [53, "Persian", "Normal", 165, 26, 20],
+      [55, "Golduck", "Water", 175, 28, 23],
+      [57, "Primeape", "Fighting", 170, 30, 20],
+      [59, "Arcanine", "Fire", 190, 31, 24],
+      [62, "Poliwrath", "Water", 185, 28, 26],
       [65, "Alakazam", "Psychic", 165, 35, 18],
-      [76, "Golem", "Rock", 180, 30, 30]
-    ].map(([id, name, type, hp, atk, def]) => ({
-      id, name, type, hp, atk, def,
-      maxHp: hp, currentHp: hp, energy: 0, isMega: false,
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
-      fastMove: { name: 'Quick Strike', type, minDmg: 20, maxDmg: 25 },
-      chargedMove: { name: 'Burst Strike', type, minDmg: 75, maxDmg: 90 }
+      [68, "Machamp", "Fighting", 190, 32, 25],
+      [71, "Victreebel", "Grass", 180, 30, 22],
+      [73, "Tentacruel", "Water", 175, 26, 27],
+      [76, "Golem", "Rock", 180, 30, 30],
+      [78, "Rapidash", "Fire", 170, 29, 22],
+      [80, "Slowbro", "Water", 190, 27, 27],
+      [82, "Magneton", "Electric", 165, 29, 26],
+      [83, "Farfetch'd", "Normal", 155, 26, 20],
+      [85, "Dodrio", "Flying", 170, 30, 21],
+      [87, "Dewgong", "Water", 180, 25, 25],
+      [89, "Muk", "Poison", 195, 29, 24],
+      [91, "Cloyster", "Water", 165, 28, 34],
+      [94, "Gengar", "Ghost", 170, 33, 21],
+      [95, "Onix", "Rock", 160, 22, 32],
+      [97, "Hypno", "Psychic", 180, 26, 25],
+      [99, "Kingler", "Water", 170, 32, 27],
+      [101, "Electrode", "Electric", 165, 26, 22],
+      [103, "Exeggutor", "Grass", 185, 29, 24],
+      [105, "Marowak", "Ground", 170, 26, 27],
+      [106, "Hitmonlee", "Fighting", 165, 32, 20],
+      [107, "Hitmonchan", "Fighting", 165, 29, 24],
+      [108, "Lickitung", "Normal", 180, 24, 23],
+      [110, "Weezing", "Poison", 175, 27, 27],
+      [112, "Rhydon", "Ground", 195, 31, 27],
+      [113, "Chansey", "Normal", 240, 18, 16],
+      [114, "Tangela", "Grass", 165, 25, 27],
+      [115, "Kangaskhan", "Normal", 190, 28, 24],
+      [117, "Seadra", "Water", 165, 27, 24],
+      [119, "Seaking", "Water", 170, 27, 21],
+      [121, "Starmie", "Water", 170, 28, 24],
+      [122, "Mr. Mime", "Psychic", 160, 26, 26],
+      [123, "Scyther", "Bug", 175, 30, 23],
+      [124, "Jynx", "Ice", 165, 29, 18],
+      [125, "Electabuzz", "Electric", 175, 29, 20],
+      [126, "Magmar", "Fire", 175, 30, 20],
+      [127, "Pinsir", "Bug", 175, 31, 25],
+      [128, "Tauros", "Normal", 180, 29, 25],
+      [130, "Gyarados", "Water", 190, 32, 24],
+      [131, "Lapras", "Ice", 205, 26, 24],
+      [132, "Ditto", "Normal", 155, 25, 22],
+      [134, "Vaporeon", "Water", 205, 28, 22],
+      [135, "Jolteon", "Electric", 165, 30, 21],
+      [136, "Flareon", "Fire", 165, 32, 22],
+      [137, "Porygon", "Normal", 160, 25, 22],
+      [139, "Omastar", "Rock", 175, 28, 29],
+      [141, "Kabutops", "Rock", 175, 31, 26],
+      [142, "Aerodactyl", "Rock", 175, 30, 22],
+      [143, "Snorlax", "Normal", 225, 28, 22],
+      [144, "Articuno", "Ice", 190, 28, 27],
+      [145, "Zapdos", "Electric", 190, 31, 24],
+      [146, "Moltres", "Fire", 190, 31, 24],
+      [149, "Dragonite", "Dragon", 195, 32, 26],
+      [150, "Mewtwo", "Psychic", 200, 36, 26],
+      [151, "Mew", "Psychic", 190, 29, 29]
+    ];
+
+    const POKEDEX = MAX_EVO_KANTO.map(([id, name, type, hp, atk, def]) => ({
+      id,
+      name,
+      type,
+      hp,
+      atk,
+      def,
+      canMega: !!MEGA_FORMS[id],
+      sprite: SPRITE_URL(id),
+      fastMove: { name: TYPE_MOVES[type].fast, type: type, minDmg: 20, maxDmg: 28 },
+      chargedMove: { name: TYPE_MOVES[type].charged, type: type, minDmg: 82, maxDmg: 100 }
     }));
 
     var peer = null;
@@ -2060,42 +2449,249 @@
     var selectedDraftCardIdx = null;
 
     var myPicks = [];
+    var oppPicks = [];
+
+    var PREFIX = "pk1v-";
+    var audioCtx = null;
+
+    function isMobileView() {
+      return window.innerWidth <= 720;
+    }
+
+    function playSound(type) {
+      try {
+        if (!audioCtx) {
+          var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        if (!audioCtx) return;
+
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        var now = audioCtx.currentTime;
+
+        if (type === 'beep') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.08);
+          osc.start(now); osc.stop(now + 0.08);
+        } else if (type === 'hit') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.15);
+          osc.start(now); osc.stop(now + 0.15);
+        } else if (type === 'charged') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(60, now + 0.35);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.35);
+          osc.start(now); osc.stop(now + 0.35);
+        } else if (type === 'mega') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.linearRampToValueAtTime(960, now + 0.28);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.3);
+          osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'fanfare') {
+          [261.63, 329.63, 392.00, 523.25].forEach(function(freq, idx) {
+            var o = audioCtx.createOscillator();
+            var g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, now + idx * 0.12);
+            g.gain.setValueAtTime(0.15, now + idx * 0.12);
+            g.gain.linearRampToValueAtTime(0, now + idx * 0.12 + 0.2);
+            o.start(now + idx * 0.12); o.stop(now + idx * 0.12 + 0.2);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function triggerHaptics(pattern) {
+      try { if (navigator.vibrate) navigator.vibrate(pattern || [40, 30, 40]); } catch(e) {}
+    }
+
 
     function setGameInfoMode(isInGame) {
-      document.getElementById('game-info-btn').classList.toggle('hidden', !isInGame);
-    }
-    window.openInfoModal = function() { document.getElementById('rules-modal').classList.remove('hidden'); };
-    window.closeInfoModal = function() { document.getElementById('rules-modal').classList.add('hidden'); };
+      var infoBtn = document.getElementById('game-info-btn');
+      var rulesPanel = document.getElementById('game-rules-panel');
+      var homeSlot = document.getElementById('rules-home-slot');
+      var modalSlot = document.getElementById('rules-modal-slot');
+      if (!infoBtn || !rulesPanel || !homeSlot || !modalSlot) return;
 
-    setTimeout(() => { document.getElementById('loading-screen').classList.add('is-ready'); }, 500);
+      if (isInGame) {
+        modalSlot.appendChild(rulesPanel);
+        infoBtn.classList.remove('hidden');
+      } else {
+        homeSlot.appendChild(rulesPanel);
+        infoBtn.classList.add('hidden');
+        closeInfoModal();
+      }
+    }
+
+    window.openInfoModal = function() {
+      playSound('beep');
+      var modal = document.getElementById('rules-modal');
+      if (modal) modal.classList.remove('hidden');
+    };
+
+    window.closeInfoModal = function() {
+      var modal = document.getElementById('rules-modal');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    function finishLoadingScreen() {
+      var splash = document.getElementById('loading-screen');
+      var progress = document.getElementById('loading-progress');
+      var label = document.getElementById('loading-label');
+      if (!splash || splash.classList.contains('is-ready')) return;
+      if (progress) progress.style.width = '100%';
+      if (label) label.innerText = 'Arena ready!';
+      setTimeout(function() { splash.classList.add('is-ready'); }, 260);
+      setTimeout(function() { if (splash && splash.parentNode) splash.remove(); }, 900);
+    }
+
+    (function bootLoadingScreen() {
+      var progress = document.getElementById('loading-progress');
+      var label = document.getElementById('loading-label');
+      var value = 8;
+      var timer = setInterval(function() {
+        value = Math.min(88, value + Math.floor(Math.random() * 9) + 3);
+        if (progress) progress.style.width = value + '%';
+        if (label) {
+          label.innerText = value < 38 ? 'Loading battle data…' : value < 68 ? 'Syncing trainer systems…' : 'Warming up the arena…';
+        }
+        if (value >= 88) clearInterval(timer);
+      }, 180);
+      window.addEventListener('load', function() {
+        clearInterval(timer);
+        setTimeout(finishLoadingScreen, 320);
+      });
+      setTimeout(function() {
+        clearInterval(timer);
+        finishLoadingScreen();
+      }, 2200);
+    })();
+
+    function generate6DigitCode() {
+      var chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+      var code = "";
+      for (var i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+      return code;
+    }
 
     window.startSinglePlayer = function() {
-      isAiMode = true; isHost = true; myRole = 'p1';
+      playSound('beep');
+      isAiMode = true;
+      isHost = true;
+      myRole = 'p1';
       initDraftSession();
     };
 
     window.hostRoom = function() {
-      isHost = true; myRole = 'p1';
+      playSound('beep');
+      isHost = true;
+      myRole = 'p1';
+      document.getElementById('btn-create-room').disabled = true;
       document.getElementById('host-info').classList.remove('hidden');
-      peer = new Peer('pk1v-' + Math.random().toString(36).substring(2, 8));
-      peer.on('open', id => { document.getElementById('my-peer-id').innerText = id.replace('pk1v-', '').toUpperCase(); });
-      peer.on('connection', c => { conn = c; setupConnection(); initDraftSession(); });
+
+      var raw6 = generate6DigitCode();
+      var fullId = PREFIX + raw6.toLowerCase();
+
+      if (typeof Peer === "undefined") {
+        document.getElementById('my-peer-id').innerText = raw6;
+        return;
+      }
+
+      try { if (peer) peer.destroy(); } catch(e) {}
+      peer = new Peer(fullId);
+
+      peer.on('open', function(id) {
+        var displayCode = id.replace(PREFIX, "").toUpperCase();
+        document.getElementById('my-peer-id').innerText = displayCode;
+      });
+
+      peer.on('connection', function(c) {
+        conn = c;
+        setupConnection();
+        initDraftSession();
+      });
+
+      peer.on('error', function() {
+        var fallback6 = generate6DigitCode();
+        peer = new Peer(PREFIX + fallback6.toLowerCase());
+        peer.on('open', function(id) {
+          document.getElementById('my-peer-id').innerText = id.replace(PREFIX, "").toUpperCase();
+        });
+        peer.on('connection', function(c) {
+          conn = c;
+          setupConnection();
+          initDraftSession();
+        });
+      });
+    };
+
+    window.copyInviteLink = function() {
+      playSound('beep');
+      var code = document.getElementById('my-peer-id').innerText;
+      var url = window.location.origin + window.location.pathname + '#' + code;
+      navigator.clipboard.writeText(url).then(function() {
+        var btn = document.getElementById('btn-copy-link');
+        btn.innerText = "✅ Link Copied!";
+        setTimeout(function() { btn.innerText = "📋 Copy Invite Link"; }, 2000);
+      });
     };
 
     window.joinRoom = function() {
-      let code = document.getElementById('join-id-input').value.trim().toLowerCase();
-      if (!code) return alert('Enter room code');
-      isHost = false; myRole = 'p2';
+      playSound('beep');
+      var input = document.getElementById('join-id-input').value.trim().toUpperCase();
+      if (input.length !== 6) return alert('Please enter a 6-digit room code.');
+
+      isHost = false;
+      myRole = 'p2';
+      document.getElementById('btn-join-room').disabled = true;
+      document.getElementById('btn-join-room').innerText = "Connecting...";
+
+      if (typeof Peer === "undefined") {
+        alert("Peer network library is still loading. Please retry in 3 seconds.");
+        document.getElementById('btn-join-room').disabled = false;
+        return;
+      }
+
+      try { if (peer) peer.destroy(); } catch(e) {}
       peer = new Peer();
-      peer.on('open', () => { conn = peer.connect('pk1v-' + code, { reliable: true }); setupConnection(); });
+
+      peer.on('open', function() {
+        var targetFullId = PREFIX + input.toLowerCase();
+        conn = peer.connect(targetFullId, { reliable: true });
+        setupConnection();
+      });
+
+      peer.on('error', function() {
+        alert("Connection failed. Check code and try again.");
+        document.getElementById('btn-join-room').disabled = false;
+        document.getElementById('btn-join-room').innerText = "Join Match";
+      });
     };
 
     function setupConnection() {
-      conn.on('data', msg => handleNetworkData(msg));
+      if (!conn) return;
+      conn.on('data', function(data) {
+        handleNetworkData(data);
+      });
     }
 
     function sendNet(type, payload) {
-      if (conn && conn.open) conn.send({ type, payload });
+      if (conn && conn.open) conn.send({ type: type, payload: payload });
     }
 
     function handleNetworkData(msg) {
@@ -2120,16 +2716,21 @@
       }
     }
 
-    function generatePairs() {
-      let shuffled = [...POKEDEX].sort(() => 0.5 - Math.random());
-      let pairs = [];
-      for (let i = 0; i < 12; i += 2) {
-        pairs.push([
-          JSON.parse(JSON.stringify(shuffled[i])),
-          JSON.parse(JSON.stringify(shuffled[i+1]))
-        ]);
+    function generate12UniquePokemon() {
+      var shuffled = POKEDEX.slice().sort(function() { return 0.5 - Math.random(); });
+      var chosen12 = shuffled.slice(0, 12).map(function(base) {
+        return Object.assign({}, JSON.parse(JSON.stringify(base)), {
+          maxHp: base.hp,
+          currentHp: base.hp,
+          energy: 0,
+          isMega: false
+        });
+      });
+      var pairs = [];
+      for (var i = 0; i < 12; i += 2) {
+        pairs.push([chosen12[i], chosen12[i+1]]);
       }
-      return pairs; // 6 pairs total for 6 team members each
+      return pairs;
     }
 
     function initDraftSession() {
@@ -2151,6 +2752,7 @@
     function startDraftScreen() {
       setGameInfoMode(true);
       document.getElementById('screen-lobby').classList.add('hidden');
+      document.getElementById('screen-battle').classList.add('hidden');
       document.getElementById('screen-draft').classList.remove('hidden');
       renderDraftRound();
     }
@@ -2167,32 +2769,98 @@
       document.getElementById('draft-final-section').classList.add('hidden');
       document.getElementById('draft-progress-block').classList.remove('hidden');
       document.getElementById('draft-team-count').innerText = myPicks.length;
-      document.getElementById('my-draft-roster').innerHTML = myPicks.map(p => `
-        <div class="poke-chip">
-          <img src="${p.sprite}" class="pixel-art" />
-          <strong>${p.name}</strong>
-        </div>
-      `).join('');
+      renderDraftRoster('my-draft-roster', myPicks);
+
+      var activePickerRole = (currentDraftRound % 2 === 0) ? 'p1' : 'p2';
+      var isMyPick = (myRole === activePickerRole);
+
+      var choiceBox = document.getElementById('draft-choice-section');
+      var waitingBox = document.getElementById('draft-waiting-section');
+
+      if (isMyPick) {
+        choiceBox.classList.remove('hidden');
+        waitingBox.classList.add('hidden');
+
+        var humanRoundNum = myPicks.length + 1;
+        document.getElementById('draft-choice-title').innerText = "Your Pick (Choice " + humanRoundNum + "/3)";
+
+        var currentPair = draftPoolPairs[currentDraftRound];
+        var container = document.getElementById('draft-pair-container');
+        container.innerHTML = '';
+
+        currentPair.forEach(function(poke, idx) {
+          var card = document.createElement('div');
+          card.className = 'draft-pick-card';
+          card.id = 'draft-card-' + idx;
+          card.innerHTML = 
+            '<img src="' + poke.sprite + '" class="pixel-art" alt="' + poke.name + '" />' +
+            '<strong style="font-size:0.9rem; margin-top:4px;">' + poke.name + '</strong>' +
+            '<span class="type-badge" style="background:' + TYPE_COLORS[poke.type] + '">' + poke.type + '</span>' +
+            '<div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">HP: ' + poke.hp + ' | ATK: ' + poke.atk + '</div>';
+
+          card.onclick = function() {
+            playSound('beep');
+            selectedDraftCardIdx = idx;
+            document.querySelectorAll('.draft-pick-card').forEach(function(c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+            document.getElementById('btn-confirm-draft').disabled = false;
+          };
+
+          container.appendChild(card);
+        });
+      } else {
+        choiceBox.classList.add('hidden');
+        waitingBox.classList.remove('hidden');
+
+        if (isAiMode && activePickerRole === 'p2') {
+          setTimeout(aiDraftPick, 900);
+        }
+      }
     }
 
-    window.selectDraftCard = function(idx) {
-      selectedDraftCardIdx = idx;
-      document.querySelectorAll('.draft-pick-card').forEach((c, i) => c.classList.toggle('selected', i === idx));
-      document.getElementById('btn-confirm-draft').disabled = false;
-    };
-
     window.confirmDraftPick = function() {
-      let pair = draftPoolPairs[currentDraftRound];
-      let chosen = pair[selectedDraftCardIdx];
-      let other = pair[selectedDraftCardIdx === 0 ? 1 : 0];
-      if (!isAiMode) sendNet('DRAFT_PICK_MADE', { pickerRole: myRole, chosenPoke: chosen, otherPoke: other });
-      applyDraftPick(myRole, chosen, other);
+      if (selectedDraftCardIdx === null) return;
+      playSound('beep');
+
+      var currentPair = draftPoolPairs[currentDraftRound];
+      var chosenPoke = currentPair[selectedDraftCardIdx];
+      var otherPoke = currentPair[selectedDraftCardIdx === 0 ? 1 : 0];
+
+      if (!isAiMode) {
+        sendNet('DRAFT_PICK_MADE', {
+          pickerRole: myRole,
+          chosenPoke: chosenPoke,
+          otherPoke: otherPoke
+        });
+      }
+
+      applyDraftPick(myRole, chosenPoke, otherPoke);
     };
 
-    function applyDraftPick(pickerRole, chosen, other) {
-      if (pickerRole === 'p1') { p1Team.push(chosen); p2Team.push(other); }
-      else { p2Team.push(chosen); p1Team.push(other); }
-      if (pickerRole === myRole) myPicks.push(chosen);
+    function aiDraftPick() {
+      var currentPair = draftPoolPairs[currentDraftRound];
+      var aiChosenIdx = Math.floor(Math.random() * 2);
+      var chosenPoke = currentPair[aiChosenIdx];
+      var otherPoke = currentPair[aiChosenIdx === 0 ? 1 : 0];
+
+      applyDraftPick('p2', chosenPoke, otherPoke);
+    }
+
+    function applyDraftPick(pickerRole, chosenPoke, otherPoke) {
+      if (pickerRole === 'p1') {
+        p1Team.push(chosenPoke);
+        p2Team.push(otherPoke);
+      } else {
+        p2Team.push(chosenPoke);
+        p1Team.push(otherPoke);
+      }
+
+      if (pickerRole === myRole) {
+        myPicks.push(chosenPoke);
+      } else {
+        oppPicks.push(chosenPoke);
+      }
+
       currentDraftRound++;
       renderDraftRound();
     }
@@ -2319,17 +2987,50 @@
       resetToDraftScreen();
     };
 
+    function showPopup(text, type) {
+      var layer = document.getElementById('popup-layer');
+      if (!layer) return;
+      var badge = document.createElement('div');
+      badge.className = 'popup-badge ' + (type || 'dmg');
+      badge.innerText = text;
+      layer.appendChild(badge);
+      setTimeout(function() { badge.remove(); }, 1600);
+    }
+
+    function triggerScreenFlash(color) {
+      var overlay = document.getElementById('flash-overlay');
+      overlay.style.background = color || 'white';
+      overlay.style.opacity = '0.75';
+      setTimeout(function() { overlay.style.opacity = '0'; }, 120);
+    }
+
+    function triggerShake(elementId) {
+      var el = document.getElementById(elementId);
+      if (!el) return;
+      el.classList.remove('shake-anim');
+      void el.offsetWidth;
+      el.classList.add('shake-anim');
+      setTimeout(function() { el.classList.remove('shake-anim'); }, 400);
+    }
+
     function initBattle() {
       setGameInfoMode(true);
       document.getElementById('draft-final-section').classList.add('hidden');
       document.getElementById('screen-draft').classList.add('hidden');
       document.getElementById('screen-battle').classList.remove('hidden');
-      updateBattleUI();
+      p1ActiveIdx = 0;
+      p2ActiveIdx = 0;
+      p1SwitchCooldown = 0;
+      p2SwitchCooldown = 0;
+      p1HasMegaStone = true;
+      p2HasMegaStone = true;
+      activeTurn = 'p1';
+      showPopup("⚔️ BATTLE START!", "crit");
       startTurn();
     }
 
-    function renderBench(containerId, team, activeIdx, isInteractive) {
-      let container = document.getElementById(containerId);
+    function renderBenchGrid(containerId, team, activeIdx, isInteractive) {
+      var container = document.getElementById(containerId);
       if (!container) return;
       container.innerHTML = '';
 
@@ -2381,6 +3082,7 @@
             explainBlockedSwitch(card, p, isFainted, isMyTurn, currentCooldown);
           };
         }
+
         container.appendChild(card);
       });
     }
@@ -2413,41 +3115,225 @@
     }
 
     function updateBattleUI() {
-      let p1 = p1Team[p1ActiveIdx], p2 = p2Team[p2ActiveIdx];
-      if (!p1 || !p2) return;
+      var p1Active = p1Team[p1ActiveIdx];
+      var p2Active = p2Team[p2ActiveIdx];
+      if (!p1Active || !p2Active) return;
+      var mobile = isMobileView();
+
+      var p1Label = document.getElementById('p1-title-label');
+      if (mobile) {
+        p1Label.innerText = myRole === 'p1' ? 'You (P1)' : 'Opp. (P1)';
+      } else {
+        p1Label.innerText = myRole === 'p1' ? 'Active: You (P1)' : 'Active: Opponent (P1)';
+      }
+      document.getElementById('my-active-sprite').src = p1Active.sprite;
+      document.getElementById('my-active-name').innerText = p1Active.name + (p1Active.isMega ? ' 🧬' : '');
       
-      document.getElementById('my-active-sprite').src = p1.sprite;
-      document.getElementById('my-active-name').innerText = p1.name;
-      document.getElementById('my-active-type').innerText = p1.type;
-      document.getElementById('my-active-type').style.background = TYPE_COLORS[p1.type];
-      document.getElementById('my-hp-fill').style.width = Math.max(0, (p1.currentHp / p1.maxHp) * 100) + '%';
-      document.getElementById('my-hp-text').innerText = `${p1.currentHp}/${p1.maxHp} HP`;
-      document.getElementById('my-energy-text').innerText = `⚡ ${p1.energy}/3`;
+      var p1Type = document.getElementById('my-active-type');
+      p1Type.innerText = mobile ? (TYPE_SYMBOLS[p1Active.type] || p1Active.type) : p1Active.type;
+      p1Type.style.background = TYPE_COLORS[p1Active.type];
 
-      document.getElementById('opp-active-sprite').src = p2.sprite;
-      document.getElementById('opp-active-name').innerText = p2.name;
-      document.getElementById('opp-active-type').innerText = p2.type;
-      document.getElementById('opp-active-type').style.background = TYPE_COLORS[p2.type];
-      document.getElementById('opp-hp-fill').style.width = Math.max(0, (p2.currentHp / p2.maxHp) * 100) + '%';
-      document.getElementById('opp-hp-text').innerText = `${p2.currentHp}/${p2.maxHp} HP`;
-      document.getElementById('opp-energy-text').innerText = `⚡ ${p2.energy}/3`;
+      var p1HpPct = Math.max(0, (p1Active.currentHp / p1Active.maxHp) * 100);
+      var p1HpFill = document.getElementById('my-hp-fill');
+      p1HpFill.style.width = p1HpPct + '%';
+      p1HpFill.style.backgroundColor = p1HpPct < 25 ? 'var(--hp-red)' : p1HpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+      document.getElementById('my-hp-text').innerText = p1Active.currentHp + '/' + p1Active.maxHp + ' HP';
 
-      document.getElementById('p1-score-val').innerText = p1Score;
-      document.getElementById('p2-score-val').innerText = p2Score;
+      var p1EnergyPct = Math.min(100, (p1Active.energy / 3) * 100);
+      document.getElementById('my-energy-fill').style.width = p1EnergyPct + '%';
+      document.getElementById('my-energy-text').innerText = '⚡ ' + p1Active.energy + '/3';
 
-      renderBench('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
-      renderBench('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
+      var p2Label = document.getElementById('p2-title-label');
+      if (mobile) {
+        p2Label.innerText = myRole === 'p2' ? 'You (P2)' : (isAiMode ? 'AI (P2)' : 'Opp. (P2)');
+      } else {
+        p2Label.innerText = myRole === 'p2' ? 'Active: You (P2)' : (isAiMode ? 'Active: AI (P2)' : 'Active: Opponent (P2)');
+      }
+      document.getElementById('opp-active-sprite').src = p2Active.sprite;
+      document.getElementById('opp-active-name').innerText = p2Active.name + (p2Active.isMega ? ' 🧬' : '');
+      
+      var p2Type = document.getElementById('opp-active-type');
+      p2Type.innerText = mobile ? (TYPE_SYMBOLS[p2Active.type] || p2Active.type) : p2Active.type;
+      p2Type.style.background = TYPE_COLORS[p2Active.type];
+
+      var p2HpPct = Math.max(0, (p2Active.currentHp / p2Active.maxHp) * 100);
+      var p2HpFill = document.getElementById('opp-hp-fill');
+      p2HpFill.style.width = p2HpPct + '%';
+      p2HpFill.style.backgroundColor = p2HpPct < 25 ? 'var(--hp-red)' : p2HpPct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+      document.getElementById('opp-hp-text').innerText = p2Active.currentHp + '/' + p2Active.maxHp + ' HP';
+
+      var p2EnergyPct = Math.min(100, (p2Active.energy / 3) * 100);
+      document.getElementById('opp-energy-fill').style.width = p2EnergyPct + '%';
+      document.getElementById('opp-energy-text').innerText = '⚡ ' + p2Active.energy + '/3';
+
+      document.getElementById('p1-bench-label').innerText = myRole === 'p1' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+      document.getElementById('p2-bench-label').innerText = myRole === 'p2' ? (mobile ? 'Your Bench' : 'Your Bench') : (mobile ? 'Opp. Bench' : 'Opponent Bench');
+
+      renderBenchGrid('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
+      renderBenchGrid('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
+    }
+
+
+
+    var battleCinematicTimer = null;
+
+    function showBattleCinematic(options, onComplete) {
+      options = options || {};
+      var overlay = document.getElementById('battle-cinematic');
+      var sprite = document.getElementById('cinematic-pokemon');
+      var kicker = document.getElementById('cinematic-kicker');
+      var label = document.getElementById('cinematic-message-label');
+      var name = document.getElementById('cinematic-message-name');
+      var sub = document.getElementById('cinematic-message-sub');
+      if (!overlay || !sprite || !kicker || !label || !name || !sub) {
+        if (typeof onComplete === 'function') onComplete();
+        return;
+      }
+
+      if (battleCinematicTimer) {
+        clearTimeout(battleCinematicTimer);
+        battleCinematicTimer = null;
+      }
+
+      var kind = options.kind === 'mega' ? 'mega' : 'ultimate';
+      var duration = Math.max(650, Number(options.duration) || (kind === 'mega' ? 1900 : 1550));
+      var color = options.color || (kind === 'mega' ? '#ec4899' : '#f8fafc');
+      var title = options.title || (kind === 'mega' ? 'MEGA EVOLUTION' : 'ULTIMATE MOVE');
+      var moveName = options.moveName || 'POWER UNLEASHED';
+      var pokemonName = options.pokemonName || 'Pokémon';
+
+      overlay.classList.remove('mega', 'ultimate', 'hidden');
+      overlay.classList.add(kind);
+      overlay.style.setProperty('--fx-color', color);
+      overlay.setAttribute('aria-hidden', 'false');
+
+      sprite.src = options.sprite || '';
+      sprite.alt = pokemonName + ' facing forward';
+      kicker.textContent = title;
+      label.textContent = title;
+      name.textContent = moveName;
+      sub.textContent = kind === 'mega'
+        ? pokemonName + ' changed form!'
+        : pokemonName + ' unleashed its ultimate!';
+
+      overlay.querySelectorAll('.cinematic-burst').forEach(function(node) { node.remove(); });
+      var burstCount = kind === 'mega' ? 14 : 10;
+      for (var i = 0; i < burstCount; i++) {
+        var burst = document.createElement('span');
+        burst.className = 'cinematic-burst';
+        var angle = (Math.PI * 2 * i / burstCount) + (kind === 'mega' ? 0.18 : 0);
+        var distance = 110 + (i % 4) * 42;
+        burst.style.left = '50%';
+        burst.style.top = '43%';
+        burst.style.setProperty('--burst-x', Math.round(Math.cos(angle) * distance) + 'px');
+        burst.style.setProperty('--burst-y', Math.round(Math.sin(angle) * distance) + 'px');
+        burst.style.animationDelay = (0.18 + (i % 5) * 0.06) + 's';
+        overlay.appendChild(burst);
+      }
+
+      /* Restart CSS animations even if the same cinematic fires twice. */
+      void overlay.offsetWidth;
+
+      battleCinematicTimer = setTimeout(function() {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('mega', 'ultimate');
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.querySelectorAll('.cinematic-burst').forEach(function(node) { node.remove(); });
+        battleCinematicTimer = null;
+        if (typeof onComplete === 'function') onComplete();
+      }, duration);
     }
 
     function startTurn() {
-      let isMyTurn = (activeTurn === myRole);
-      document.getElementById('btn-fast-atk').disabled = !isMyTurn;
-      let activePoke = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
-      document.getElementById('btn-charged-atk').disabled = !isMyTurn || activePoke.energy < 3;
-      
-      document.getElementById('turn-indicator').innerText = isMyTurn ? "👉 Your Turn" : "⏳ Opponent's Turn";
-      
-      if (isAiMode && activeTurn === 'p2') setTimeout(aiTakeTurn, 800);
+      updateBattleUI();
+
+      var isMyTurn = (activeTurn === myRole);
+      var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var myHasMega = myRole === 'p1' ? p1HasMegaStone : p2HasMegaStone;
+      var myCooldown = myRole === 'p1' ? p1SwitchCooldown : p2SwitchCooldown;
+
+      var turnInd = document.getElementById('turn-indicator');
+      var fastBtn = document.getElementById('btn-fast-atk');
+      var chargedBtn = document.getElementById('btn-charged-atk');
+      var megaBtn = document.getElementById('btn-mega');
+
+      if (!fastBtn || !chargedBtn) return;
+
+      if (isMyTurn) {
+        if (myCooldown > 0) {
+          turnInd.innerText = "👉 Your Turn (Switch on CD: " + myCooldown + " moves left)";
+        } else {
+          turnInd.innerText = "👉 Your Turn: Select Attack or Tap Bench Pokémon to Switch";
+        }
+        turnInd.style.color = "#38bdf8";
+
+        fastBtn.disabled = false;
+        fastBtn.querySelector('strong').innerText = '⚡ ' + myActive.fastMove.name;
+        document.getElementById('lbl-fast-info').innerText = 'Fast | +1 Energy';
+
+        var chargedReady = myActive.energy >= 3;
+        chargedBtn.disabled = !chargedReady;
+        chargedBtn.querySelector('strong').innerText = '💥 ' + myActive.chargedMove.name;
+        document.getElementById('lbl-charged-info').innerText = chargedReady ? 'READY TO STRIKE!' : 'Need ' + (3 - myActive.energy) + ' Energy';
+
+        if (myHasMega && myActive.canMega && !myActive.isMega) {
+          megaBtn.classList.remove('hidden');
+        } else {
+          megaBtn.classList.add('hidden');
+        }
+
+      } else {
+        turnInd.innerText = isAiMode ? "⏳ AI is thinking..." : "⏳ Opponent is taking their turn...";
+        turnInd.style.color = "var(--text-muted)";
+
+        fastBtn.disabled = true;
+        chargedBtn.disabled = true;
+        megaBtn.classList.add('hidden');
+
+        if (isAiMode && activeTurn === 'p2') {
+          setTimeout(aiTakeTurn, 700);
+        }
+      }
+    }
+
+    window.handleMegaButtonClick = function() {
+      var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var forms = MEGA_FORMS[myActive.id];
+      if (!forms || forms.length === 0) return;
+
+      if (forms.length === 1) {
+        triggerMegaEvolution(0);
+      } else {
+        var modal = document.getElementById('mega-modal');
+        var choices = document.getElementById('mega-choices');
+        choices.innerHTML = '';
+
+        forms.forEach(function(form, index) {
+          var btn = document.createElement('button');
+          btn.className = 'btn btn-mega';
+          btn.innerHTML = '<strong>' + form.name + '</strong> (' + form.type + ' Type)';
+          btn.onclick = function() {
+            closeMegaModal();
+            triggerMegaEvolution(index);
+          };
+          choices.appendChild(btn);
+        });
+
+        modal.classList.remove('hidden');
+      }
+    };
+
+    window.closeMegaModal = function() {
+      document.getElementById('mega-modal').classList.add('hidden');
+    };
+
+    function triggerMegaEvolution(formIndex) {
+      playSound('beep');
+      var payload = { formIndex: formIndex || 0 };
+      if (!isAiMode) {
+        sendNet('BATTLE_ACTION', { action: 'MEGA', data: payload });
+      }
+      applyActionLocally('MEGA', payload);
     }
 
     function executeMoveLocally(moveType) {
@@ -2538,71 +3424,161 @@
           if (!data.isForced) p2SwitchCooldown = 5;
         }
 
-      updateBattleUI();
-      if (defender.currentHp <= 0) {
-        if (activeTurn === 'p1') p1Score++; else p2Score++;
+        var switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        showPopup((actorRole === myRole ? 'You' : 'Opponent') + ' sent out ' + switchedPoke.name + '!', "crit");
+        
+        activeTurn = targetRole;
         updateBattleUI();
-        handleFaint(activeTurn === 'p1' ? 'p2' : 'p1');
-      } else {
-        activeTurn = activeTurn === 'p1' ? 'p2' : 'p1';
         startTurn();
-      }
-    };
-
-    function handleFaint(faintedRole) {
-      let team = faintedRole === 'p1' ? p1Team : p2Team;
-      let aliveIdx = team.findIndex(p => p.currentHp > 0);
-      
-      if (aliveIdx === -1) {
-        let isWin = faintedRole !== myRole;
-        let scoreboardEl = document.getElementById('arena-scoreboard');
-        scoreboardEl.classList.add(isWin ? 'flash-win' : 'flash-loss');
-        alert(isWin ? "🏆 You Won the Match!" : "💀 You Lost the Match!");
-        setTimeout(() => location.reload(), 1500);
         return;
       }
 
-      if (faintedRole === myRole) {
-        document.getElementById('turn-indicator').innerText = "⚠️ Fainted! Choose sub within 5s (Auto-subbing soon...)";
-        // 5-second automatic sub timer
-        faintTimeout = setTimeout(() => {
-          if (myRole === 'p1' && p1Team[p1ActiveIdx].currentHp <= 0) switchPokemon(aliveIdx);
-          else if (myRole === 'p2' && p2Team[p2ActiveIdx].currentHp <= 0) switchPokemon(aliveIdx);
-        }, 5000);
-      } else {
-        // Opponent/AI auto subs immediately
-        if (faintedRole === 'p1') p1ActiveIdx = aliveIdx;
-        else p2ActiveIdx = aliveIdx;
-        updateBattleUI();
-        activeTurn = faintedRole;
-        startTurn();
+      if (actionType === 'MOVE') {
+        var attacker = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        var defender = targetRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+        var targetCardId = targetRole === myRole ? 'me-card' : 'opp-card';
+
+        if (actorRole === 'p1' && p1SwitchCooldown > 0) p1SwitchCooldown--;
+        if (actorRole === 'p2' && p2SwitchCooldown > 0) p2SwitchCooldown--;
+
+        var damage = data.damage;
+        var mult = data.mult;
+
+        function resolveMoveImpact() {
+          defender.currentHp = Math.max(0, defender.currentHp - damage);
+
+          if (data.moveType === 'fast') {
+            attacker.energy = (attacker.energy || 0) + 1;
+            playSound('hit');
+            triggerHaptics([30]);
+            triggerShake(targetCardId);
+          } else {
+            triggerScreenFlash(data.moveColor);
+            triggerShake(targetCardId);
+          }
+
+          showPopup('-' + damage + ' HP', "dmg");
+          if (mult === 0) setTimeout(function() { showPopup("No Effect!", "immune"); }, 250);
+          else if (mult > 1.0) setTimeout(function() { showPopup("Super Effective!", "super"); }, 250);
+          else if (mult < 1.0) setTimeout(function() { showPopup("Not Very Effective...", "not-very"); }, 250);
+
+          updateBattleUI();
+
+          if (defender.currentHp <= 0) {
+            setTimeout(function() { showPopup(defender.name + ' Fainted!', "crit"); }, 400);
+            handleFaint(targetRole);
+          } else {
+            activeTurn = targetRole;
+            startTurn();
+          }
+        }
+
+        if (data.moveType === 'charged') {
+          attacker.energy = 0;
+          playSound('charged');
+          triggerHaptics([60, 40, 80, 40, 120]);
+          updateBattleUI();
+
+          showBattleCinematic({
+            kind: 'ultimate',
+            color: data.moveColor,
+            sprite: attacker.sprite,
+            pokemonName: attacker.name,
+            title: 'ULTIMATE MOVE',
+            moveName: attacker.chargedMove.name,
+            duration: 1580
+          }, resolveMoveImpact);
+          return;
+        }
+
+        resolveMoveImpact();
       }
     }
 
-    function switchPokemon(idx) {
-      if (faintTimeout) { clearTimeout(faintTimeout); faintTimeout = null; }
-      if (myRole === 'p1') p1ActiveIdx = idx;
-      else p2ActiveIdx = idx;
-      updateBattleUI();
-      activeTurn = myRole === 'p1' ? 'p2' : 'p1'; // End turn after switching
-      startTurn();
-    }
+    function handleFaint(faintedRole) {
+      var team = faintedRole === 'p1' ? p1Team : p2Team;
+      var aliveIdx = -1;
+      for (var i = 0; i < team.length; i++) {
+        if (team[i].currentHp > 0) { aliveIdx = i; break; }
+      }
 
-    window.handleMegaButtonClick = function() {
-      let poke = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
-      poke.isMega = true;
-      poke.atk *= 1.3;
-      poke.maxHp = Math.round(poke.maxHp * 1.2);
-      poke.currentHp = Math.round(poke.currentHp * 1.2);
+      if (aliveIdx === -1) {
+        var winner = faintedRole === myRole ? (isAiMode ? "AI" : "Opponent") : "You";
+        playSound('fanfare');
+        showPopup('🏆 ' + winner + ' Won!', "crit");
+        
+        var turnInd = document.getElementById('turn-indicator');
+        turnInd.innerText = "🏁 Match Finished!";
+        turnInd.style.color = "#4ade80";
+
+        document.getElementById('controls-section').innerHTML = 
+          '<h2 style="text-align:center; color:#4ade80; margin:12px 0;">🎉 ' + winner + ' Won the Arena!</h2>' +
+          '<div style="display:flex; gap:10px; width:100%; max-width:360px;">' +
+            '<button class="btn btn-ready" onclick="triggerRematch()">🔄 Play Again</button>' +
+            '<button class="btn btn-secondary" onclick="location.reload()">🚪 Lobby</button>' +
+          '</div>';
+        return;
+      }
+
+      if (faintedRole === 'p2' && isAiMode) {
+        p2ActiveIdx = aliveIdx;
+        updateBattleUI();
+        activeTurn = 'p1';
+        startTurn();
+        return;
+      }
+
+      activeTurn = faintedRole;
       updateBattleUI();
-    };
+
+      if (faintedRole === myRole) {
+        showPopup("Choose your next Pokémon!", "crit");
+        document.getElementById('turn-indicator').innerText = "⚠️ Your Pokémon fainted! Tap an active Pokémon on your bench to send out.";
+        document.getElementById('turn-indicator').style.color = "var(--hp-red)";
+        document.getElementById('btn-fast-atk').disabled = true;
+        document.getElementById('btn-charged-atk').disabled = true;
+        document.getElementById('btn-mega').classList.add('hidden');
+      } else {
+        document.getElementById('turn-indicator').innerText = (isAiMode ? "AI" : "Opponent") + " is choosing replacement...";
+        document.getElementById('turn-indicator').style.color = "var(--text-muted)";
+        document.getElementById('btn-fast-atk').disabled = true;
+        document.getElementById('btn-charged-atk').disabled = true;
+        document.getElementById('btn-mega').classList.add('hidden');
+      }
+    }
 
     function aiTakeTurn() {
-      let aiPoke = p2Team[p2ActiveIdx];
-      if (aiPoke.currentHp <= 0) return;
-      if (aiPoke.energy >= 3) executeMoveLocally('charged');
-      else executeMoveLocally('fast');
+      var aiPoke = p2Team[p2ActiveIdx];
+      if (p2HasMegaStone && aiPoke.canMega && !aiPoke.isMega) {
+        var forms = MEGA_FORMS[aiPoke.id];
+        var formIdx = forms ? Math.floor(Math.random() * forms.length) : 0;
+        applyActionLocally('MEGA', { formIndex: formIdx });
+        return;
+      }
+      if (aiPoke.energy >= 3) {
+        executeMoveLocally('charged');
+      } else {
+        executeMoveLocally('fast');
+      }
     }
+
+    window.addEventListener('resize', function() {
+      updateBattleUI();
+    });
+
+    window.addEventListener('load', function() {
+      setGameInfoMode(false);
+      var hash = window.location.hash.substring(1).toUpperCase().trim();
+      if (hash && hash.length === 6) {
+        document.getElementById('join-id-input').value = hash;
+        var checkPeer = setInterval(function() {
+          if (typeof Peer !== "undefined") {
+            clearInterval(checkPeer);
+            window.joinRoom();
+          }
+        }, 100);
+      }
+    });
   </script>
 </body>
 </html>
