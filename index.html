@@ -395,6 +395,14 @@
       box-shadow: 0 4px 20px rgba(249, 115, 22, 0.2);
 
     }
+    .lobby-block.host-theme {
+      border-color: rgba(14, 165, 233, 0.5);
+      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2);
+    }
+    .lobby-block.join-theme {
+      border-color: rgba(249, 115, 22, 0.5);
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.2);
+    }
 
 
 
@@ -1213,6 +1221,127 @@
     .attack-btn:disabled { opacity: 0.35; cursor: not-allowed; border-color: #475569; }
 
     .attack-btn.charged { border-color: #f59e0b; }
+    .attack-btn.charged:not(:disabled) { background: #451a03; }
+
+    .mega-btn-container {
+      width: 100%;
+      max-width: 240px;
+    }
+
+    .type-legend-panel {
+      display: none;
+      background: #0b1424;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 10px 12px;
+      width: 100%;
+      max-width: 860px;
+      margin-top: 14px;
+    }
+    .type-legend-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .type-legend-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .type-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      background: #1e293b;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border-left: 3px solid transparent;
+    }
+    .type-legend-item .symbol {
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
+    @media (max-width: 720px) {
+      .wireframe-arena {
+        display: grid;
+        grid-template-columns: 1fr 20px 1fr;
+        grid-template-rows: auto auto;
+        gap: 6px;
+      }
+      
+      .active-fighter-card.me  { grid-column: 1 / 2; grid-row: 1; min-height: unset; padding: 6px; }
+      .vs-divider              { grid-column: 2 / 3; grid-row: 1; font-size: 0.75rem; }
+      .active-fighter-card.opp { grid-column: 3 / 4; grid-row: 1; min-height: unset; padding: 6px; }
+      #my-bench-container      { grid-column: 1 / 2; grid-row: 2; }
+      #opp-bench-container     { grid-column: 3 / 4; grid-row: 2; }
+
+      .fighter-inner-box {
+        padding: 4px;
+        margin-bottom: 4px;
+      }
+      .fighter-inner-box img {
+        width: 48px;
+        height: 48px;
+      }
+      .fighter-meta strong {
+        font-size: 0.78rem;
+        margin-top: 1px;
+      }
+      .fighter-meta .type-badge {
+        font-size: 0.8rem;
+        padding: 0 4px;
+        margin-top: 1px;
+        border-radius: 6px;
+        line-height: 1.2;
+      }
+
+      .bench-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+      }
+      .bench-slot-5th {
+        grid-column: span 1;
+      }
+      .bench-card {
+        min-height: 44px;
+        padding: 2px;
+      }
+      .bench-card img {
+        width: 24px;
+        height: 24px;
+      }
+      .bench-card .type-badge {
+        font-size: 0.7rem;
+        padding: 0 3px;
+        border-radius: 4px;
+      }
+      .bench-title {
+        font-size: 0.65rem;
+        margin-bottom: 2px;
+      }
+      
+      .attacks-row {
+        gap: 8px;
+      }
+      .attack-btn {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+        min-height: 48px;
+      }
+
+      .type-legend-panel {
+        display: block;
+      }
+    }
 
     .attack-btn.charged:not(:disabled) { background: #451a03; }
 
