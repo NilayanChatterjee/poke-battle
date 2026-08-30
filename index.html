@@ -2271,7 +2271,7 @@
       <li><strong>Switching Rules & Cooldowns:</strong>
         <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
           <li><strong>Voluntary Swap:</strong> Puts switching on a 5-move cooldown. You must make 5 attacks before you can voluntarily swap again.</li>
-          <li><strong>Fainted Swap:</strong> If your active Pokémon reaches 0 HP, you get a free immediate swap from your bench without triggering the cooldown.</li>
+          <li><strong>Fainted Swap:</strong> If your active Pokémon reaches 0 HP, you get 5 seconds to choose a replacement from your bench before a random one is automatically picked.</li>
         </ul>
       </li>
       <li><strong>Mega Evolution:</strong> You get 1 Mega Evolution per match. If your active Pokémon can Mega Evolve, the pink Mega Evolve button will appear. Mega Evolving is a free action (you can still attack on the same turn) and grants +40% Attack, +30% HP, boosted move damage, and 25% damage reduction. For Pokémon with two forms, pick your preferred form/typing from the pop-up menu.</li>
@@ -2531,6 +2531,16 @@
     var PREFIX = "pk1v-";
     var audioCtx = null;
 
+    // WebRTC connection config using public STUN servers for robust cross-network connectivity
+    var peerConfig = {
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' }
+        ]
+      }
+    };
+
     function isMobileView() {
       return window.innerWidth <= 720;
     }
@@ -2689,7 +2699,7 @@
       }
 
       try { if (peer) peer.destroy(); } catch(e) {}
-      peer = new Peer(fullId);
+      peer = new Peer(fullId, peerConfig);
 
       peer.on('open', function(id) {
         var displayCode = id.replace(PREFIX, "").toUpperCase();
@@ -2705,7 +2715,7 @@
       peer.on('error', function(err) {
         console.error("Peer host error:", err);
         var fallback6 = generate6DigitCode();
-        peer = new Peer(PREFIX + fallback6.toLowerCase());
+        peer = new Peer(PREFIX + fallback6.toLowerCase(), peerConfig);
         peer.on('open', function(id) {
           document.getElementById('my-peer-id').innerText = id.replace(PREFIX, "").toUpperCase();
         });
@@ -2745,7 +2755,7 @@
       }
 
       try { if (peer) peer.destroy(); } catch(e) {}
-      peer = new Peer();
+      peer = new Peer(undefined, peerConfig);
 
       peer.on('open', function() {
         var targetFullId = PREFIX + input;
