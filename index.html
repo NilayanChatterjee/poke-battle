@@ -3339,9 +3339,6 @@
     }
 
     function updateBattleUI() {
-      // Visual layout is always player-left / opponent-right.
-      // P1/P2 remain the internal network roles and are never used to decide
-      // which side of the arena the player sees.
       var playerTeam = myRole === 'p1' ? p1Team : p2Team;
       var playerActiveIdx = myRole === 'p1' ? p1ActiveIdx : p2ActiveIdx;
       var opponentTeam = myRole === 'p1' ? p2Team : p1Team;
@@ -3386,19 +3383,14 @@
       renderBenchGrid('p1-bench-slots', playerTeam, playerActiveIdx, true);
       renderBenchGrid('p2-bench-slots', opponentTeam, opponentActiveIdx, false);
 
-      // Never allow attacks while either active Pokemon is fainted.
-      // This is a UI safety guard during the short forced-switch window;
-      // startTurn() will re-enable the buttons once both active Pokemon
-      // are alive and it is this player's turn.
       var attackFastBtn = document.getElementById('btn-fast-atk');
       var attackChargedBtn = document.getElementById('btn-charged-atk');
-      var activePokemonAlive = p1Active.currentHp > 0 && p2Active.currentHp > 0;
+      var activePokemonAlive = playerActive.currentHp > 0 && opponentActive.currentHp > 0;
       if (!activePokemonAlive) {
         if (attackFastBtn) attackFastBtn.disabled = true;
         if (attackChargedBtn) attackChargedBtn.disabled = true;
       }
     }
-
     var battleCinematicTimer = null;
 
     function showBattleCinematic(options, onComplete) {
