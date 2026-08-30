@@ -2849,7 +2849,7 @@
       } else if (msg.type === 'DRAFT_PICK_MADE') {
         applyDraftPick(msg.payload.pickerRole, msg.payload.chosenPoke, msg.payload.otherPoke);
       } else if (msg.type === 'BATTLE_ACTION') {
-        applyActionLocally(msg.payload.action, msg.payload.data);
+        applyActionLocally(msg.payload.action, msg.payload.data, msg.payload.actorRole);
       } else if (msg.type === 'BATTLE_READY') {
         handleOpponentBattleReady();
       } else if (msg.type === 'REMATCH_START') {
@@ -3282,9 +3282,9 @@
             }
             var actionData = { newIndex: item.index, isForced: isForcedSwitch };
             if (!isAiMode) {
-              sendNet('BATTLE_ACTION', { action: 'SWITCH', data: actionData });
+              sendNet('BATTLE_ACTION', { action: 'SWITCH', data: actionData, actorRole: myRole });
             }
-            applyActionLocally('SWITCH', actionData);
+            applyActionLocally('SWITCH', actionData, myRole);
           };
         } else if (isInteractive) {
           card.classList.add('blocked');
@@ -3379,6 +3379,18 @@
 
       renderBenchGrid('p1-bench-slots', p1Team, p1ActiveIdx, myRole === 'p1');
       renderBenchGrid('p2-bench-slots', p2Team, p2ActiveIdx, myRole === 'p2');
+
+      // Never allow attacks while either active Pokemon is fainted.
+      // This is a UI safety guard during the short forced-switch window;
+      // startTurn() will re-enable the buttons once both active Pokemon
+      // are alive and it is this player's turn.
+      var attackFastBtn = document.getElementById('btn-fast-atk');
+      var attackChargedBtn = document.getElementById('btn-charged-atk');
+      var activePokemonAlive = p1Active.currentHp > 0 && p2Active.currentHp > 0;
+      if (!activePokemonAlive) {
+        if (attackFastBtn) attackFastBtn.disabled = true;
+        if (attackChargedBtn) attackChargedBtn.disabled = true;
+      }
     }
 
     var battleCinematicTimer = null;
@@ -3455,6 +3467,9 @@
 
       var isMyTurn = (activeTurn === myRole);
       var myActive = myRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
+      var opponentActive = myRole === 'p1' ? p2Team[p2ActiveIdx] : p1Team[p1ActiveIdx];
+      var bothActiveAlive = !!(myActive && opponentActive &&
+        myActive.currentHp > 0 && opponentActive.currentHp > 0);
       var myHasMega = myRole === 'p1' ? p1HasMegaStone : p2HasMegaStone;
       var myCooldown = myRole === 'p1' ? p1SwitchCooldown : p2SwitchCooldown;
 
@@ -3474,12 +3489,13 @@
         }
         turnInd.style.color = "#38bdf8";
 
-        fastBtn.disabled = false;
+        // Attacks are only possible when BOTH active Pokemon are alive.
+        fastBtn.disabled = !bothActiveAlive;
         fastBtn.querySelector('strong').innerText = '⚡ ' + myActive.fastMove.name;
         document.getElementById('lbl-fast-info').innerText = 'Fast | +1 Energy';
 
         var chargedReady = myActive.energy >= 3;
-        chargedBtn.disabled = !chargedReady;
+        chargedBtn.disabled = !(bothActiveAlive && chargedReady);
         chargedBtn.querySelector('strong').innerText = '💥 ' + myActive.chargedMove.name;
         document.getElementById('lbl-charged-info').innerText = chargedReady ? 'READY TO STRIKE!' : 'Need ' + (3 - myActive.energy) + ' Energy';
 
@@ -3555,12 +3571,20 @@
       playSound('beep');
       var payload = { formIndex: formIndex || 0 };
       if (!isAiMode) {
-        sendNet('BATTLE_ACTION', { action: 'MEGA', data: payload });
+        sendNet('BATTLE_ACTION', { action: 'MEGA', data: payload, actorRole: myRole });
       }
-      applyActionLocally('MEGA', payload);
+      applyActionLocally('MEGA', payload, myRole);
     }
 
     function executeMoveLocally(moveType) {
+      var currentP1 = p1Team[p1ActiveIdx];
+      var currentP2 = p2Team[p2ActiveIdx];
+      if (!currentP1 || !currentP2 || currentP1.currentHp <= 0 || currentP2.currentHp <= 0) {
+        console.warn('Attack blocked: an active Pokemon is fainted.');
+        startTurn();
+        return;
+      }
+
       clearAllTimers();
       var isP1 = activeTurn === 'p1';
       var attacker = isP1 ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
@@ -3587,15 +3611,19 @@
         moveColor: TYPE_COLORS[move.type] || 'white'
       };
 
+      var moveActorRole = activeTurn;
       if (!isAiMode) {
-        sendNet('BATTLE_ACTION', { action: 'MOVE', data: actionData });
+        sendNet('BATTLE_ACTION', { action: 'MOVE', data: actionData, actorRole: moveActorRole });
       }
-      applyActionLocally('MOVE', actionData);
+      applyActionLocally('MOVE', actionData, moveActorRole);
     }
 
-    function applyActionLocally(actionType, data) {
-      var isP1 = activeTurn === 'p1';
-      var actorRole = activeTurn;
+    function applyActionLocally(actionType, data, explicitActorRole) {
+      // Multiplayer actions must carry the role of the player who performed them.
+      // Never infer the actor from local activeTurn: the two clients can briefly
+      // be on different turn states while a WebRTC message is in flight.
+      var actorRole = explicitActorRole || activeTurn;
+      var isP1 = actorRole === 'p1';
       var targetRole = isP1 ? 'p2' : 'p1';
 
       if (actionType === 'MEGA') {
@@ -3642,17 +3670,27 @@
       if (actionType === 'SWITCH') {
         clearAllTimers();
         playSound('beep');
+
+        var switchTeam = actorRole === 'p1' ? p1Team : p2Team;
+        var newIndex = Number(data.newIndex);
+        if (!switchTeam || !switchTeam[newIndex] || switchTeam[newIndex].currentHp <= 0) {
+          console.warn('Ignoring invalid SWITCH action', { actorRole: actorRole, newIndex: data.newIndex });
+          return;
+        }
+
         if (actorRole === 'p1') {
-          p1ActiveIdx = data.newIndex;
+          p1ActiveIdx = newIndex;
           if (!data.isForced) p1SwitchCooldown = 5;
         } else {
-          p2ActiveIdx = data.newIndex;
+          p2ActiveIdx = newIndex;
           if (!data.isForced) p2SwitchCooldown = 5;
         }
 
         var switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         showPopup((actorRole === myRole ? 'You' : 'Opponent') + ' sent out ' + switchedPoke.name + '!', "crit");
-        
+
+        // The replacement resolves the forced-switch phase for BOTH clients.
+        isSwapPhase = false;
         activeTurn = targetRole;
         updateBattleUI();
         startTurn();
@@ -3819,9 +3857,9 @@
         var randomIdx = healthyIndices[Math.floor(Math.random() * healthyIndices.length)];
         var actionData = { newIndex: randomIdx, isForced: true };
         if (!isAiMode && role === myRole) {
-          sendNet('BATTLE_ACTION', { action: 'SWITCH', data: actionData });
+          sendNet('BATTLE_ACTION', { action: 'SWITCH', data: actionData, actorRole: role });
         }
-        applyActionLocally('SWITCH', actionData);
+        applyActionLocally('SWITCH', actionData, role);
       }
     }
 
@@ -3830,7 +3868,7 @@
       if (p2HasMegaStone && aiPoke.canMega && !aiPoke.isMega) {
         var forms = MEGA_FORMS[aiPoke.id];
         var formIdx = forms ? Math.floor(Math.random() * forms.length) : 0;
-        applyActionLocally('MEGA', { formIndex: formIdx });
+        applyActionLocally('MEGA', { formIndex: formIdx }, 'p2');
         return;
       }
       if (aiPoke.energy >= 3) {
