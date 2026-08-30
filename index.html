@@ -1241,284 +1241,35 @@
     }
     #screen-lobby .btn-secondary:hover:not(:disabled) { background: linear-gradient(180deg, #465048, #303a33); }
 
-    /* ================================================= */
-    /* BATTLE CINEMATICS: MEGA + ULTIMATE                */
-    /* ================================================= */
-    .battle-cinematic {
-      --fx-color: #f8fafc;
-      position: fixed;
-      inset: 0;
-      z-index: 420;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+    /* Loading screen follows the same palette, but stays dark enough for the art to read. */
+    #loading-screen {
+      background-image:
+        linear-gradient(180deg, rgba(18, 27, 24, 0.12) 0%, rgba(17, 25, 23, 0.72) 70%, rgba(13, 20, 18, 0.94) 100%),
+        var(--poster-image);
+    }
+    #loading-screen::before {
       background:
-        radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--fx-color) 34%, transparent) 0%, transparent 34%),
-        linear-gradient(180deg, rgba(3, 7, 18, 0.84), rgba(2, 6, 23, 0.97));
-      isolation: isolate;
-      cursor: wait;
+        radial-gradient(circle at 50% 22%, rgba(217,242,59,.14), transparent 36%),
+        linear-gradient(90deg, rgba(63,199,181,.09), transparent 30%, transparent 70%, rgba(239,90,67,.09));
     }
-
-    .battle-cinematic.hidden { display: none !important; }
-
-    .battle-cinematic::before {
-      content: '';
-      position: absolute;
-      inset: -30%;
-      z-index: -2;
-      background:
-        repeating-conic-gradient(
-          from 0deg at 50% 45%,
-          color-mix(in srgb, var(--fx-color) 28%, transparent) 0deg 7deg,
-          transparent 7deg 17deg
-        );
-      opacity: 0.78;
-      animation: cinematicSpin 2.8s linear infinite;
+    .loading-card {
+      background: rgba(18, 27, 24, .88);
+      border-color: rgba(236,244,168,.24);
+      box-shadow: 0 18px 50px rgba(0,0,0,.58), inset 0 0 0 2px rgba(217,242,59,.055);
     }
-
-    .battle-cinematic::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 9;
-      pointer-events: none;
-      background: #fff;
-      opacity: 0;
-      animation: cinematicFlash 1.45s steps(2, end) both;
+    .loading-brand {
+      color: #f4dc38;
+      text-shadow: 0 2px 0 #4f5f19, 0 0 14px rgba(217,242,59,.30);
     }
-
-    .cinematic-scanlines {
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      opacity: 0.22;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(255,255,255,0.08) 0px,
-        rgba(255,255,255,0.08) 2px,
-        rgba(0,0,0,0.08) 2px,
-        rgba(0,0,0,0.08) 5px
-      );
-      animation: scanlineDrift 0.45s linear infinite;
+    .loading-kicker { color: #d6e4d8; }
+    .loading-track {
+      border-color: #18221d;
+      background: #0b110e;
     }
-
-    .cinematic-stage {
-      width: min(920px, 100%);
-      height: 100%;
-      min-height: 460px;
-      padding: 28px 18px 34px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
+    #loading-progress {
+      background: linear-gradient(90deg, #d9f23b 0%, #48cbbb 46%, #f4dc38 72%, #ef5a43 100%);
     }
-
-    .cinematic-kicker {
-      position: absolute;
-      top: clamp(26px, 7vh, 70px);
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff;
-      font-family: "Courier New", ui-monospace, monospace;
-      font-size: clamp(0.72rem, 2.4vw, 1rem);
-      font-weight: 900;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      text-shadow: 3px 3px 0 #000;
-      opacity: 0;
-      animation: kickerIn 0.28s steps(3, end) 0.12s forwards;
-    }
-
-    .cinematic-pokemon-wrap {
-      width: min(76vw, 520px);
-      height: min(56vh, 480px);
-      min-height: 250px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 2;
-    }
-
-    .cinematic-pokemon-wrap::before,
-    .cinematic-pokemon-wrap::after {
-      content: '';
-      position: absolute;
-      border: 5px solid color-mix(in srgb, var(--fx-color) 78%, white);
-      border-radius: 50%;
-      opacity: 0;
-      animation: energyRing 1.15s ease-out 0.08s infinite;
-      box-shadow: 0 0 24px var(--fx-color), inset 0 0 20px color-mix(in srgb, var(--fx-color) 45%, transparent);
-    }
-
-    .cinematic-pokemon-wrap::before { width: 46%; aspect-ratio: 1; }
-    .cinematic-pokemon-wrap::after { width: 68%; aspect-ratio: 1; animation-delay: 0.32s; }
-
-    .cinematic-pokemon {
-      width: min(72vw, 430px);
-      max-height: min(52vh, 430px);
-      object-fit: contain;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-      transform-origin: 50% 72%;
-      filter: drop-shadow(0 18px 0 rgba(0,0,0,0.24)) drop-shadow(0 0 24px var(--fx-color));
-      will-change: transform, filter, opacity;
-    }
-
-    .battle-cinematic.ultimate .cinematic-pokemon {
-      animation: ultimatePokemon 1.34s cubic-bezier(.2,.9,.2,1) both;
-    }
-
-    .battle-cinematic.mega .cinematic-pokemon {
-      animation: megaPokemon 1.68s steps(8, end) both;
-    }
-
-    .cinematic-message {
-      position: absolute;
-      z-index: 6;
-      left: 50%;
-      bottom: clamp(24px, 6vh, 58px);
-      transform: translateX(-50%);
-      width: min(88vw, 690px);
-      min-height: 112px;
-      padding: 18px 24px 16px;
-      background: #f7f1d5;
-      color: #111827;
-      border: 5px solid #111827;
-      outline: 4px solid #f7f1d5;
-      box-shadow: 0 8px 0 #030712, 0 0 0 9px rgba(3,7,18,0.58);
-      font-family: "Courier New", ui-monospace, monospace;
-      text-align: left;
-      opacity: 0;
-      animation: messageBoxIn 0.25s steps(4, end) 0.48s forwards;
-    }
-
-    .cinematic-message::before {
-      content: '▶';
-      position: absolute;
-      left: 8px;
-      top: 17px;
-      font-size: 0.8rem;
-      color: #111827;
-      animation: promptBlink 0.62s steps(1, end) infinite;
-    }
-
-    .cinematic-message-label {
-      margin-left: 8px;
-      margin-bottom: 6px;
-      font-size: clamp(0.62rem, 2vw, 0.78rem);
-      font-weight: 900;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #475569;
-    }
-
-    .cinematic-message-name {
-      margin-left: 8px;
-      font-size: clamp(1.18rem, 5vw, 2.2rem);
-      line-height: 1.02;
-      font-weight: 900;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      text-shadow: 2px 2px 0 rgba(148,163,184,0.45);
-      overflow-wrap: anywhere;
-    }
-
-    .cinematic-message-sub {
-      margin-left: 8px;
-      margin-top: 7px;
-      font-size: clamp(0.68rem, 2.3vw, 0.9rem);
-      line-height: 1.25;
-      font-weight: 700;
-      color: #334155;
-    }
-
-    .cinematic-burst {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      background: #fff;
-      border: 3px solid #111827;
-      box-shadow: 0 0 18px var(--fx-color);
-      transform: rotate(45deg);
-      opacity: 0;
-      animation: burstPixel 0.95s steps(5, end) forwards;
-    }
-
-    @keyframes cinematicSpin { to { transform: rotate(360deg) scale(1.06); } }
-    @keyframes scanlineDrift { to { transform: translateY(5px); } }
-    @keyframes cinematicFlash {
-      0%, 8% { opacity: 0; }
-      10% { opacity: 0.78; }
-      14%, 58% { opacity: 0; }
-      60% { opacity: 0.5; }
-      63%, 100% { opacity: 0; }
-    }
-    @keyframes kickerIn {
-      from { opacity: 0; transform: translate(-50%, -8px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
-    @keyframes energyRing {
-      0% { opacity: 0; transform: scale(0.35); }
-      20% { opacity: 0.85; }
-      100% { opacity: 0; transform: scale(1.45); }
-    }
-    @keyframes ultimatePokemon {
-      0% { opacity: 0; transform: translateY(42px) scale(0.46); filter: brightness(2) drop-shadow(0 0 6px var(--fx-color)); }
-      25% { opacity: 1; transform: translateY(6px) scale(1.12); }
-      62% { transform: translateY(-10px) scale(1.24); filter: brightness(1.15) drop-shadow(0 0 34px var(--fx-color)); }
-      82% { transform: translateY(-5px) scale(1.18) translateX(-4px); }
-      86% { transform: translateY(-5px) scale(1.18) translateX(4px); }
-      90% { transform: translateY(-5px) scale(1.18) translateX(-3px); }
-      100% { opacity: 1; transform: translateY(-5px) scale(1.18); }
-    }
-    @keyframes megaPokemon {
-      0% { opacity: 0; transform: scale(0.34); filter: brightness(0) invert(1) drop-shadow(0 0 8px #fff); }
-      18% { opacity: 1; transform: scale(0.74); filter: brightness(0) invert(1) drop-shadow(0 0 28px #fff); }
-      42% { transform: scale(1.12); filter: brightness(0) invert(1) drop-shadow(0 0 54px var(--fx-color)); }
-      60% { transform: scale(0.98); filter: brightness(4) saturate(0) drop-shadow(0 0 42px var(--fx-color)); }
-      74% { transform: scale(1.2); filter: brightness(1.6) saturate(1.4) drop-shadow(0 0 48px var(--fx-color)); }
-      100% { opacity: 1; transform: scale(1.12); filter: brightness(1) saturate(1.1) drop-shadow(0 0 26px var(--fx-color)); }
-    }
-    @keyframes messageBoxIn {
-      from { opacity: 0; transform: translate(-50%, 14px) scaleY(0.2); }
-      to { opacity: 1; transform: translate(-50%, 0) scaleY(1); }
-    }
-    @keyframes promptBlink { 0%, 48% { opacity: 1; } 49%, 100% { opacity: 0; } }
-    @keyframes burstPixel {
-      0% { opacity: 0; transform: translate(0,0) rotate(45deg) scale(0.4); }
-      18% { opacity: 1; }
-      100% { opacity: 0; transform: translate(var(--burst-x), var(--burst-y)) rotate(225deg) scale(1.5); }
-    }
-
-    @media (max-width: 620px) {
-      .cinematic-stage { min-height: 420px; padding: 18px 10px 24px; }
-      .cinematic-pokemon-wrap { width: 92vw; height: 54vh; min-height: 220px; }
-      .cinematic-pokemon { width: min(82vw, 330px); max-height: 42vh; }
-      .cinematic-message { width: 90vw; min-height: 102px; padding: 15px 16px 13px; border-width: 4px; outline-width: 3px; }
-      .cinematic-message-name { font-size: clamp(1.05rem, 7vw, 1.72rem); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .battle-cinematic::before,
-      .battle-cinematic::after,
-      .cinematic-scanlines,
-      .cinematic-pokemon-wrap::before,
-      .cinematic-pokemon-wrap::after,
-      .cinematic-pokemon,
-      .cinematic-kicker,
-      .cinematic-message,
-      .cinematic-message::before,
-      .cinematic-burst { animation: none !important; }
-      .cinematic-kicker,
-      .cinematic-message,
-      .cinematic-pokemon { opacity: 1 !important; }
-    }
-
+    #loading-label { color: #c8d4c8; }
   </style>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -1581,13 +1332,11 @@
     <div class="hero-title-wrap">
       <h1 class="hero-title">Pokémon 1v1 Arena</h1>
     </div>
-    <p class="hero-subtitle">Real-Time Battle Arena</p>
-    <p class="hero-subtitle">6 Pokémons to win it all.</p>
+    <p class="hero-subtitle">Pair-Draft Tactics & Real-Time Battle Arena</p>
   </div>
 
   <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="panel">
-    
     <!-- Mascot Showcase -->
     <div class="mascot-strip">
       <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png" class="pixel-art" alt="Charizard" />
@@ -1673,7 +1422,7 @@
       <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Waiting for opponent to choose from their pair.</p>
     </div>
 
-    <!-- Teams Finalized Screen -->
+    <!-- 1. Teams Finalized Screen -->
     <div id="draft-finalized-section" class="draft-choice-box hidden" style="border-color: #22c55e; background: rgba(16, 185, 129, 0.08);">
       <h3 style="font-size:1.05rem; color:#22c55e;">🎉 Squad Assembled! (6/6 Pokémon)</h3>
       <p style="font-size:0.8rem; color:#cbd5e1; margin:4px 0 10px;">Review your complete roster before entering the battle arena.</p>
@@ -1857,7 +1606,7 @@
 
     const SPRITE_URL = (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
-    // 8-bit Pixel Art Sprite for Mega Dragonite (Feathered Wings, Horn, and Rainbow Tail Orb)
+    // 3. Custom 8-bit Pixel Art Sprite for Mega Dragonite (Feathered Wings, Horn, and Rainbow Tail Orb)
     const MEGA_DRAGONITE_SPRITE = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' width='96' height='96' shape-rendering='crispEdges'><rect width='48' height='48' fill='none'/><rect x='8' y='4' width='14' height='16' fill='%23faf7ee'/><rect x='6' y='8' width='16' height='12' fill='%23faf7ee'/><rect x='4' y='12' width='18' height='10' fill='%23faf7ee'/><rect x='26' y='4' width='14' height='16' fill='%23faf7ee'/><rect x='26' y='8' width='16' height='12' fill='%23faf7ee'/><rect x='26' y='12' width='18' height='10' fill='%23faf7ee'/><rect x='19' y='11' width='3' height='4' fill='%23ffffff'/><rect x='17' y='14' width='14' height='16' fill='%23f59e0b'/><rect x='15' y='18' width='18' height='18' fill='%23f59e0b'/><rect x='13' y='22' width='22' height='16' fill='%23f59e0b'/><rect x='20' y='16' width='3' height='4' fill='%230284c7'/><rect x='21' y='17' width='1' height='2' fill='%23ffffff'/><rect x='18' y='22' width='12' height='14' fill='%23fef08a'/><rect x='24' y='16' width='4' height='6' fill='%23059669'/><rect x='25' y='32' width='16' height='12' fill='%23d97706'/><rect x='34' y='24' width='8' height='18' fill='%23d97706'/><rect x='24' y='40' width='8' height='6' fill='%2306b6d4'/><rect x='26' y='40' width='4' height='6' fill='%23a855f7'/><rect x='25' y='41' width='3' height='3' fill='%23facc15'/><rect x='13' y='38' width='4' height='4' fill='%23ffffff'/><rect x='18' y='38' width='4' height='4' fill='%23ffffff'/></svg>";
 
     const TYPE_MOVES = {
@@ -2338,7 +2087,7 @@
       selectedDraftCardIdx = null;
       document.getElementById('btn-confirm-draft').disabled = true;
 
-      // Check if Draft is complete (6 Pokémon on each team)
+      // 1. Teams Finalized Screen trigger when all 6 are picked
       if (p1Team.length === 6 && p2Team.length === 6) {
         document.getElementById('draft-status-title').innerText = "Teams Finalized!";
         document.getElementById('draft-status-desc').innerText = "All 6 Pokémon have been drafted. Ready up for battle!";
@@ -2475,6 +2224,7 @@
       el.innerHTML = slots.join('');
     }
 
+    // 1. Let's Battle button handler
     window.initiateBattleStart = function() {
       playSound('beep');
       var btn = document.getElementById('btn-start-battle');
@@ -2595,6 +2345,7 @@
           typeBadgeHtml +
           cdBadgeHtml;
 
+        // 2. Cooldown tap notification for players
         if (isInteractive && !isFainted) {
           card.onclick = function() {
             if (isCanClick) {
@@ -2886,6 +2637,7 @@
         if (chosenForm) {
           actorPoke.name = chosenForm.name;
           actorPoke.type = chosenForm.type;
+          // 3. Dynamic customSprite rendering for Mega Dragonite
           actorPoke.sprite = chosenForm.customSprite || SPRITE_URL(chosenForm.spriteId);
           actorPoke.fastMove = { name: TYPE_MOVES[chosenForm.type].fast, type: chosenForm.type, minDmg: 24, maxDmg: 32 };
           actorPoke.chargedMove = { name: TYPE_MOVES[chosenForm.type].charged, type: chosenForm.type, minDmg: 90, maxDmg: 110 };
