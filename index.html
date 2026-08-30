@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pokémon 1v1 Arena</title>
   <style>
-    
     :root {
+      --poster-image: url("https://raw.githubusercontent.com/NilayanChatterjee/poke-battle/main/assets/Pokebattle-1.jpg");
       --bg-dark: #070e1b;
       --card-bg: rgba(15, 23, 42, 0.88);
       --card-inner: #0b1424;
@@ -47,7 +47,7 @@
       content: '';
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: img src=/assets/Pokebattle-1.jpg no-repeat center center fixed;
+      background: var(--poster-image) no-repeat center 28% fixed;
       background-size: cover;
       filter: saturate(1.15) brightness(0.65);
       z-index: -2;
@@ -748,12 +748,438 @@
       text-align: center;
       box-shadow: 0 10px 25px rgba(0,0,0,0.6);
     }
+
+
+    /* ================================================= */
+    /* GAME BOOT / LOADING SCREEN                        */
+    /* ================================================= */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background-image:
+        linear-gradient(180deg, rgba(9, 16, 32, 0.20) 0%, rgba(7, 14, 27, 0.82) 72%, rgba(7, 14, 27, 0.96) 100%),
+        var(--poster-image);
+      background-size: cover;
+      background-position: center 28%;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+      overflow: hidden;
+    }
+
+    #loading-screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(250, 204, 21, 0.16), transparent 34%),
+        linear-gradient(90deg, rgba(14,165,233,0.10), transparent 28%, transparent 72%, rgba(249,115,22,0.10));
+      pointer-events: none;
+    }
+
+    #loading-screen.is-ready {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading-card {
+      position: relative;
+      width: min(440px, 92vw);
+      margin-top: min(46vh, 410px);
+      padding: 18px 18px 16px;
+      text-align: center;
+      color: white;
+      background: rgba(8, 17, 34, 0.86);
+      border: 2px solid rgba(255,255,255,0.18);
+      border-radius: 22px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.62), inset 0 0 0 2px rgba(250,204,21,0.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .loading-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: clamp(1.35rem, 5vw, 1.9rem);
+      font-weight: 950;
+      letter-spacing: 0.4px;
+      color: #facc15;
+      text-shadow: 0 2px 0 #9a3412, 0 0 14px rgba(250,204,21,0.42);
+    }
+
+    .loading-kicker {
+      color: #dbeafe;
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .pokeball-loader {
+      width: 44px;
+      height: 44px;
+      margin: 14px auto 10px;
+      border-radius: 50%;
+      border: 3px solid #f8fafc;
+      background: linear-gradient(#ef4444 0 46%, #111827 46% 54%, #f8fafc 54% 100%);
+      box-shadow: 0 0 0 2px #111827, 0 5px 16px rgba(0,0,0,0.45);
+      position: relative;
+      animation: pokeSpin 0.95s linear infinite;
+    }
+
+    .pokeball-loader::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #f8fafc;
+      border: 3px solid #111827;
+    }
+
+    @keyframes pokeSpin { to { transform: rotate(360deg); } }
+
+    .loading-track {
+      height: 10px;
+      width: 100%;
+      overflow: hidden;
+      border: 2px solid #0f172a;
+      border-radius: 999px;
+      background: #020617;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.65);
+    }
+
+    #loading-progress {
+      width: 8%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 48%, #facc15 72%, #f97316 100%);
+      transition: width 0.28s ease;
+    }
+
+    #loading-label {
+      margin-top: 8px;
+      color: #cbd5e1;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    /* ================================================= */
+    /* IN-GAME INFO BUTTON + RULES MODAL                 */
+    /* ================================================= */
+    .game-info-button {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 180;
+      width: 44px;
+      height: 44px;
+      border: 3px solid #f8fafc;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #facc15, #f97316);
+      color: #0f172a;
+      font-family: ui-rounded, system-ui, sans-serif;
+      font-size: 1.2rem;
+      font-weight: 950;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #9a3412, 0 10px 22px rgba(0,0,0,0.36);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .game-info-button:hover { transform: translateY(-1px) scale(1.03); }
+    .game-info-button:active { transform: translateY(3px); box-shadow: 0 2px 0 #9a3412, 0 6px 14px rgba(0,0,0,0.35); }
+
+    .rules-modal-box {
+      max-width: 760px;
+      max-height: min(86vh, 760px);
+      overflow-y: auto;
+      text-align: left;
+      border: 2px solid rgba(250,204,21,0.5);
+      box-shadow: 0 18px 55px rgba(0,0,0,0.7), 0 0 0 3px rgba(14,165,233,0.08);
+    }
+
+    .rules-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .rules-modal-header h3 {
+      font-size: 1.05rem;
+      color: #facc15;
+      text-shadow: 0 0 10px rgba(250,204,21,0.2);
+    }
+
+    .modal-close-btn {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid #64748b;
+      background: #111827;
+      color: #f8fafc;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    #rules-modal-slot .rules-panel {
+      max-width: none;
+      margin-top: 0;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    #rules-modal-slot .rules-title { display: none; }
+
+    @media (max-width: 620px) {
+      #loading-screen { background-position: center top; }
+      .loading-card { margin-top: 45vh; padding: 14px; border-radius: 18px; }
+      .game-info-button { width: 40px; height: 40px; top: 10px; right: 10px; font-size: 1.05rem; }
+      .rules-modal-box { max-height: 88vh; padding: 14px; }
+    }
+
+
+
+    /* ================================================= */
+    /* LOBBY ACTIONS — TACTILE CONSOLE-STYLE CONTROLS    */
+    /* ================================================= */
+    .btn-lobby-action {
+      --btn-top: #168ac1;
+      --btn-bottom: #08618f;
+      --btn-edge: #06476b;
+      --btn-glow: rgba(56, 189, 248, .34);
+      position: relative;
+      isolation: isolate;
+      min-height: 64px;
+      padding: 8px 12px 10px 9px;
+      border: 2px solid rgba(255,255,255,.28);
+      border-radius: 19px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 34%),
+        linear-gradient(180deg, var(--btn-top) 0%, var(--btn-bottom) 100%);
+      box-shadow:
+        0 7px 0 var(--btn-edge),
+        0 11px 22px rgba(0,0,0,.34),
+        0 0 0 1px rgba(0,0,0,.24),
+        0 0 24px var(--btn-glow),
+        inset 0 1px 0 rgba(255,255,255,.36),
+        inset 0 -2px 0 rgba(0,0,0,.16);
+      overflow: hidden;
+      justify-content: flex-start;
+      gap: 11px;
+      text-align: left;
+      transform: translateY(0);
+      transition: transform .14s cubic-bezier(.2,.8,.2,1), box-shadow .14s ease, filter .14s ease;
+      letter-spacing: 0;
+    }
+
+    .btn-lobby-action::before {
+      content: '';
+      position: absolute;
+      inset: 1px 9% auto 9%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+      opacity: .8;
+      pointer-events: none;
+    }
+
+    .btn-lobby-action::after {
+      content: '';
+      position: absolute;
+      width: 86px;
+      height: 86px;
+      right: -34px;
+      top: -42px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.10);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .btn-lobby-action:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: saturate(1.08) brightness(1.04);
+      box-shadow:
+        0 9px 0 var(--btn-edge),
+        0 15px 28px rgba(0,0,0,.38),
+        0 0 0 1px rgba(0,0,0,.20),
+        0 0 30px var(--btn-glow),
+        inset 0 1px 0 rgba(255,255,255,.42),
+        inset 0 -2px 0 rgba(0,0,0,.15);
+    }
+
+    .btn-lobby-action:active:not(:disabled) {
+      transform: translateY(5px) scale(.995);
+      box-shadow:
+        0 2px 0 var(--btn-edge),
+        0 5px 10px rgba(0,0,0,.30),
+        0 0 0 1px rgba(0,0,0,.24),
+        0 0 16px var(--btn-glow),
+        inset 0 2px 4px rgba(0,0,0,.16);
+    }
+
+    .btn-lobby-action:focus-visible {
+      outline: 3px solid #fef08a;
+      outline-offset: 4px;
+    }
+
+    .btn-lobby-action .btn-icon {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: white;
+      background: rgba(5,17,30,.32);
+      border: 1px solid rgba(255,255,255,.30);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.22),
+        0 2px 6px rgba(0,0,0,.18);
+    }
+
+    .btn-lobby-action .btn-icon svg {
+      width: 25px;
+      height: 25px;
+      display: block;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));
+    }
+
+    .btn-lobby-action .btn-copy {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.05;
+      flex: 1;
+    }
+
+    .btn-lobby-action .btn-copy small {
+      font-size: .60rem;
+      font-weight: 900;
+      letter-spacing: .16em;
+      opacity: .72;
+      margin-bottom: 4px;
+    }
+
+    .btn-lobby-action .btn-copy strong {
+      font-size: .98rem;
+      font-weight: 900;
+      letter-spacing: .015em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 1px 1px rgba(0,0,0,.20);
+    }
+
+    .btn-lobby-action .btn-arrow {
+      width: 31px;
+      height: 31px;
+      flex: 0 0 31px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      line-height: 1;
+      background: rgba(5,17,30,.22);
+      border: 1px solid rgba(255,255,255,.20);
+      transition: transform .14s ease, background .14s ease;
+    }
+
+    .btn-lobby-action:hover:not(:disabled) .btn-arrow {
+      transform: translateX(2px);
+      background: rgba(255,255,255,.15);
+    }
+
+    .btn-host-action {
+      --btn-top: #16a6d8;
+      --btn-bottom: #0871a5;
+      --btn-edge: #064c73;
+      --btn-glow: rgba(37, 189, 248, .33);
+    }
+
+    .btn-join-action {
+      --btn-top: #ff6b22;
+      --btn-bottom: #d9460b;
+      --btn-edge: #9a2e09;
+      --btn-glow: rgba(249, 115, 22, .34);
+    }
+
+    .btn-ai-arena.btn-lobby-action {
+      --btn-top: #24324b;
+      --btn-bottom: #121d32;
+      --btn-edge: #08101f;
+      --btn-glow: rgba(96, 165, 250, .20);
+      border-color: rgba(96,165,250,.76);
+      min-height: 61px;
+      margin-top: 3px;
+      box-shadow:
+        0 6px 0 var(--btn-edge),
+        0 10px 20px rgba(0,0,0,.32),
+        0 0 0 1px rgba(0,0,0,.25),
+        0 0 20px var(--btn-glow),
+        inset 0 1px 0 rgba(255,255,255,.18);
+    }
+
+    .btn-ai-arena.btn-lobby-action .btn-icon {
+      color: #dbeafe;
+      border-color: rgba(147,197,253,.32);
+      background: rgba(30,58,138,.22);
+    }
+
+    .btn-ai-arena.btn-lobby-action .btn-copy small { color: #93c5fd; opacity: .95; }
+
+    @media (max-width: 420px) {
+      .btn-lobby-action { min-height: 58px; border-radius: 16px; gap: 8px; padding: 7px 9px 9px 7px; }
+      .btn-lobby-action .btn-icon { width: 38px; height: 38px; flex-basis: 38px; border-radius: 12px; }
+      .btn-lobby-action .btn-icon svg { width: 22px; height: 22px; }
+      .btn-lobby-action .btn-copy strong { font-size: .90rem; }
+      .btn-lobby-action .btn-copy small { font-size: .54rem; }
+      .btn-lobby-action .btn-arrow { width: 28px; height: 28px; flex-basis: 28px; font-size: 1.35rem; }
+    }
+
   </style>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
 <body>
 
+
+  <!-- GAME BOOT / LOADING SCREEN -->
+  <div id="loading-screen" aria-live="polite" aria-label="Loading Pokémon Arena">
+    <div class="loading-card">
+      <div class="loading-brand"><span>⚡</span><span>Pokémon 1v1 Arena</span><span>⚡</span></div>
+      <div class="loading-kicker">Battle system booting</div>
+      <div class="pokeball-loader" aria-hidden="true"></div>
+      <div class="loading-track"><div id="loading-progress"></div></div>
+      <div id="loading-label">Preparing the arena…</div>
+    </div>
+  </div>
+
   <div id="flash-overlay"></div>
+
+  <button id="game-info-btn" class="game-info-button hidden" type="button" onclick="openInfoModal()" aria-label="How to play and game rules" title="How to Play & Game Rules">i</button>
 
   <!-- Mega Form Modal -->
   <div id="mega-modal" class="modal-backdrop hidden">
@@ -762,6 +1188,17 @@
       <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Select which Mega Evolution to trigger:</p>
       <div id="mega-choices" style="display:flex; flex-direction:column; gap:8px;"></div>
       <button class="btn btn-secondary" style="margin-top:10px; padding:8px;" onclick="closeMegaModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY / RULES MODAL (used once a game starts) -->
+  <div id="rules-modal" class="modal-backdrop hidden" onclick="closeInfoModal()">
+    <div class="modal-box rules-modal-box" onclick="event.stopPropagation()">
+      <div class="rules-modal-header">
+        <h3>ⓘ How to Play & Game Rules</h3>
+        <button class="modal-close-btn" type="button" onclick="closeInfoModal()" aria-label="Close game rules">✕</button>
+      </div>
+      <div id="rules-modal-slot"></div>
     </div>
   </div>
 
@@ -798,7 +1235,13 @@
           <p style="color:var(--text-muted); font-size:0.78rem; margin-top:2px;">Create an arena and invite a challenger.</p>
         </div>
         <div>
-          <button id="btn-create-room" class="btn btn-host-action" onclick="hostRoom()">✨ Create Room</button>
+          <button id="btn-create-room" class="btn btn-host-action btn-lobby-action" onclick="hostRoom()" aria-label="Create room">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M8 8.25h8a4.75 4.75 0 0 1 4.58 3.48l1.02 3.67a2.77 2.77 0 0 1-4.72 2.65l-1.47-1.55H8.6l-1.48 1.55A2.77 2.77 0 0 1 2.4 15.4l1.02-3.67A4.75 4.75 0 0 1 8 8.25Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7.25 12.25v3M5.75 13.75h3M16.6 12.6h.01M18.35 14.35h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 8.25V5.5M9.75 5.5h4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="btn-copy"><small>MULTIPLAYER</small><strong>Create Room</strong></span>
+            <span class="btn-arrow" aria-hidden="true">›</span>
+          </button>
           <div id="host-info" class="hidden" style="margin-top:10px;">
             <p style="font-size:0.75rem; color:#94a3b8; font-weight:700;">YOUR BATTLE CODE:</p>
             <span id="my-peer-id" class="code-tag">CONNECTING...</span>
@@ -818,12 +1261,24 @@
         </div>
         <div>
           <input type="text" id="join-id-input" maxlength="6" placeholder="CODE" />
-          <button id="btn-join-room" class="btn btn-join-action" style="margin-top:8px;" onclick="joinRoom()">🔥 Enter Arena</button>
+          <button id="btn-join-room" class="btn btn-join-action btn-lobby-action" style="margin-top:8px;" onclick="joinRoom()" aria-label="Enter arena">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M13.5 5.25 18.75 10.5l-8.9 8.9-5.25.75.75-5.25 8.15-8.15Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m14.9 3.85 5.25 5.25M5.35 14.9l3.75 3.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="btn-copy"><small>JOIN BATTLE</small><strong>Enter Arena</strong></span>
+            <span class="btn-arrow" aria-hidden="true">›</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <button id="btn-singleplayer" class="btn btn-ai-arena" onclick="startSinglePlayer()">🤖 Practice vs. AI Trainer</button>
+    <button id="btn-singleplayer" class="btn btn-ai-arena btn-lobby-action" onclick="startSinglePlayer()" aria-label="Practice versus AI trainer">
+      <span class="btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="6.5" width="16" height="12" rx="4" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5v3M8.5 11h.01M15.5 11h.01M8.5 15h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="3.5" r="1" fill="currentColor"/></svg>
+      </span>
+      <span class="btn-copy"><small>TRAINING MODE</small><strong>Practice vs. AI Trainer</strong></span>
+      <span class="btn-arrow" aria-hidden="true">›</span>
+    </button>
   </div>
 
   <!-- DRAFT SCREEN (PAIR-BASED SELECTION) -->
@@ -956,8 +1411,9 @@
     </div>
   </div>
 
-  <!-- PERSISTENT RULES SECTION -->
-  <div class="rules-panel">
+  <!-- HOW TO PLAY / RULES: visible in lobby, moved into info modal in-game -->
+  <div id="rules-home-slot">
+  <div id="game-rules-panel" class="rules-panel">
     <div class="rules-title">📜 How to Play & Game Rules</div>
     <ul class="rules-list">
       <li><strong>Draft Your Squad:</strong> Each player is presented with 3 choices of 2 Pokémon pairs. The Pokémon you pick joins your squad, while the unpicked Pokémon goes to your opponent's squad.</li>
@@ -978,6 +1434,7 @@
       <li><strong>Type Advantage Matters:</strong> Matchups deal 2x damage for Super Effective hits, 0.5x for Not Very Effective hits, and 0 for Immunities.</li>
       <li><strong>Win the Match:</strong> Knock out all 6 of your opponent's Pokémon to win the Arena.</li>
     </ul>
+  </div>
   </div>
 
   <script>
@@ -1259,6 +1716,68 @@
       try { if (navigator.vibrate) navigator.vibrate(pattern || [40, 30, 40]); } catch(e) {}
     }
 
+
+    function setGameInfoMode(isInGame) {
+      var infoBtn = document.getElementById('game-info-btn');
+      var rulesPanel = document.getElementById('game-rules-panel');
+      var homeSlot = document.getElementById('rules-home-slot');
+      var modalSlot = document.getElementById('rules-modal-slot');
+      if (!infoBtn || !rulesPanel || !homeSlot || !modalSlot) return;
+
+      if (isInGame) {
+        modalSlot.appendChild(rulesPanel);
+        infoBtn.classList.remove('hidden');
+      } else {
+        homeSlot.appendChild(rulesPanel);
+        infoBtn.classList.add('hidden');
+        closeInfoModal();
+      }
+    }
+
+    window.openInfoModal = function() {
+      playSound('beep');
+      var modal = document.getElementById('rules-modal');
+      if (modal) modal.classList.remove('hidden');
+    };
+
+    window.closeInfoModal = function() {
+      var modal = document.getElementById('rules-modal');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    function finishLoadingScreen() {
+      var splash = document.getElementById('loading-screen');
+      var progress = document.getElementById('loading-progress');
+      var label = document.getElementById('loading-label');
+      if (!splash || splash.classList.contains('is-ready')) return;
+      if (progress) progress.style.width = '100%';
+      if (label) label.innerText = 'Arena ready!';
+      setTimeout(function() { splash.classList.add('is-ready'); }, 260);
+      setTimeout(function() { if (splash && splash.parentNode) splash.remove(); }, 900);
+    }
+
+    (function bootLoadingScreen() {
+      var progress = document.getElementById('loading-progress');
+      var label = document.getElementById('loading-label');
+      var value = 8;
+      var timer = setInterval(function() {
+        value = Math.min(88, value + Math.floor(Math.random() * 9) + 3);
+        if (progress) progress.style.width = value + '%';
+        if (label) {
+          label.innerText = value < 38 ? 'Loading battle data…' : value < 68 ? 'Syncing trainer systems…' : 'Warming up the arena…';
+        }
+        if (value >= 88) clearInterval(timer);
+      }, 180);
+      window.addEventListener('load', function() {
+        clearInterval(timer);
+        setTimeout(finishLoadingScreen, 320);
+      });
+      setTimeout(function() {
+        clearInterval(timer);
+        finishLoadingScreen();
+      }, 2200);
+    })();
+
     function generate6DigitCode() {
       var chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
       var code = "";
@@ -1421,6 +1940,7 @@
     }
 
     function startDraftScreen() {
+      setGameInfoMode(true);
       document.getElementById('screen-lobby').classList.add('hidden');
       document.getElementById('screen-battle').classList.add('hidden');
       document.getElementById('screen-draft').classList.remove('hidden');
@@ -1612,6 +2132,7 @@
     }
 
     function initBattle() {
+      setGameInfoMode(true);
       document.getElementById('screen-draft').classList.add('hidden');
       document.getElementById('screen-battle').classList.remove('hidden');
       p1ActiveIdx = 0;
@@ -2030,6 +2551,7 @@
     });
 
     window.addEventListener('load', function() {
+      setGameInfoMode(false);
       var hash = window.location.hash.substring(1).toUpperCase().trim();
       if (hash && hash.length === 6) {
         document.getElementById('join-id-input').value = hash;
