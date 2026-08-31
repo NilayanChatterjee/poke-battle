@@ -2860,8 +2860,10 @@
     }
 
     function generate12UniquePokemon() {
-      // Rounds 1, 2, 4, 5: Non-mega Pokémon (4 pairs total = 8 Pokémon)
+      // Shuffle pools thoroughly and pick 12 completely distinct Pokémon across 6 rounds
       var nonMegaPool = POKEDEX.filter(function(p) { return !p.canMega; }).sort(function() { return 0.5 - Math.random(); });
+      var megaPool = POKEDEX.filter(function(p) { return p.canMega; }).sort(function() { return 0.5 - Math.random(); });
+      
       var makePoke = function(base) {
         return Object.assign({}, JSON.parse(JSON.stringify(base)), {
           maxHp: base.hp,
@@ -2872,12 +2874,11 @@
       };
 
       var pairs = [];
+      // Rounds 1, 2, 4, 5: Non-mega pairs (indices 0 to 7 from nonMegaPool)
       for (var r = 0; r < 4; r++) {
         pairs.push([makePoke(nonMegaPool[r * 2]), makePoke(nonMegaPool[r * 2 + 1])]);
       }
-
-      // Rounds 3, 6: Mega-capable Pokémon (2 pairs total = 4 Pokémon)
-      var megaPool = POKEDEX.filter(function(p) { return p.canMega; }).sort(function() { return 0.5 - Math.random(); });
+      // Rounds 3, 6: Mega pairs (indices 0 to 3 from megaPool)
       for (var m = 0; m < 2; m++) {
         pairs.push([makePoke(megaPool[m * 2]), makePoke(megaPool[m * 2 + 1])]);
       }
@@ -3387,7 +3388,7 @@
       document.getElementById('p1-bench-label').innerText = 'Your Bench';
       document.getElementById('p2-bench-label').innerText = isAiMode ? 'AI Bench' : 'Opponent Bench';
       renderBenchGrid('p1-bench-slots', playerTeam, playerActiveIdx, true);
-      renderBenchGrid('p2-bench-slots', opponentTeam, opponentActiveIdx, false);
+      renderBenchGrid('opp-bench-slots', opponentTeam, opponentActiveIdx, false);
 
       var attackFastBtn = document.getElementById('btn-fast-atk');
       var attackChargedBtn = document.getElementById('btn-charged-atk');
