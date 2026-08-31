@@ -1,5 +1,5 @@
 :root {
-  --poster-image: url("https://raw.githubusercontent.com/NilayanChatterjee/poke-battle/main/assets/Pokebattle-1.jpg");
+  --poster-image: url("assets/Pokebattle-1.jpg");
   --bg-dark: #070e1b;
   --card-bg: rgba(15, 23, 42, 0.88);
   --card-inner: #0b1424;
