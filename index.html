@@ -1363,176 +1363,6 @@
     }
 
     .btn-ai-arena.btn-lobby-action {
-      --btn-top: #24324b;
-      --btn-bottom: #121d32;
-      --btn-edge: #08101f;
-      --btn-glow: rgba(96, 165, 250, .20);
-      border-color: rgba(96,165,250,.76);
-      min-height: 61px;
-      margin-top: 3px;
-      box-shadow:
-        0 6px 0 var(--btn-edge),
-        0 10px 20px rgba(0,0,0,.32),
-        0 0 0 1px rgba(0,0,0,.25),
-        0 0 20px var(--btn-glow),
-        inset 0 1px 0 rgba(255,255,255,.18);
-    }
-
-    .btn-ai-arena.btn-lobby-action .btn-icon {
-      color: #dbeafe;
-      border-color: rgba(147,197,253,.32);
-      background: rgba(30,58,138,.22);
-    }
-
-    .btn-ai-arena.btn-lobby-action .btn-copy small { color: #93c5fd; opacity: .95; }
-
-    @media (max-width: 420px) {
-      .btn-lobby-action { min-height: 58px; border-radius: 16px; gap: 8px; padding: 7px 9px 9px 7px; }
-      .btn-lobby-action .btn-icon { width: 38px; height: 38px; flex-basis: 38px; border-radius: 12px; }
-      .btn-lobby-action .btn-icon svg { width: 22px; height: 22px; }
-      .btn-lobby-action .btn-copy strong { font-size: .90rem; }
-      .btn-lobby-action .btn-copy small { font-size: .54rem; }
-      .btn-lobby-action .btn-arrow { width: 28px; height: 28px; flex-basis: 28px; font-size: 1.35rem; }
-    }
-
-    #screen-lobby {
-      color: #fff8dc;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.035), transparent 26%),
-        rgba(20, 30, 28, .91);
-      border: 2px solid rgba(236, 244, 168, .24);
-      box-shadow:
-        0 14px 38px rgba(0,0,0,.54),
-        0 0 0 1px rgba(17, 24, 22, .72),
-        inset 0 1px 0 rgba(255,255,255,.07);
-    }
-
-    #screen-lobby::before {
-      content: '';
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 4px;
-      border-radius: 16px 16px 0 0;
-      background: linear-gradient(90deg, #ef5a43 0 33%, #3fc7b5 33% 66%, #d9f23b 66% 100%);
-      opacity: .9;
-      pointer-events: none;
-    }
-
-    .hero-title {
-      background: linear-gradient(180deg, #fff8a6 0%, #f4dc38 58%, #b9dc35 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 0 rgba(28,35,28,.96)) drop-shadow(0 5px 13px rgba(217,242,59,.22));
-    }
-
-    .hero-subtitle {
-      color: #f7f1cf;
-      text-shadow: 0 2px 6px rgba(0,0,0,.72);
-    }
-
-    .mascot-strip {
-      background: rgba(22, 31, 28, .82);
-      border-color: rgba(217, 242, 59, .42);
-      box-shadow: 0 5px 17px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.05);
-    }
-
-    .lobby-block {
-      background:
-        linear-gradient(180deg, rgba(255, 248, 214, .075) 0%, rgba(255, 248, 214, .018) 34%, transparent 35%),
-        linear-gradient(180deg, rgba(33, 45, 40, .96), rgba(16, 24, 22, .97));
-      border-color: rgba(255, 248, 214, .16);
-      box-shadow: 0 7px 20px rgba(0,0,0,.31), inset 0 1px 0 rgba(255,255,255,.05);
-    }
-
-    .lobby-block.host-theme {
-      border-color: rgba(239, 90, 67, .58);
-      box-shadow: 0 7px 20px rgba(0,0,0,.31), 0 0 24px rgba(239,90,67,.08);
-    }
-
-    .lobby-block.join-theme {
-      border-color: rgba(217, 242, 59, .56);
-      box-shadow: 0 7px 20px rgba(0,0,0,.31), 0 0 24px rgba(217,242,59,.08);
-    }
-
-    .lobby-block-header h3 { color: #fff8dc !important; }
-    .lobby-block-header p { color: #c8d4c8 !important; }
-
-    .lobby-icon-badge {
-      background:
-        radial-gradient(115% 85% at 50% -10%, rgba(255,248,214,.18), transparent 60%),
-        radial-gradient(90% 80% at 50% 118%, var(--badge-deep), transparent 68%),
-        repeating-linear-gradient(135deg, rgba(255,248,214,.06) 0 2px, rgba(0,0,0,0) 2px 6px),
-        linear-gradient(180deg, #253530 0%, #0d1512 100%);
-      color: #fff8dc;
-    }
-
-    .host-theme .lobby-icon-badge {
-      --badge-accent: #ff8a74;
-      --badge-deep: rgba(239, 90, 67, .28);
-      --badge-edge: rgba(239, 90, 67, .70);
-    }
-
-    .join-theme .lobby-icon-badge {
-      --badge-accent: #d9f23b;
-      --badge-deep: rgba(217, 242, 59, .26);
-      --badge-edge: rgba(217, 242, 59, .68);
-    }
-
-    .btn-host-action {
-      --btn-top: #f46650;
-      --btn-bottom: #d94739;
-      --btn-edge: #852a25;
-      --btn-glow: rgba(239, 90, 67, .28);
-      color: #fff8ee;
-      border-color: rgba(255,232,224,.44);
-    }
-
-    .btn-host-action .btn-icon,
-    .btn-host-action .btn-arrow {
-      color: #fff8ee;
-      background: rgba(84, 24, 22, .20);
-      border-color: rgba(255,240,232,.24);
-    }
-
-    .btn-host-action .btn-copy strong { text-shadow: 0 1px 1px rgba(0,0,0,.24); }
-    .btn-host-action .btn-copy small { color: #ffe0d7; opacity: .93; }
-
-    .btn-host-action:hover:not(:disabled) {
-      --btn-top: #d24c39;
-      --btn-bottom: #b3372c;
-      --btn-edge: #6b211d;
-      --btn-glow: rgba(200, 62, 44, .30);
-      border-color: rgba(255,222,212,.40);
-    }
-
-    .btn-join-action {
-      --btn-top: #d9f23b;
-      --btn-bottom: #a9cf2e;
-      --btn-edge: #60791d;
-      --btn-glow: rgba(217, 242, 59, .26);
-      color: #172016;
-      border-color: rgba(255,255,220,.56);
-    }
-
-    .btn-join-action .btn-icon,
-    .btn-join-action .btn-arrow {
-      color: #172016;
-      background: rgba(43, 57, 21, .12);
-      border-color: rgba(36, 52, 20, .21);
-    }
-    .btn-join-action .btn-copy strong { text-shadow: 0 1px 0 rgba(255,255,255,.22); }
-    .btn-join-action .btn-copy small { color: #354414; opacity: .92; }
-
-    .btn-join-action:hover:not(:disabled) {
-      --btn-top: #b6cf2b;
-      --btn-bottom: #8bb023;
-      --btn-edge: #4c6116;
-      --btn-glow: rgba(178, 202, 44, .28);
-      color: #131a12;
-      border-color: rgba(244,246,205,.50);
-    }
-
-    .btn-ai-arena.btn-lobby-action {
       --btn-top: #46cbbb;
       --btn-bottom: #279b91;
       --btn-edge: #175f59;
@@ -2273,7 +2103,7 @@
       <li><strong>Switching Rules & Cooldowns:</strong>
         <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
           <li><strong>Voluntary Swap:</strong> Puts switching on a 5-move cooldown. You must make 5 attacks before you can voluntarily swap again.</li>
-          <li><strong>Fainted Swap:</strong> If your active Pokémon reaches 0 HP, switching restrictions and cooldowns are instantly bypassed to let you choose a free replacement immediately.</li>
+          <li><strong>Fainted Swap:</strong> If your active Pokémon reaches 0 HP, switching restrictions and cooldowns are instantly bypassed to let you choose a free replacement immediately. If you don't choose within 5 seconds, a random healthy Pokémon is automatically sent out.</li>
         </ul>
       </li>
       <li><strong>Mega Evolution:</strong> You get 1 Mega Evolution per match. If your active Pokémon can Mega Evolve, the pink Mega Evolve button will appear. Mega Evolving consumes your turn (you cannot attack on the same turn) and grants +40% Attack, +30% HP, boosted move damage, and 25% damage reduction. For Pokémon with two forms, pick your preferred form/typing from the pop-up menu.</li>
@@ -3279,7 +3109,7 @@
       benchPokemons.forEach(function(item, idx) {
         var p = item.pokemon;
         var isFainted = p.currentHp <= 0;
-        // When active Pokemon fainted (isForcedSwitch), we bypass cooldown completely so the player gets a free instant swap!
+        // Corrected check: During a forced switch phase (when active fainted), clicking a healthy bench Pokemon is always allowed (free swap) regardless of voluntary cooldown.
         var isCanClick = isInteractive && !isFainted && (isForcedSwitch || (isMyTurn && currentCooldown === 0));
 
         var card = document.createElement('div');
