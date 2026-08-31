@@ -718,9 +718,9 @@
       }
       
       .active-fighter-card.me  { grid-column: 1 / 2; grid-row: 1; min-height: unset; padding: 6px; }
-      .vs-divider              { grid-column: 2 / 3; grid-row: 1; font-size: 0.75rem; }
+      .vs-divider             { grid-column: 2 / 3; grid-row: 1; font-size: 0.75rem; }
       .active-fighter-card.opp { grid-column: 3 / 4; grid-row: 1; min-height: unset; padding: 6px; }
-      #my-bench-container      { grid-column: 1 / 2; grid-row: 2; }
+      #my-bench-container     { grid-column: 1 / 2; grid-row: 2; }
       #opp-bench-container     { grid-column: 3 / 4; grid-row: 2; }
 
       .fighter-inner-box {
@@ -2860,20 +2860,25 @@
     }
 
     function generate12UniquePokemon() {
-      var shuffled = POKEDEX.slice().sort(function() { return 0.5 - Math.random(); });
-      var chosen12 = shuffled.slice(0, 12).map(function(base) {
-        return Object.assign({}, JSON.parse(JSON.stringify(base)), {
-          maxHp: base.hp,
-          currentHp: base.hp,
-          energy: 0,
-          isMega: false
-        });
-      });
-      var pairs = [];
-      for (var i = 0; i < 12; i += 2) {
-        pairs.push([chosen12[i], chosen12[i+1]]);
-      }
-      return pairs;
+      // Rounds 1 and 2: Non-mega Pokémon (2 pairs each round = 4 pairs total = 8 Pokémon)
+      var nonMegaPool = POKEDEX.filter(function(p) { return !p.canMega; }).sort(function() { return 0.5 - Math.random(); });
+      var round1Pair = [
+        Object.assign({}, JSON.parse(JSON.stringify(nonMegaPool[0])), { maxHp: nonMegaPool[0].hp, currentHp: nonMegaPool[0].hp, energy: 0, isMega: false }),
+        Object.assign({}, JSON.parse(JSON.stringify(nonMegaPool[1])), { maxHp: nonMegaPool[1].hp, currentHp: nonMegaPool[1].hp, energy: 0, isMega: false })
+      ];
+      var round2Pair = [
+        Object.assign({}, JSON.parse(JSON.stringify(nonMegaPool[2])), { maxHp: nonMegaPool[2].hp, currentHp: nonMegaPool[2].hp, energy: 0, isMega: false }),
+        Object.assign({}, JSON.parse(JSON.stringify(nonMegaPool[3])), { maxHp: nonMegaPool[3].hp, currentHp: nonMegaPool[3].hp, energy: 0, isMega: false })
+      ];
+
+      // Round 3: Mega-capable Pokémon (1 pair = 2 Pokémon)
+      var megaPool = POKEDEX.filter(function(p) { return p.canMega; }).sort(function() { return 0.5 - Math.random(); });
+      var round3Pair = [
+        Object.assign({}, JSON.parse(JSON.stringify(megaPool[0])), { maxHp: megaPool[0].hp, currentHp: megaPool[0].hp, energy: 0, isMega: false }),
+        Object.assign({}, JSON.parse(JSON.stringify(megaPool[1])), { maxHp: megaPool[1].hp, currentHp: megaPool[1].hp, energy: 0, isMega: false })
+      ];
+
+      return [round1Pair, round2Pair, round3Pair];
     }
 
     function initDraftSession() {
@@ -2904,7 +2909,7 @@
       selectedDraftCardIdx = null;
       document.getElementById('btn-confirm-draft').disabled = true;
 
-      if (p1Team.length === 6 && p2Team.length === 6) {
+      if (p1Team.length === 3 && p2Team.length === 3) {
         showTeamFinalizedScreen();
         return;
       }
@@ -3013,7 +3018,7 @@
       oppBattleReady = false;
 
       document.getElementById('draft-status-title').innerText = "Teams Finalized!";
-      document.getElementById('draft-status-desc').innerText = "Your squad of 6 is locked in. Step into the arena when you're ready.";
+      document.getElementById('draft-status-desc').innerText = "Your squad of 3 is locked in. Step into the arena when you're ready.";
       document.getElementById('draft-choice-section').classList.add('hidden');
       document.getElementById('draft-waiting-section').classList.add('hidden');
       document.getElementById('draft-progress-block').classList.add('hidden');
@@ -3207,9 +3212,6 @@
     }
 
     function getCurrentScores() {
-      // Score is always derived from the number of opponent Pokémon that have
-      // actually fainted. This prevents the final scoreboard from becoming
-      // inverted or stale when the two multiplayer clients have different roles.
       var p1ScoreNow = p2Team.filter(function(p) { return p && p.currentHp <= 0; }).length;
       var p2ScoreNow = p1Team.filter(function(p) { return p && p.currentHp <= 0; }).length;
       return { p1: p1ScoreNow, p2: p2ScoreNow };
@@ -3617,9 +3619,6 @@
     }
 
     function applyActionLocally(actionType, data, explicitActorRole) {
-      // Multiplayer actions must carry the role of the player who performed them.
-      // Never infer the actor from local activeTurn: the two clients can briefly
-      // be on different turn states while a WebRTC message is in flight.
       var actorRole = explicitActorRole || activeTurn;
       var isP1 = actorRole === 'p1';
       var targetRole = isP1 ? 'p2' : 'p1';
@@ -3660,6 +3659,8 @@
         }, function() {
           triggerScreenFlash('#ec4899');
           showPopup('🧬 ' + actorPoke.name + ' AWAKENED!', 'mega');
+          // Mega evolving consumes the turn, passing turn to opponent
+          activeTurn = targetRole;
           startTurn();
         });
         return;
@@ -3687,7 +3688,6 @@
         var switchedPoke = actorRole === 'p1' ? p1Team[p1ActiveIdx] : p2Team[p2ActiveIdx];
         showPopup((actorRole === myRole ? 'You' : 'Opponent') + ' sent out ' + switchedPoke.name + '!', "crit");
 
-        // The replacement resolves the forced-switch phase for BOTH clients.
         isSwapPhase = false;
         activeTurn = targetRole;
         updateBattleUI();
@@ -3758,8 +3758,6 @@
     }
 
     function handleFaint(faintedRole) {
-      // Keep legacy score variables synchronized, but derive the displayed
-      // score from the actual fainted teams so both clients show the same result.
       var scoreSnapshot = getCurrentScores();
       p1Score = scoreSnapshot.p1;
       p2Score = scoreSnapshot.p2;
@@ -3833,19 +3831,12 @@
           }
         }, 1000);
       } else {
-        // In multiplayer, ONLY the player whose Pokemon fainted may choose
-        // (or auto-select) the replacement. The opponent must wait for the
-        // SWITCH message, otherwise both clients can independently pick
-        // different random Pokemon and corrupt the turn state.
         turnInd.innerText = "⏳ Opponent choosing replacement (5s)...";
       }
     }
 
     function autoSelectRandomHealthy(role) {
       if (!isSwapPhase) return;
-
-      // Never let the spectator/opponent side make its own replacement
-      // decision in multiplayer. The actual owner sends the selected index.
       if (!isAiMode && role !== myRole) return;
 
       clearAllTimers();
