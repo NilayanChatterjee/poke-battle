@@ -2209,7 +2209,7 @@
       <!-- P2 Bench -->
       <div class="bench-container" id="opp-bench-container">
         <div class="bench-title" id="p2-bench-label">Opponent Bench</div>
-        <div class="bench-grid" id="opp-bench-slots"></div>
+        <div class="bench-grid" id="p2-bench-slots"></div>
       </div>
 
     </div>
@@ -2262,7 +2262,7 @@
   <div id="game-rules-panel" class="rules-panel">
     <div class="rules-title">📜 How to Play & Game Rules</div>
     <ul class="rules-list">
-      <li><strong>Draft Your Squad:</strong> Each player is presented with choices of 2 Pokémon pairs. The Pokémon you pick joins your squad, while the unpicked Pokémon goes to your opponent's squad.</li>
+      <li><strong>Draft Your Squad:</strong> Each player is presented with 3 choices of 2 Pokémon pairs. The Pokémon you pick joins your squad, while the unpicked Pokémon goes to your opponent's squad.</li>
       <li><strong>Turn Options:</strong> On your turn, choose one action:
         <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
           <li><strong>Fast Attack:</strong> Deals light damage and grants +1 Energy (capped at a maximum of 3/3 charges).</li>
@@ -2273,7 +2273,7 @@
       <li><strong>Switching Rules & Cooldowns:</strong>
         <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
           <li><strong>Voluntary Swap:</strong> Puts switching on a 5-move cooldown. You must make 5 attacks before you can voluntarily swap again.</li>
-          <li><strong>Fainted Swap:</strong> If your active Pokémon reaches 0 HP, you get a free instant swap with no cooldown restrictions. If you do not choose a replacement within 5 seconds, a random healthy Pokémon is automatically sent out.</li>
+          <li><strong>Fainted Swap:</strong> If your active Pokémon reaches 0 HP, you get 5 seconds to choose a replacement from your bench before a random one is automatically picked.</li>
         </ul>
       </li>
       <li><strong>Mega Evolution:</strong> You get 1 Mega Evolution per match. If your active Pokémon can Mega Evolve, the pink Mega Evolve button will appear. Mega Evolving consumes your turn (you cannot attack on the same turn) and grants +40% Attack, +30% HP, boosted move damage, and 25% damage reduction. For Pokémon with two forms, pick your preferred form/typing from the pop-up menu.</li>
@@ -3312,7 +3312,7 @@
         } else if (isInteractive) {
           card.classList.add('blocked');
           card.onclick = function() {
-            explainBlockedSwitch(card, p, isFainted, isMyTurn, currentCooldown, isForcedSwitch);
+            explainBlockedSwitch(card, p, isFainted, isMyTurn, currentCooldown);
           };
         }
 
@@ -3320,13 +3320,11 @@
       });
     }
 
-    function explainBlockedSwitch(card, poke, isFainted, isMyTurn, cooldown, isForcedSwitch) {
+    function explainBlockedSwitch(card, poke, isFainted, isMyTurn, cooldown) {
       var msg;
 
       if (isFainted) {
         msg = '❌ ' + poke.name + ' has fainted!';
-      } else if (isForcedSwitch) {
-        msg = '⚠️ Choose a replacement Pokémon!';
       } else if (cooldown > 0 && !isSwapPhase) {
         msg = '⏳ Switch on cooldown — ' + cooldown + ' more ' + (cooldown === 1 ? 'move' : 'moves') + '!';
       } else if (!isMyTurn && !isSwapPhase) {
