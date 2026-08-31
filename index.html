@@ -2265,7 +2265,7 @@
       <li><strong>Draft Your Squad:</strong> Each player is presented with 3 choices of 2 Pokémon pairs. The Pokémon you pick joins your squad, while the unpicked Pokémon goes to your opponent's squad.</li>
       <li><strong>Turn Options:</strong> On your turn, choose one action:
         <ul style="list-style-type: circle; padding-left: 18px; margin-top: 2px;">
-          <li><strong>Fast Attack:</strong> Deals light damage and grants +1 Energy.</li>
+          <li><strong>Fast Attack:</strong> Deals light damage and grants +1 Energy (capped at a maximum of 3/3 charges).</li>
           <li><strong>Charged Attack:</strong> Unlocks at 3/3 Energy to deal massive burst damage (resets energy to 0).</li>
           <li><strong>Switch Pokémon:</strong> Tap any healthy Pokémon on your bench to tag them into battle (ends your turn).</li>
         </ul>
@@ -3714,7 +3714,7 @@
           defender.currentHp = Math.max(0, defender.currentHp - damage);
 
           if (data.moveType === 'fast') {
-            attacker.energy = (attacker.energy || 0) + 1;
+            attacker.energy = Math.min(3, (attacker.energy || 0) + 1);
             playSound('hit');
             triggerHaptics([30]);
             triggerShake(targetCardId);
